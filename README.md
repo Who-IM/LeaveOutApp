@@ -1,2 +1,1 @@
 # LeaveOutApp
-LeaveOutApp TeamProject

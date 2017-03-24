@@ -1,5 +1,5 @@
+# 위치기반 SNS 플랫폼
 # LeaveOutApp
-
 ## 개요
 1. [개발의도](#development)
 2. [목표](#purpose)

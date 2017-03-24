@@ -5,22 +5,6 @@
 2. [목표](#purpose)
 3. [기능](#function)
 4. [기대효과](#expectation)
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-##This file is “README.md” for explaining outline.
-##이 파일은 “README.md” 파일로 전반적인 개요를 설명합니다.
-
-###Here is “LeaveOut Project” GitHub
-###여기는 “LeaveOut 프로젝트” 깃허브 입니다.
-=======
-## This file is “README.md” for explaining outline.
-## 이 파일은 “README.md” 파일로 전반적인 개요를 설명합니다.
-
-### Here is “LeaveOut Project” GitHub
-### 여기는 “LeaveOut 프로젝트” 깃허브 입니다.
->>>>>>> origin/master
-=======
 ------------------------------
 ### <a name="development">1. 개발의도
 - 원하는 위치의 글을 보기 쉽게 하는 SNS는 없을까? 라는 생각으로 위치기반의 SNS를 만들면 어떨까?라는 취지에서 개발을 시작했습니다.

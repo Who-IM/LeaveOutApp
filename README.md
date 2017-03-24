@@ -1,4 +1,4 @@
-# 위치기반 SNS 플랫폼123
+# 위치기반 SNS 플랫폼
 # LeaveOutApp
 ## 개요
 1. [개발의도](#development)

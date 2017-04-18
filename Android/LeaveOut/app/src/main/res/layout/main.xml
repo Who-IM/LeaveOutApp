@@ -5,11 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- 툴바 -->
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/rectangle_menu"
+        android:background="@drawable/public_toobar"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
@@ -21,6 +22,7 @@
         android:layout_above="@+id/relativeLayout7"
         android:layout_below="@+id/editText">
 
+        <!-- 구글 지도 화면 -->
         <fragment
             android:id="@+id/map"
             class="com.google.android.gms.maps.MapFragment"
@@ -35,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#00000000"
-        app:srcCompat="@drawable/menu"
+        app:srcCompat="@drawable/public_menu"
         android:layout_margin="15dp"
         />
 
@@ -46,7 +48,7 @@
         android:layout_height="55dp"
         android:layout_alignLeft="@+id/imageButton"
         android:layout_marginLeft="60dp"
-        android:background="@drawable/rectangle_search"
+        android:background="@drawable/public_search"
         android:textSize="20dp" />
 
     <!-- 돋보기 버튼 -->
@@ -58,7 +60,7 @@
         android:layout_alignEnd="@+id/editText"
         android:layout_alignTop="@+id/editText"
         android:background="#00000000"
-        app:srcCompat="@drawable/search_menu" />
+        app:srcCompat="@drawable/main_search_menu" />
 
     <!--버튼용 레이아웃-->
     <LinearLayout
@@ -79,7 +81,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="20dp"
-            android:background="@drawable/rectangle_button"
+            android:background="@drawable/public_button"
             android:onClick="writeButton"
             android:text="글쓰기"
             android:textColor="#FFFFFFFF"
@@ -92,7 +94,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginBottom="20dp"
-            android:background="@drawable/rectangle_button"
+            android:background="@drawable/public_button"
             android:onClick="checkButton"
             android:text="체크"
             android:textColor="#FFFFFFFF"
@@ -107,7 +109,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="20dp"
-            android:background="@drawable/rectangle_button"
+            android:background="@drawable/public_button"
             android:text="모아보기"
             android:textColor="#FFFFFFFF"
             android:textSize="40dp" />
@@ -137,6 +139,7 @@
         android:layout_below="@+id/toolbar"
         android:layout_centerHorizontal="true" />
 
+    <!-- 환경설정(임시) -->
     <Button
         android:id="@+id/button3"
         android:layout_width="wrap_content"

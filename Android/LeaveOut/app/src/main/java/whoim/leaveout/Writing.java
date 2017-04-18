@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
+// 글쓰기
 public class Writing extends AppCompatActivity {
     Toolbar toolbar;
 
@@ -17,6 +18,7 @@ public class Writing extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.write);
 
+        //폰트처리
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
         TextView textView = (TextView) findViewById(R.id.Button3);
         TextView textView2 = (TextView) findViewById(R.id.textView1);
@@ -37,6 +39,7 @@ public class Writing extends AppCompatActivity {
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
     }
 
+    // 뒤로가기
     public void writeBack(View v) {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);

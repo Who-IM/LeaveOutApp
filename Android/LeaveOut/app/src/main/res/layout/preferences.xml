@@ -4,11 +4,12 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- 툴바 -->
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/rectangle_menu"
+        android:background="@drawable/public_toobar"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
@@ -21,7 +22,7 @@
         android:background="#00000000"
         android:onClick="Back"
         app:layout_constraintLeft_toLeftOf="@+id/toolbar"
-        app:srcCompat="@drawable/back" />
+        app:srcCompat="@drawable/public_back" />
 
     <!--환경설정-->
     <TextView
@@ -36,6 +37,7 @@
         android:textColor="#FF000000"
         android:textSize="35dp" />
 
+    <!-- 기본설정 -->
     <TextView
         android:id="@+id/setting"
         android:layout_width="wrap_content"
@@ -47,6 +49,7 @@
         android:textColor="#FFBBBBBB"
         android:layout_below="@+id/imageButton"/>
 
+    <!-- 기본범위 -->
     <TextView
         android:id="@+id/range"
         android:layout_width="wrap_content"
@@ -59,6 +62,7 @@
         android:layout_below="@+id/setting"
         android:layout_alignStart="@+id/setting" />
 
+    <!-- 공개여부 -->
     <TextView
         android:id="@+id/open"
         android:layout_width="wrap_content"
@@ -70,6 +74,7 @@
         android:textColor="#FF000000"
         android:layout_marginTop="40dp"/>
 
+    <!-- 푸쉬알림 -->
     <TextView
         android:id="@+id/push"
         android:layout_width="wrap_content"
@@ -81,6 +86,7 @@
         android:textColor="#FF000000"
         android:layout_marginTop="40dp"/>
 
+    <!-- GPS -->
     <TextView
         android:id="@+id/gps"
         android:layout_width="wrap_content"
@@ -92,6 +98,7 @@
         android:textSize="25dp"
         android:textColor="#FF000000"/>
 
+    <!-- 자동 로그인 -->
     <TextView
         android:id="@+id/autologin"
         android:layout_width="wrap_content"
@@ -103,6 +110,7 @@
         android:layout_below="@+id/gps"
         android:layout_alignStart="@+id/gps" />
 
+    <!-- 로그아웃 -->
     <Button
         android:id="@+id/logout"
         android:layout_width="wrap_content"

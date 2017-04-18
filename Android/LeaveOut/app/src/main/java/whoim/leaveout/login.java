@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+// 로그인
 public class login extends AppCompatActivity {
 
     TextView title;
@@ -34,6 +35,7 @@ public class login extends AppCompatActivity {
 
     }
 
+    // 메인화면으로 넘어가기
     public void loginButton(View v) {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);

@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+// 환경설정
 public class Preferences extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,7 +18,7 @@ public class Preferences extends AppCompatActivity {
         TextView menu = (TextView) findViewById(R.id.preferences);
         menu.setTypeface(menu_bar);
 
-
+        // 폰트처리
         Typeface typeface = Typeface.createFromAsset(getAssets(), "HMKMMAG.TTF");
         TextView setting = (TextView) findViewById(R.id.setting);
         TextView range = (TextView) findViewById(R.id.range);
@@ -36,11 +37,13 @@ public class Preferences extends AppCompatActivity {
         logout.setTypeface(typeface);
     }
 
+    // 로그아웃
     public void logout(View v) {
         Intent intent = new Intent(getApplicationContext(), login.class);
         startActivity(intent);
     }
 
+    // 뒤로가기
     public void Back(View v) {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);

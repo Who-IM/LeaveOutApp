@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@drawable/rectangle_menu"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <!--지도 틀-->
+    <RelativeLayout
+        android:id="@+id/mainmap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/relativeLayout7"
+        android:layout_below="@+id/editText">
+
+        <fragment
+            android:id="@+id/map"
+            class="com.google.android.gms.maps.MapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </RelativeLayout>
+
+    <!-- 매뉴 버튼 -->
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#00000000"
+        app:srcCompat="@drawable/menu"
+        android:layout_margin="15dp"
+        />
+
+    <!-- 검색 상자 -->
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="300dp"
+        android:layout_height="55dp"
+        android:layout_alignLeft="@+id/imageButton"
+        android:layout_marginLeft="60dp"
+        android:background="@drawable/rectangle_search"
+        android:textSize="20dp" />
+
+    <!-- 돋보기 버튼 -->
+    <ImageButton
+        android:id="@+id/imageButton2"
+        android:layout_width="50dp"
+        android:layout_height="40dp"
+        android:layout_alignBottom="@+id/editText"
+        android:layout_alignEnd="@+id/editText"
+        android:layout_alignTop="@+id/editText"
+        android:background="#00000000"
+        app:srcCompat="@drawable/search_menu" />
+
+    <!--버튼용 레이아웃-->
+    <LinearLayout
+        android:id="@+id/buttonLayer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true">
+
+        <!-- 글쓰기 버튼 -->
+        <Button
+            android:id="@+id/button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/rectangle_button"
+            android:onClick="writeButton"
+            android:text="글쓰기"
+            android:textColor="#FFFFFFFF"
+            android:textSize="40dp" />
+
+        <!-- 체크 버튼 -->
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/rectangle_button"
+            android:onClick="checkButton"
+            android:text="체크"
+            android:textColor="#FFFFFFFF"
+            android:textSize="40dp" />
+
+        <!-- 모아보기 버튼 -->
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/rectangle_button"
+            android:text="모아보기"
+            android:textColor="#FFFFFFFF"
+            android:textSize="40dp" />
+    </LinearLayout>
+
+    <!--경계선-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="#FF8CF3FF"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/buttonLayer"
+        android:id="@+id/relativeLayout7">
+    </RelativeLayout>
+
+    <!--위치 정보 칸 지도 넣으면 변경-->
+    <TextView
+        android:id="@+id/location"
+        android:layout_width="300dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="22dp"
+        android:background="@drawable/gps_location"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFFFF"
+        android:layout_below="@+id/toolbar"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="환경설정"
+        android:layout_marginBottom="16dp"
+        android:layout_above="@+id/relativeLayout7"
+        android:layout_alignParentEnd="true"
+        android:onClick="preferences"/>
+
+</RelativeLayout>

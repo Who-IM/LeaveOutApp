@@ -2,6 +2,7 @@ package whoim.leaveout;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -42,6 +43,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
 import java.io.IOException;
 import java.util.List;
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity
 
     // 툴바
     Toolbar toolbar;
+    int index;      // 테스트용
 
     // 구글맵 현재 위치 찍기
     private GoogleApiClient mGoogleApiClient = null;
@@ -113,13 +117,6 @@ public class MainActivity extends AppCompatActivity
     public void preferences(View v) {
         Intent intent = new Intent(getApplicationContext(), Preferences.class);
         startActivity(intent);
-    }
-
-
-    // 여기부터 현재위치 받아오기
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -199,6 +196,25 @@ public class MainActivity extends AppCompatActivity
             }
             mGoogleMap.setMyLocationEnabled(true);
         }
+
+        double seoul_lat = 37.56;
+        double seoul_lng = 126.97;
+
+        ClusterManager<CheckMaker> mClusterManager = new ClusterManager<>(getApplicationContext(), map);
+//        map.setOnCameraChangeListener(mClusterManager);
+        map.setOnCameraIdleListener(mClusterManager);
+        map.setOnMarkerClickListener(mClusterManager);
+        mClusterManager.setRenderer(new OwnRenring(getApplicationContext(),map,mClusterManager));
+
+        for(int i = 1; i <= 10; i++) {
+            index++;
+            double lat = seoul_lat + (i / 200d);
+            double lng = seoul_lng + (i / 200d);
+            Log.d("x,y",lat+","+lng+"");
+            CheckMaker checkMaker = new CheckMaker(new LatLng(lat,lng),"서울"+ index,"서울 설명" + index);
+            mClusterManager.addItem(checkMaker);
+        }
+
     }
 
     // 위도 경도 찍기(현재위치에서 누를시 위도 경도나옴)
@@ -349,7 +365,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int permsRequestCode, String[] permissions, int[] grantResults) {
         if (permsRequestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION && grantResults.length > 0) {
             boolean permissionAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
 

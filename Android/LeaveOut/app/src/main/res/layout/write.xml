@@ -33,12 +33,12 @@
         android:text="게시"
         android:textColor="#77FFFFFF"
         android:textSize="27dp"
+        android:layout_marginRight="3dp"
         android:layout_alignBaseline="@+id/textView1"
         android:layout_alignBottom="@+id/textView1"
-        android:layout_alignLeft="@+id/textView4"
-        android:layout_alignStart="@+id/textView4"
-        android:layout_marginLeft="74dp"
-        android:layout_marginStart="74dp" />
+        android:layout_alignLeft="@+id/checkBox"
+        android:layout_alignStart="@+id/checkBox"
+        android:layout_marginLeft="10dp" />
 
     <!--StamLine에 게시-->
     <TextView
@@ -108,7 +108,6 @@
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
         android:layout_marginBottom="70dp"
         android:background="#000000"></RelativeLayout>
 
@@ -117,7 +116,6 @@
         android:id="@+id/checkBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRight="@+id/textView4"
         android:layout_alignBottom="@+id/textView4"
         android:layout_toRightOf="@+id/textView1"
         android:layout_toEndOf="@+id/textView1"
@@ -181,8 +179,7 @@
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/public_addlist"
         android:layout_above="@+id/blackline1"
-        android:layout_marginRight="5dp"
-        android:layout_alignRight="@+id/checkBox"
-        android:layout_alignEnd="@+id/checkBox" />
+        android:layout_alignLeft="@+id/Button3"
+        android:layout_alignStart="@+id/Button3" />
 
 </RelativeLayout>

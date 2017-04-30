@@ -30,9 +30,9 @@ public class Writing extends AppCompatActivity {
         textView4.setTypeface(typeface);
 
         TextView textView5 = (TextView) findViewById(R.id.textView4);
-        TextView textView6 = (TextView) findViewById(R.id.textView5);
+//        TextView textView6 = (TextView) findViewById(R.id.textView5);
         textView5.setTypeface(typeface);
-        textView6.setTypeface(typeface);
+//        textView6.setTypeface(typeface);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게

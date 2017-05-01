@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import com.example.use.mapapimark.R;
 import com.example.use.mapapimark.StartSetting.Permission;
@@ -25,7 +26,8 @@ import com.google.android.gms.maps.model.LatLng;
  */
 public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallback,
                                GoogleApiClient.ConnectionCallbacks,
-                               GoogleApiClient.OnConnectionFailedListener {
+                               GoogleApiClient.OnConnectionFailedListener,
+        GoogleMap.OnMyLocationButtonClickListener {
 
     protected MapFragment mMapFragment;       // 맵 프래그먼트(맵 띄우는 것)
 
@@ -83,7 +85,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
 
     }
 
-    // GoogleApiClient.ConnectionCallbacks 의 함수
+    // GoogleApiClient.onConnectionSuspended 의 함수
     @Override
     public void onConnectionSuspended(int i) {
 
@@ -142,15 +144,20 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         if(mLocationPermissionGranted) {
             mGoogleMap.setMyLocationEnabled(true);
             mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
+            mGoogleMap.setOnMyLocationButtonClickListener(this);
         }
         // 안 했을시 UI 셋팅 안하게
         else {
             mGoogleMap.setMyLocationEnabled(false);
             mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
+            mGoogleMap.setOnMyLocationButtonClickListener(null);
         }
     }
 
-
-
-
+    // 자기 자신 GPS 버튼을 눌렀을경우 콜백 메소드 호출
+    @Override
+    public boolean onMyLocationButtonClick() {
+        Toast.makeText(this,"버튼 누름",Toast.LENGTH_SHORT).show();
+        return false;
+    }
 }

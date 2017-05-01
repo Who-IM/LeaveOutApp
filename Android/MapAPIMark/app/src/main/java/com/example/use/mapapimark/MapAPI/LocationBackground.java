@@ -27,13 +27,13 @@ public class LocationBackground extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d("on?","create");
+        Log.d("on","create");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("on?","destroy");
+        Log.d("on","destroy");
     }
 
     @Override

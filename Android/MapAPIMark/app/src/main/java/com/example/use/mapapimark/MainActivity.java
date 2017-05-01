@@ -62,6 +62,7 @@ public class MainActivity extends MapAPIActivity {
         if(super.mGoogleApiClient.isConnected()) {
 //            PendingIntent LocationIntent = PendingIntent.getService(this, 0, new Intent(this, LocationBackground.class), PendingIntent.FLAG_UPDATE_CURRENT);   // 다른 컴포넌트에게 인텐트 권한 주기
             LocationServices.FusedLocationApi.removeLocationUpdates(super.mGoogleApiClient, super.mLocationIntent);
+            super.mGoogleApiClient.disconnect();
             this.finish();
         }
         super.onBackPressed();
@@ -84,8 +85,6 @@ public class MainActivity extends MapAPIActivity {
         }
         super.onSaveInstanceState(outState);
     }
-
-
 
     // 권한 요청 한뒤 어떻게 되어있는지 판단 (권한 확인을 메세지로 표시시)
    @Override
@@ -117,6 +116,19 @@ public class MainActivity extends MapAPIActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case MapAPIActivity.GPS_ENABLE_REQUEST_CODE: // GPS 서비스 요청 코드
+                if(!checkLocationServicesStatus()) Toast.makeText(getApplicationContext(),"위치 서비스를 사용 할 수 없습니다.",Toast.LENGTH_SHORT).show();
+                break;
+        }
+
+    }
+
+    // 버튼 onClick 콜백 메소드
     protected void GoActivity(View v) {
         Intent intent = new Intent(this,Main2Activity.class);
         startActivity(intent);

@@ -1,9 +1,12 @@
 package com.example.use.mapapimark.MapAPI;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
@@ -29,15 +32,21 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
                                GoogleApiClient.OnConnectionFailedListener,
         GoogleMap.OnMyLocationButtonClickListener {
 
+    protected static final int GPS_ENABLE_REQUEST_CODE = 1000;      // GPS 서비스 요청 코드
+
     protected MapFragment mMapFragment;       // 맵 프래그먼트(맵 띄우는 것)
 
-    protected GoogleMap mGoogleMap;                 // GPS UI
-    protected GoogleApiClient mGoogleApiClient;     // GPS 기능을 적용하는 서비스
+    protected GoogleMap mGoogleMap;                 // 구글 맵
+    protected GoogleApiClient mGoogleApiClient;     // 구글 맵 기능을 적용하는 서비스
+
     protected boolean mLocationPermissionGranted;   // GPS 권한 체크 확인
     protected LocationRequest mLocationRequest;     // 디바이스 GPS 위치요청 정보
+    protected PendingIntent mLocationIntent;        // 다른 컴포넌트에게 인텐트 권한 주기(백그라운드 GPS 위치 서비스)
+
     protected Location mCurrentLocation;            // 디바이스 위치
     protected CameraPosition mCameraPosition;       // 지도 카메라 위치 정보(상태 저장용)
-    protected PendingIntent mLocationIntent;        // 다른 컴포넌트에게 인텐트 권한 주기
+
+    private LocationManager mLocationManager;       // 로케이션 매니저
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -51,7 +60,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
                     new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),16));       // 초기 화면 셋팅
         } else {        // 상태정보가 없을경우 (기본 값 셋팅)
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(37.56, 126.97),16));
-            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
+//            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
 
 /*        LatLng seoul = new LatLng(37.56, 126.97);
@@ -95,6 +104,15 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
+    }
+
+    // 자기 자신 GPS 버튼을 눌렀을경우 콜백 메소드 호출
+    @Override
+    public boolean onMyLocationButtonClick() {
+        // GPS 위치 서비스 활성화 안 될시 하라는 화면 표시
+        if (!checkLocationServicesStatus()) showDialogForLocationServiceSetting();
+        Toast.makeText(this,"버튼 누름",Toast.LENGTH_SHORT).show();
+        return false;
     }
 
     // GPS 권한 확인
@@ -142,9 +160,11 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         if(mGoogleMap == null) return;
         // 했을경우 UI 셋팅
         if(mLocationPermissionGranted) {
-            mGoogleMap.setMyLocationEnabled(true);
-            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
-            mGoogleMap.setOnMyLocationButtonClickListener(this);
+            mGoogleMap.setMyLocationEnabled(true);      // 자기 위치 마커 활성화
+            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);        // 자기 위치 찾기 버튼 활성화
+            mGoogleMap.setOnMyLocationButtonClickListener(this);                // 자기 위치 찾기 버튼 리스너(사용자용)
+            // GPS 위치 서비스 활성화 안 될시 하라는 화면 표시
+            if (!checkLocationServicesStatus()) showDialogForLocationServiceSetting();
         }
         // 안 했을시 UI 셋팅 안하게
         else {
@@ -154,10 +174,35 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         }
     }
 
-    // 자기 자신 GPS 버튼을 눌렀을경우 콜백 메소드 호출
-    @Override
-    public boolean onMyLocationButtonClick() {
-        Toast.makeText(this,"버튼 누름",Toast.LENGTH_SHORT).show();
-        return false;
+    // GPS 위치 서비스 활성화 되어있는지 확인
+    protected boolean checkLocationServicesStatus() {
+        if (mLocationManager == null) mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        return mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                || mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
+
+    // GPS 활성화를 위한 화면 표시
+    private void showDialogForLocationServiceSetting() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("위치 서비스 비활성화");
+        builder.setMessage("앱을 사용하기 위해서는 위치 서비스가 필요합니다.\n 위치 설정을 수정하실래요?");
+        builder.setCancelable(true);
+        builder.setPositiveButton("설정", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                Intent callGPSSettingIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivityForResult(callGPSSettingIntent, GPS_ENABLE_REQUEST_CODE);
+            }
+        });
+        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id){
+                Toast.makeText(getApplicationContext(),"위치 서비스를 사용 할 수 없습니다.",Toast.LENGTH_SHORT).show();
+                dialog.cancel();
+            }
+        });
+        builder.create().show();
+    }
+
 }

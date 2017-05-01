@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    //환경설정(임지)
+    //환경설정(임시)
     public void preferences(View v) {
         Intent intent = new Intent(getApplicationContext(), Preferences.class);
         startActivity(intent);

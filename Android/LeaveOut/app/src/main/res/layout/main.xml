@@ -121,42 +121,6 @@
         android:layout_below="@+id/toolbar"
         android:layout_centerHorizontal="true" />
 
-    <!-- 메뉴바 -->
-    <android.support.v4.widget.DrawerLayout
-        android:id="@+id/dl_activity_main_drawer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
-
-        <FrameLayout
-            android:id="@+id/fl_activity_main_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <!-- 메뉴버튼 -->
-            <ImageButton
-                android:id="@+id/btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#00000000"
-                app:srcCompat="@drawable/public_menu"
-                android:layout_margin="15dp"
-                />
-        </FrameLayout>
-
-        <!-- 메뉴바 나타나는 창 -->
-        <ListView
-            android:id="@+id/lv_activity_main_nav_list"
-            android:layout_width="240dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:background="#EDEDED"
-            android:choiceMode="singleChoice"
-            android:divider="@android:color/transparent"
-            android:dividerHeight="0dp" />
-    </android.support.v4.widget.DrawerLayout>
-
     <!--&lt;!&ndash; 환경설정(임시) &ndash;&gt;-->
     <!--<Button-->
         <!--android:id="@+id/button3"-->

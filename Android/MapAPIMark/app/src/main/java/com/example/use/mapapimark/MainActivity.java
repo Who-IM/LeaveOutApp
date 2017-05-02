@@ -16,8 +16,9 @@ import com.google.android.gms.location.LocationServices;
  * */
 public class MainActivity extends MapAPIActivity {
 
-    private static final String CAMERA_POSITION = "camera_position";
-    private static final String LOCATION = "location";
+    private static final String CAMERA_POSITION = "camera_position";        // 액티비티 정지시 상태 저장(구글맵 카메라 위치)
+    private static final String LOCATION = "location";                      // 액티비티 정지시 상태 저장(구글맵 GPS 위치)
+    private static final String GPS_ADDRES = "gps_address";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,6 @@ public class MainActivity extends MapAPIActivity {
 
         super.buildGoogleApiClient();         // GooglePlayServicesClient 객체를 생성
         super.mGoogleApiClient.connect();     // connect 메소드가 성공하면 onConnect() 콜백 메소드를 호출
-
     }
 
 /*    @Override
@@ -44,7 +44,7 @@ public class MainActivity extends MapAPIActivity {
         super.onPause();
         if(super.mGoogleApiClient.isConnected()) {
 //            PendingIntent LocationIntent = PendingIntent.getService(this, 0, new Intent(this, LocationBackground.class), PendingIntent.FLAG_UPDATE_CURRENT);   // 다른 컴포넌트에게 인텐트 권한 주기
-            LocationServices.FusedLocationApi.removeLocationUpdates(super.mGoogleApiClient, super.mLocationIntent);
+            LocationServices.FusedLocationApi.removeLocationUpdates(super.mGoogleApiClient, super.mLocationPendingIntent);
         }
     }*/
 
@@ -61,7 +61,7 @@ public class MainActivity extends MapAPIActivity {
     public void onBackPressed() {
         if(super.mGoogleApiClient.isConnected()) {
 //            PendingIntent LocationIntent = PendingIntent.getService(this, 0, new Intent(this, LocationBackground.class), PendingIntent.FLAG_UPDATE_CURRENT);   // 다른 컴포넌트에게 인텐트 권한 주기
-            LocationServices.FusedLocationApi.removeLocationUpdates(super.mGoogleApiClient, super.mLocationIntent);
+            LocationServices.FusedLocationApi.removeLocationUpdates(super.mGoogleApiClient, super.mLocationPendingIntent);
             super.mGoogleApiClient.disconnect();
             this.finish();
         }

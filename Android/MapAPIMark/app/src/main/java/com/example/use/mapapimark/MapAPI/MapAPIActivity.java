@@ -41,12 +41,20 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
 
     protected boolean mLocationPermissionGranted;   // GPS 권한 체크 확인
     protected LocationRequest mLocationRequest;     // 디바이스 GPS 위치요청 정보
-    protected PendingIntent mLocationIntent;        // 다른 컴포넌트에게 인텐트 권한 주기(백그라운드 GPS 위치 서비스)
+    protected PendingIntent mLocationPendingIntent; // 다른 컴포넌트에게 인텐트 권한 주기(백그라운드 GPS 위치 서비스)
+    protected Intent mLocationIntent;               // 로케이션 백그라운드 서비스
 
     protected Location mCurrentLocation;            // 디바이스 위치
     protected CameraPosition mCameraPosition;       // 지도 카메라 위치 정보(상태 저장용)
 
-    private LocationManager mLocationManager;       // 로케이션 매니저
+    private LocationManager mLocationManager;       // 로케이션 매니저(GPS 활성화 여부를 위해 사용)
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mLocationIntent = new Intent(this, LocationBackground.class);
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -123,8 +131,8 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
             mLocationPermissionGranted = true;
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
 //            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);   // 내 위치의 업데이트 각 기능 주기 등 셋팅
-            mLocationIntent = PendingIntent.getService(this, 0, new Intent(this, LocationBackground.class), PendingIntent.FLAG_UPDATE_CURRENT);   // 다른 컴포넌트에게 인텐트 권한 주기
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, mLocationIntent);   // 내 위치의 업데이트 각 기능 주기 등 셋팅
+            mLocationPendingIntent = PendingIntent.getService(this, 0, mLocationIntent, PendingIntent.FLAG_UPDATE_CURRENT);   // 다른 컴포넌트에게 인텐트 권한 주기
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, mLocationPendingIntent);   // 내 위치의 업데이트 각 기능 주기 등 셋팅
         }
         else {
             // 권한이 없으니 다시 확인메세지 띄우기

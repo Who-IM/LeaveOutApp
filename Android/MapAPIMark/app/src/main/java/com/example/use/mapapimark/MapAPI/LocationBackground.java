@@ -13,7 +13,7 @@ import com.google.android.gms.location.LocationResult;
  * */
 public class LocationBackground extends IntentService {
 
-    Location mCurrentLocation;
+    Location mLocation;
 
     public LocationBackground() {
         super("LocationBackground");
@@ -43,8 +43,9 @@ public class LocationBackground extends IntentService {
                 LocationResult locationResult = LocationResult.extractResult(intent);
                 Location location = locationResult.getLastLocation();
                 if (location != null) {
-                    mCurrentLocation = location;
-                    Log.d("mCurrentLocation","x : "+ mCurrentLocation.getLatitude() + "y : " + mCurrentLocation.getLongitude());
+                    mLocation = location;
+                    Log.d("mCurrentLocation","x : "+ mLocation.getLatitude() + "y : " + mLocation.getLongitude());
+
                 }
             }
         }

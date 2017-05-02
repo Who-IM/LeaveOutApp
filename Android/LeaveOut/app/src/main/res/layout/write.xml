@@ -14,7 +14,7 @@
 
     <!--뒤로가기-->
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/back_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#00000000"
@@ -26,32 +26,32 @@
 
     <!--게시-->
     <Button
-        android:id="@+id/Button3"
+        android:id="@+id/write_commit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/write_title"
+        android:layout_alignBottom="@+id/write_title"
+        android:layout_alignParentEnd="true"
+        android:layout_marginLeft="10dp"
         android:background="#00000000"
         android:text="게시"
         android:textColor="#77FFFFFF"
-        android:textSize="27dp"
-        android:layout_marginLeft="10dp"
-        android:layout_alignBaseline="@+id/textView1"
-        android:layout_alignBottom="@+id/textView1"
-        android:layout_alignParentEnd="true" />
+        android:textSize="27dp" />
 
     <!--StamLine에 게시-->
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/write_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="StampLine에 게시"
         android:textSize="33dp"
-        android:layout_alignTop="@+id/imageButton"
-        android:layout_toRightOf="@+id/imageButton"
-        android:layout_toEndOf="@+id/imageButton" />
+        android:layout_alignTop="@+id/back_icon"
+        android:layout_toRightOf="@+id/back_icon"
+        android:layout_toEndOf="@+id/back_icon" />
 
     <!--위치정보-->
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/write_loc_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -61,33 +61,33 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_below="@+id/toolbar"
-        android:layout_alignStart="@+id/relativeLayout" />
+        android:layout_alignStart="@+id/write_textarea" />
 
     <!--울타리글-->
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/write_fence"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="14dp"
         android:text="울타리글"
         android:textSize="25dp"
-        android:layout_above="@+id/blackline2"
-        android:layout_toStartOf="@+id/checkBox" />
+        android:layout_above="@+id/write_line2"
+        android:layout_toStartOf="@+id/write_check_icon" />
 
 
     <!-- 검은색 선(위에) -->
     <RelativeLayout
-        android:id="@+id/blackline1"
+        android:id="@+id/write_line1"
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:background="#000000"
         android:layout_marginTop="15dp"
-        android:layout_below="@+id/textView2">
+        android:layout_below="@+id/write_loc_text">
     </RelativeLayout>
 
     <!-- 검은색 선(밑에) -->
     <RelativeLayout
-        android:id="@+id/blackline2"
+        android:id="@+id/write_line2"
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:layout_alignParentBottom="true"
@@ -97,46 +97,47 @@
 
     <!--울타리글 체크박스-->
     <CheckBox
-        android:id="@+id/checkBox"
+        android:id="@+id/write_check_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="5dp"
-        android:layout_alignBottom="@+id/textView4"
+        android:layout_alignBottom="@+id/write_fence"
         android:layout_alignParentEnd="true" />
 
     <!--글쓰는 공간-->
     <RelativeLayout
-        android:id="@+id/relativeLayout"
+        android:id="@+id/write_textarea"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/checkBox"
-        android:layout_alignEnd="@+id/checkBox"
-        android:layout_alignStart="@+id/imageButton"
-        android:layout_below="@+id/blackline1">
+        android:layout_above="@+id/write_check_icon"
+        android:layout_alignEnd="@+id/write_check_icon"
+        android:layout_alignStart="@+id/back_icon"
+        android:layout_below="@+id/write_line1">
         <!-- 글을 입력하세요. -->
         <EditText
-            android:id="@+id/textView3"
+            android:id="@+id/write_input"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
             android:layout_marginTop="15dp"
             android:background="#00000000"
             android:hint="글을 입력하세요."
-            android:textSize="20dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true" />
+            android:textSize="20dp" />
     </RelativeLayout>
 
     <!-- 하단 레이아웃 -->
     <LinearLayout
+        android:id="@+id/write_optionarea"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignTop="@+id/blackline2"
+        android:layout_alignTop="@+id/write_line2"
         android:orientation="horizontal">
 
         <!-- 친구태그 -->
         <ImageButton
-            android:id="@+id/imageButton4"
+            android:id="@+id/friendtag"
             android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:layout_marginTop="8dp"
@@ -146,17 +147,17 @@
 
         <!-- 카메라 -->
         <ImageButton
-            android:id="@+id/imageButton5"
+            android:id="@+id/camera"
             android:layout_width="wrap_content"
             android:layout_height="57dp"
-            android:layout_weight="1"
             android:layout_marginTop="8dp"
+            android:layout_weight="1"
             android:background="#00000000"
             app:srcCompat="@drawable/write_camera" />
 
         <!-- 사진 -->
         <ImageButton
-            android:id="@+id/imageButton6"
+            android:id="@+id/image_icon"
             android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:layout_marginTop="8dp"
@@ -166,7 +167,7 @@
 
         <!-- 이벤트 -->
         <ImageButton
-            android:id="@+id/imageButton7"
+            android:id="@+id/public_open"
             android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:layout_marginTop="8dp"
@@ -177,14 +178,14 @@
 
     <!-- 체크 더보기 -->
     <ImageButton
-        android:id="@+id/imageButton3"
-        android:background="#00000000"
+        android:id="@+id/open_list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/public_addlist"
+        android:layout_alignEnd="@+id/write_textarea"
+        android:layout_alignTop="@+id/write_loc_text"
         android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
-        android:layout_alignTop="@+id/textView2"
-        android:layout_alignEnd="@+id/relativeLayout" />
+        android:background="#00000000"
+        app:srcCompat="@drawable/public_addlist" />
 
 </RelativeLayout>

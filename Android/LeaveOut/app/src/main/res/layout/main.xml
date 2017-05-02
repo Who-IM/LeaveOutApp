@@ -145,17 +145,17 @@
 
     <!--위치 정보 칸 지도 넣으면 변경-->
     <TextView
-        android:id="@+id/location"
+        android:id="@+id/main_location"
         android:layout_width="300dp"
         android:layout_height="40dp"
+        android:layout_below="@+id/toolbar"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="22dp"
         android:background="@drawable/gps_location"
         android:gravity="center"
         android:textColor="#FFFFFFFF"
         android:textSize="20dp"
-        android:textStyle="bold"
-        android:layout_below="@+id/toolbar"
-        android:layout_centerHorizontal="true" />
+        android:textStyle="bold" />
 
     <!--&lt;!&ndash; 환경설정(임시) &ndash;&gt;-->
     <!--<Button-->

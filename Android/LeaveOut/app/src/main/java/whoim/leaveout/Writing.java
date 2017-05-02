@@ -20,16 +20,16 @@ public class Writing extends AppCompatActivity {
 
         //폰트처리
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
-        TextView textView = (TextView) findViewById(R.id.Button3);
-        TextView textView2 = (TextView) findViewById(R.id.textView1);
-        TextView textView3 = (TextView) findViewById(R.id.textView2);
-        TextView textView4 = (TextView) findViewById(R.id.textView3);
+        TextView textView = (TextView) findViewById(R.id.write_commit);
+        TextView textView2 = (TextView) findViewById(R.id.write_title);
+        TextView textView3 = (TextView) findViewById(R.id.write_loc_text);
+        TextView textView4 = (TextView) findViewById(R.id.write_fence);
         textView.setTypeface(typeface);
         textView2.setTypeface(typeface);
         textView3.setTypeface(typeface);
         textView4.setTypeface(typeface);
 
-        TextView textView5 = (TextView) findViewById(R.id.textView4);
+        TextView textView5 = (TextView) findViewById(R.id.write_input);
 //        TextView textView6 = (TextView) findViewById(R.id.textView5);
         textView5.setTypeface(typeface);
 //        textView6.setTypeface(typeface);

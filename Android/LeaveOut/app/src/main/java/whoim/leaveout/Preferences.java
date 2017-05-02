@@ -15,18 +15,18 @@ public class Preferences extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.preferences);
         Typeface menu_bar = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
-        TextView menu = (TextView) findViewById(R.id.preferences);
+        TextView menu = (TextView) findViewById(R.id.pre_preferences);
         menu.setTypeface(menu_bar);
 
         // 폰트처리
         Typeface typeface = Typeface.createFromAsset(getAssets(), "HMKMMAG.TTF");
-        TextView setting = (TextView) findViewById(R.id.setting);
-        TextView range = (TextView) findViewById(R.id.range);
-        TextView open = (TextView) findViewById(R.id.open);
-        TextView push = (TextView) findViewById(R.id.push);
-        TextView gps = (TextView) findViewById(R.id.gps);
-        TextView autologin = (TextView) findViewById(R.id.autologin);
-        Button logout = (Button) findViewById(R.id.logout);
+        TextView setting = (TextView) findViewById(R.id.pre_setting);
+        TextView range = (TextView) findViewById(R.id.pre_range);
+        TextView open = (TextView) findViewById(R.id.pre_open);
+        TextView push = (TextView) findViewById(R.id.pre_push);
+        TextView gps = (TextView) findViewById(R.id.pre_gps_text);
+        TextView autologin = (TextView) findViewById(R.id.pre_autologin);
+        Button logout = (Button) findViewById(R.id.pre_logout);
 
         setting.setTypeface(typeface);
         range.setTypeface(typeface);

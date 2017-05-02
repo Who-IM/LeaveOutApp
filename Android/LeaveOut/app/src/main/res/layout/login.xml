@@ -67,7 +67,7 @@
             android:textSize="35dp"/>
 
         <!-- 회원가입 -->
-        <TextView
+        <Button
             android:id="@+id/insertlogin"
             android:text="*회원가입"
             android:textSize="25dp"
@@ -77,10 +77,11 @@
             android:layout_below="@id/loginBtn"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="10dp"
+            android:onClick="joinButton"/>
 
         <!-- ID/PW찾기 -->
-        <TextView
+        <Button
             android:id="@+id/id_pwSelect"
             android:text="*ID/PW찾기"
             android:textSize="25dp"

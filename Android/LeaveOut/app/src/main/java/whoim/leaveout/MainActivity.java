@@ -18,6 +18,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,7 +26,12 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,6 +76,12 @@ public class MainActivity extends AppCompatActivity
     boolean askPermissionOnceAgain = false;
     // ---------------------------------------------------------------------
 
+    private final String[] navItems = {"Brown", "Cadet Blue", "Dark Olive Green", "Dark Orange", "Golden Rod"};
+    private ListView lvNavList;
+    private FrameLayout flContainer;
+    private DrawerLayout dlDrawer;
+    private ImageButton btn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +106,47 @@ public class MainActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
         setSupportActionBar(toolbar);//액션바와 같게 만들어줌
+
+        lvNavList = (ListView)findViewById(R.id.lv_activity_main_nav_list);
+
+        flContainer = (FrameLayout)findViewById(R.id.fl_activity_main_container);
+        btn = (ImageButton)findViewById(R.id.btn);
+
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "open", Toast.LENGTH_SHORT).show();
+                dlDrawer.openDrawer(lvNavList);
+            }
+        });
+
+        dlDrawer = (DrawerLayout)findViewById(R.id.dl_activity_main_drawer);
+        lvNavList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, navItems));
+        lvNavList.setOnItemClickListener(new DrawerItemClickListener());
+    }
+
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+            switch (position) {
+                case 0:
+                    flContainer.setBackgroundColor(Color.parseColor("#A52A2A"));
+                    break;
+                case 1:
+                    flContainer.setBackgroundColor(Color.parseColor("#5F9EA0"));
+                    break;
+                case 2:
+                    flContainer.setBackgroundColor(Color.parseColor("#556B2F"));
+                    break;
+                case 3:
+                    flContainer.setBackgroundColor(Color.parseColor("#FF8C00"));
+                    break;
+                case 4:
+                    flContainer.setBackgroundColor(Color.parseColor("#DAA520"));
+                    break;
+            }
+            dlDrawer.closeDrawer(lvNavList);
+        }
     }
 
     //체크 버튼 눌렀을시 토스트 작동
@@ -109,12 +162,20 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    //환경설정(임지)
+    //환경설정(임시)
     public void preferences(View v) {
         Intent intent = new Intent(getApplicationContext(), Preferences.class);
         startActivity(intent);
     }
 
+    @Override
+    public void onBackPressed() {
+        if (dlDrawer.isDrawerOpen(lvNavList)) {
+            dlDrawer.closeDrawer(lvNavList);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
     // 여기부터 현재위치 받아오기
     @Override

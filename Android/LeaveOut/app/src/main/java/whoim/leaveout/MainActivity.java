@@ -29,9 +29,12 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,11 +79,19 @@ public class MainActivity extends AppCompatActivity
     boolean askPermissionOnceAgain = false;
     // ---------------------------------------------------------------------
 
-    private final String[] navItems = {"Brown", "Cadet Blue", "Dark Olive Green", "Dark Orange", "Golden Rod"};
-    private ListView lvNavList;
-    private FrameLayout flContainer;
-    private DrawerLayout dlDrawer;
-    private ImageButton btn;
+    // 메뉴 관련 인스턴스
+    private final String[] navItems = {"프로필", "친구 목록"};
+    private ListView list;
+    private FrameLayout Container;
+    private DrawerLayout Drawer;
+    private ImageButton menu_btn;
+
+    private LinearLayout buttonbox;
+    private RelativeLayout main_map;
+    private EditText main_editext;
+    private ImageButton main_search;
+    private TextView main_location;
+    // ----------------------------------------------------------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,59 +104,100 @@ public class MainActivity extends AppCompatActivity
 
         //버튼 폰트
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
-        Button button = (Button) findViewById(R.id.button);
-        Button button1 = (Button) findViewById(R.id.button1);
-        Button button2 = (Button) findViewById(R.id.button2);
+        Button button = (Button) findViewById(R.id.main_write);
+        Button button1 = (Button) findViewById(R.id.main_check);
+        Button button2 = (Button) findViewById(R.id.main_collect);
         button.setTypeface(typeface);
         button1.setTypeface(typeface);
         button2.setTypeface(typeface);
 
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.main_google_map);
         mapFragment.getMapAsync(this);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
         setSupportActionBar(toolbar);//액션바와 같게 만들어줌
 
-        lvNavList = (ListView)findViewById(R.id.lv_activity_main_nav_list);
+        //---------------------------------------------------------------------
+        // 매뉴
+        list = (ListView)findViewById(R.id.main_menu);
+        Container = (FrameLayout)findViewById(R.id.main_menu_container);
+        Drawer = (DrawerLayout)findViewById(R.id.main_drawer);
+        menu_btn = (ImageButton)findViewById(R.id.menu_btn);
 
-        flContainer = (FrameLayout)findViewById(R.id.fl_activity_main_container);
-        btn = (ImageButton)findViewById(R.id.btn);
+        // 메인화면 (글쓰기, 체크, 모아보기, 맵화면, location, search, search icon)
+        buttonbox = (LinearLayout) findViewById(R.id.main_button_layout);
+        main_map = (RelativeLayout) findViewById(R.id.main_map);
+        main_editext = (EditText) findViewById(R.id.main_search);
+        main_search = (ImageButton) findViewById(R.id.search_icon);
+        main_location = (TextView) findViewById(R.id.main_location);
 
-        btn.setOnClickListener(new View.OnClickListener() {
+        // 매뉴 imagebutton 누를 시 이벤트 처리
+        menu_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "open", Toast.LENGTH_SHORT).show();
-                dlDrawer.openDrawer(lvNavList);
+                Drawer.bringToFront();
+                Container.bringToFront();
+                list.bringToFront();
+                Drawer.openDrawer(list); // 펼치기
             }
         });
 
-        dlDrawer = (DrawerLayout)findViewById(R.id.dl_activity_main_drawer);
-        lvNavList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, navItems));
-        lvNavList.setOnItemClickListener(new DrawerItemClickListener());
+        // 빈화면 터치시 이벤트 처리
+        Container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buttonbox.bringToFront();     // 글쓰기, 체크, 모아보기 앞으로
+                main_map.bringToFront();      // 맵 layout 앞으로
+                main_editext.bringToFront();  // search editext 앞으로
+                main_search.bringToFront();   // search icon 앞으로
+                main_location.bringToFront(); // 위치 text 앞으로
+                Drawer.closeDrawer(list);      // 메뉴 종료
+            }
+        });
+
+        // 메뉴에 글 목록 등록
+        list.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, navItems));
+        list.setOnItemClickListener(new DrawerItemClickListener());
     }
 
+    // 뒤로가기
+    @Override
+    public void onBackPressed() {
+        if (Drawer.isDrawerOpen(list)) {
+            buttonbox.bringToFront();     // 글쓰기, 체크, 모아보기 앞으로
+            main_map.bringToFront();      // 맵 layout 앞으로
+            main_editext.bringToFront();  // search editext 앞으로
+            main_search.bringToFront();   // search icon 앞으로
+            main_location.bringToFront(); // 위치 text 앞으로
+            Drawer.closeDrawer(list);      // 메뉴 종료
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    // 임시로 해놓은것
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
             switch (position) {
                 case 0:
-                    flContainer.setBackgroundColor(Color.parseColor("#A52A2A"));
+                    Container.setBackgroundColor(Color.parseColor("#A52A2A"));
                     break;
                 case 1:
-                    flContainer.setBackgroundColor(Color.parseColor("#5F9EA0"));
+                    Container.setBackgroundColor(Color.parseColor("#5F9EA0"));
                     break;
                 case 2:
-                    flContainer.setBackgroundColor(Color.parseColor("#556B2F"));
+                    Container.setBackgroundColor(Color.parseColor("#556B2F"));
                     break;
                 case 3:
-                    flContainer.setBackgroundColor(Color.parseColor("#FF8C00"));
+                    Container.setBackgroundColor(Color.parseColor("#FF8C00"));
                     break;
                 case 4:
-                    flContainer.setBackgroundColor(Color.parseColor("#DAA520"));
+                    Container.setBackgroundColor(Color.parseColor("#DAA520"));
                     break;
             }
-            dlDrawer.closeDrawer(lvNavList);
+            Drawer.closeDrawer(list);
         }
     }
 
@@ -168,15 +220,6 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (dlDrawer.isDrawerOpen(lvNavList)) {
-            dlDrawer.closeDrawer(lvNavList);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
     // 여기부터 현재위치 받아오기
     @Override
     protected void onStart() {
@@ -192,10 +235,8 @@ public class MainActivity extends AppCompatActivity
 
         //앱 정보에서 퍼미션을 허가했는지를 다시 검사해봐야 한다.
         if (askPermissionOnceAgain) {
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 askPermissionOnceAgain = false;
-
                 checkPermissions();
             }
         }
@@ -270,7 +311,7 @@ public class MainActivity extends AppCompatActivity
                 + " 경도:" + String.valueOf(location.getLongitude());
 
         // 현재위치 받아오기
-        TextView v = (TextView) findViewById(R.id.location);
+        TextView v = (TextView) findViewById(R.id.main_location);
         //v.setText("위도 : " + location.getLongitude() +" 경도 : " + location.getLatitude());
         v.setText(markerTitle); //현재 위치
         //---------------------------------

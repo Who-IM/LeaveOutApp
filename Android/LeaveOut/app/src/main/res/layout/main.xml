@@ -125,7 +125,9 @@
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/dl_activity_main_drawer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
 
         <FrameLayout
             android:id="@+id/fl_activity_main_container"

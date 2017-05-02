@@ -92,7 +92,6 @@
         android:layout_height="3dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="70dp"
-
         android:background="#000000"></RelativeLayout>
 
     <!--울타리글 체크박스-->
@@ -107,7 +106,7 @@
 
     <!--글쓰는 공간-->
     <RelativeLayout
-        android:id="@+id/write_textarea"
+        android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/write_check_icon"

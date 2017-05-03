@@ -14,7 +14,7 @@
 
     <!--뒤로가기-->
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/back_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#00000000"
@@ -26,7 +26,7 @@
 
     <!--게시-->
     <Button
-        android:id="@+id/Button3"
+        android:id="@+id/write_commit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#00000000"
@@ -40,7 +40,7 @@
 
     <!--StamLine에 게시-->
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/write_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="StampLine에 게시"
@@ -92,8 +92,8 @@
         android:layout_height="3dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="70dp"
-
-        android:background="#000000"></RelativeLayout>
+        android:background="#000000">
+    </RelativeLayout>
 
     <!--울타리글 체크박스-->
     <CheckBox
@@ -110,10 +110,10 @@
         android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/checkBox"
-        android:layout_alignEnd="@+id/checkBox"
-        android:layout_alignStart="@+id/imageButton"
-        android:layout_below="@+id/blackline1">
+        android:layout_above="@+id/write_check_icon"
+        android:layout_alignEnd="@+id/write_check_icon"
+        android:layout_alignStart="@+id/back_icon"
+        android:layout_below="@+id/write_line1">
 
         <!-- 글을 입력하세요. -->
         <EditText

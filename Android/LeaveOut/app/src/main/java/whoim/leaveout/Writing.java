@@ -45,6 +45,7 @@ public class Writing extends AppCompatActivity {
         camera_start();
     }
 
+    //카메라 시작
     private void camera_start()
     {
         camera_abutton = (ImageButton)findViewById(R.id.camera);
@@ -61,6 +62,7 @@ public class Writing extends AppCompatActivity {
         });
     }
 
+    //사진을 글쓰기 화면에 나오게 하기(미완성)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

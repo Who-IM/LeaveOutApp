@@ -211,6 +211,18 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    //글보기 임시버튼
+    public void view_button(View v)
+    {
+        Intent intent = new Intent(getApplicationContext(), View_article.class);
+        startActivity(intent);
+    }
+
+    public void collectButton(View v)
+    {
+        Intent intent = new Intent(getApplicationContext(), Collect.class);
+        startActivity(intent);
+    }
     // 여기부터 현재위치 받아오기
     @Override
     protected void onStart() {

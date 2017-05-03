@@ -21,7 +21,9 @@
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".Writing"></activity>
         <activity android:name=".Preferences"></activity>
-        <activity android:name=".join"></activity>
+        <activity android:name=".Join"></activity>
+        <activity android:name=".View_article"></activity>
+        <activity android:name=".Collect"></activity>
 
         // 구글 Map
         <meta-data

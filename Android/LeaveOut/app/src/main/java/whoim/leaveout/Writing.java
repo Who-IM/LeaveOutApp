@@ -12,19 +12,16 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import static whoim.leaveout.R.id.input_picture;
-
 // 글쓰기
 public class Writing extends AppCompatActivity {
     Toolbar toolbar;
-    ImageButton camer_abutton;
-    ImageView picture;
+    ImageButton camera_abutton = null;
+    ImageView picture = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.write);
-
-        camera_start();
 
         //폰트처리
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
@@ -32,41 +29,41 @@ public class Writing extends AppCompatActivity {
         TextView textView2 = (TextView) findViewById(R.id.write_title);
         TextView textView3 = (TextView) findViewById(R.id.write_loc_text);
         TextView textView4 = (TextView) findViewById(R.id.write_fence);
+        TextView textView5 = (TextView) findViewById(R.id.write_input);
         textView.setTypeface(typeface);
         textView2.setTypeface(typeface);
         textView3.setTypeface(typeface);
         textView4.setTypeface(typeface);
-
-        TextView textView5 = (TextView) findViewById(R.id.write_input);
-//        TextView textView6 = (TextView) findViewById(R.id.textView5);
         textView5.setTypeface(typeface);
+
+//        TextView textView6 = (TextView) findViewById(R.id.textView5);
 //        textView6.setTypeface(typeface);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
-
+        camera_start();
     }
 
     private void camera_start()
     {
-        camer_abutton = (ImageButton)findViewById(R.id.camera);
-        picture = (ImageView)findViewById(input_picture);
+        camera_abutton = (ImageButton)findViewById(R.id.camera);
+        picture = (ImageView)findViewById(R.id.input_picture);
 
-        camer_abutton.setOnClickListener(new View.OnClickListener()
+        camera_abutton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         picture.setImageURI(data.getData());
     }
 

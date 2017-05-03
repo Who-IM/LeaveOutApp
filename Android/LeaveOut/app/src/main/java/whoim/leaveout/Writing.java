@@ -1,6 +1,7 @@
 package whoim.leaveout;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -51,22 +52,26 @@ public class Writing extends AppCompatActivity {
         camera_abutton = (ImageButton)findViewById(R.id.camera);
         picture = (ImageView)findViewById(R.id.input_picture);
 
+        //카메라 불러오기
         camera_abutton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(intent, 1);
+                Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(camera_intent, 1);
             }
         });
     }
 
-    //사진을 글쓰기 화면에 나오게 하기(미완성)
+    //사진을 글쓰기 화면에 나오게 하기
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
         super.onActivityResult(requestCode, resultCode, data);
-        picture.setImageURI(data.getData());
+        ImageView imageView = (ImageView)findViewById(R.id.input_picture);  //이미지 뷰에다가 찍은 사진 저장
+        Bitmap bm = (Bitmap) data.getExtras().get("data");
+        imageView.setImageBitmap(bm);
     }
 
     // 뒤로가기

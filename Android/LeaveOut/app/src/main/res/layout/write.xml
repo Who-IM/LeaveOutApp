@@ -32,10 +32,10 @@
         android:text="게시"
         android:textColor="#77FFFFFF"
         android:textSize="27dp"
+        android:layout_alignTop="@+id/write_title"
         android:layout_marginLeft="10dp"
-        android:layout_alignBaseline="@+id/write_title"
-        android:layout_alignBottom="@+id/write_title"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/write_title" />
 
     <!--StamLine에 게시-->
     <TextView
@@ -43,7 +43,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="StampLine에 게시"
-        android:textSize="33dp"
+        android:textSize="35dp"
+        android:textColor="#FF000000"
         android:layout_alignLeft="@id/back_icon"
         android:layout_alignTop="@id/back_icon"
         android:layout_marginLeft="60dp"/>
@@ -104,10 +105,11 @@
         android:layout_alignBottom="@+id/write_fence"
         android:layout_alignParentEnd="true" />
 
+    <!--사진 띄울울 공간-->
     <ImageView
         android:id="@+id/input_picture"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
         android:layout_above="@+id/check_icon"
         android:layout_alignStart="@+id/write_textarea" />
 
@@ -129,7 +131,7 @@
             android:layout_marginTop="10dp"
             android:background="#00000000"
             android:hint="글을 입력하세요."
-            android:textSize="20dp"
+            android:textSize="25dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true" />
     </RelativeLayout>
@@ -146,8 +148,8 @@
         <ImageButton
             android:id="@+id/friendtag"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="5dp"
             android:layout_weight="1"
             android:background="#00000000"
             app:srcCompat="@drawable/write_friend" />
@@ -156,9 +158,9 @@
         <ImageButton
             android:id="@+id/camera"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
+            android:layout_height="64dp"
             android:layout_weight="1"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="5dp"
             android:background="#00000000"
             app:srcCompat="@drawable/write_camera" />
 
@@ -166,8 +168,8 @@
         <ImageButton
             android:id="@+id/image_icon"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="5dp"
             android:layout_weight="1"
             android:background="#00000000"
             app:srcCompat="@drawable/write_image" />
@@ -176,8 +178,8 @@
         <ImageButton
             android:id="@+id/public_open"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="5dp"
             android:layout_weight="1"
             android:background="#00000000"
             app:srcCompat="@drawable/write_textopen" />

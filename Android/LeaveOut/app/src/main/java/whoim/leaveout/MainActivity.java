@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity
     // ---------------------------------------------------------------------
 
     // 메뉴 관련 인스턴스
-    private final String[] navItems = {"프로필", "친구 목록"};
+    private final String[] navItems = {"프로필", "친구 목록", "환경설정"};
     private ListView list;
     private FrameLayout Container;
     private DrawerLayout Drawer;
@@ -178,8 +178,10 @@ public class MainActivity extends AppCompatActivity
 
     // 임시로 해놓은것
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        Intent preferences_button;  //환경설정 버튼
         @Override
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+
             switch (position) {
                 case 0:
                     Container.setBackgroundColor(Color.parseColor("#A52A2A"));
@@ -188,13 +190,8 @@ public class MainActivity extends AppCompatActivity
                     Container.setBackgroundColor(Color.parseColor("#5F9EA0"));
                     break;
                 case 2:
-                    Container.setBackgroundColor(Color.parseColor("#556B2F"));
-                    break;
-                case 3:
-                    Container.setBackgroundColor(Color.parseColor("#FF8C00"));
-                    break;
-                case 4:
-                    Container.setBackgroundColor(Color.parseColor("#DAA520"));
+                    preferences_button = new Intent(getApplicationContext(), Preferences.class);
+                    startActivity(preferences_button);
                     break;
             }
             Drawer.closeDrawer(list);
@@ -211,12 +208,6 @@ public class MainActivity extends AppCompatActivity
     //글쓰기 버튼 누르면 글쓰는창 띄우기
     public void writeButton(View v) {
         Intent intent = new Intent(getApplicationContext(), Writing.class);
-        startActivity(intent);
-    }
-
-    //환경설정(임시)
-    public void preferences(View v) {
-        Intent intent = new Intent(getApplicationContext(), Preferences.class);
         startActivity(intent);
     }
 

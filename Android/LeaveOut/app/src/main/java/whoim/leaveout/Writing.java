@@ -1,6 +1,7 @@
 package whoim.leaveout;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -12,19 +13,16 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import static whoim.leaveout.R.id.input_picture;
-
 // 글쓰기
 public class Writing extends AppCompatActivity {
     Toolbar toolbar;
-    ImageButton camer_abutton;
-    ImageView picture;
+    ImageButton camera_abutton = null;
+    ImageView picture = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.write);
-
-        camera_start();
 
         //폰트처리
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
@@ -32,42 +30,48 @@ public class Writing extends AppCompatActivity {
         TextView textView2 = (TextView) findViewById(R.id.write_title);
         TextView textView3 = (TextView) findViewById(R.id.write_loc_text);
         TextView textView4 = (TextView) findViewById(R.id.write_fence);
+        TextView textView5 = (TextView) findViewById(R.id.write_input);
         textView.setTypeface(typeface);
         textView2.setTypeface(typeface);
         textView3.setTypeface(typeface);
         textView4.setTypeface(typeface);
-
-        TextView textView5 = (TextView) findViewById(R.id.write_input);
-//        TextView textView6 = (TextView) findViewById(R.id.textView5);
         textView5.setTypeface(typeface);
+
+//        TextView textView6 = (TextView) findViewById(R.id.textView5);
 //        textView6.setTypeface(typeface);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
-
+        camera_start();
     }
 
+    //카메라 시작
     private void camera_start()
     {
-        camer_abutton = (ImageButton)findViewById(R.id.camera);
-        picture = (ImageView)findViewById(input_picture);
+        camera_abutton = (ImageButton)findViewById(R.id.camera);
+        picture = (ImageView)findViewById(R.id.input_picture);
 
-        camer_abutton.setOnClickListener(new View.OnClickListener()
+        //카메라 불러오기
+        camera_abutton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivity(intent);
+                Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(camera_intent, 1);
             }
         });
     }
 
+    //사진을 글쓰기 화면에 나오게 하기
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        picture.setImageURI(data.getData());
+        super.onActivityResult(requestCode, resultCode, data);
+        ImageView imageView = (ImageView)findViewById(R.id.input_picture);  //이미지 뷰에다가 찍은 사진 저장
+        Bitmap bm = (Bitmap) data.getExtras().get("data");
+        imageView.setImageBitmap(bm);
     }
 
     // 뒤로가기

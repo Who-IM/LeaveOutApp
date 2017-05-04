@@ -20,11 +20,9 @@
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".Writing"></activity>
         <activity android:name=".Preferences"></activity>
-        <activity android:name=".join"></activity><![CDATA[
-        >
+        <activity android:name=".join"></activity>
 
         // 구글 Map
-        ]]>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAs6TKQVaOyF3sclxbqMapgHhEMg_WshJE"/>

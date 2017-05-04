@@ -171,7 +171,6 @@ public class MainActivity extends AppCompatActivity
         alist = new ArrayList<CData>();
         // 데이터를 받기위해 데이터어댑터 객체 선언
         adapter = new DataAdapter(this, alist);
-        adapter.notifyDataSetChanged();
         // 리스트뷰에 어댑터 연결
         list.setAdapter(adapter);
 
@@ -185,8 +184,9 @@ public class MainActivity extends AppCompatActivity
 
     // 메뉴 커스텀 (나중에 DB받아서 수정)
     public void setMenuCustom(DataAdapter adapter) {
-        adapter.add(new CData(getApplicationContext(), R.drawable.basepicture, "허 성 문", "gjtjdans123@naver.com"));
+        adapter.add(new CData(getApplicationContext(), R.drawable.basepicture));
         adapter.add(new CData(getApplicationContext(), "허 성 문"));
+        adapter.add(new CData(getApplicationContext(), "gjtjdans123@naver.com"));
     }
 
     // 뒤로가기
@@ -249,7 +249,6 @@ public class MainActivity extends AppCompatActivity
             // 현재 리스트의 하나의 항목에 보일 컨트롤 얻기
             if (v == null) {
                 // XML 레이아웃을 직접 읽어서 리스트뷰에 넣음
-//                view = mInflater.inflate(R.layout.myitem, list);
                 view = mInflater.inflate(R.layout.myitem, null);
             } else {
                 view = v;
@@ -263,10 +262,9 @@ public class MainActivity extends AppCompatActivity
                 TextView tv2 = (TextView) view.findViewById(R.id.textView2);
                 // 텍스트뷰1에 getLabel()을 출력 즉 첫번째 인수값
                 tv.setText(data.getLabel());
-                tv2.setText(data.getLabel2());
+                tv2.setText(data.getData());
 
-                TextView tv3 = (TextView) view.findViewById(R.id.textView);
-                tv3.setText(data.getLabel3());
+//                tv2.setTextColor(Color.WHITE);
 
                 ImageView iv = (ImageView) view.findViewById(R.id.imageView1);
                 // 이미지뷰에 뿌려질 해당 이미지값을 연결 즉 세번째 인수값
@@ -279,35 +277,24 @@ public class MainActivity extends AppCompatActivity
     // CData안에 받은 값을 직접 할당
 
     class CData {
-        private String label1;
-        private String label2;
-        private String label3;
+        private String m_szLabel;
+        private String m_szData;
         private int m_szData2;
 
         public CData(Context context, int p_szData2) {
             m_szData2 = p_szData2;
         }
 
-        public CData(Context context, int p_szData2, String p_szLabel, String p_szLabel2) {
-            m_szData2 = p_szData2;
-            label1 = p_szLabel;
-            label2 = p_szLabel2;
-        }
-
-        public CData(Context context, String label3) {
-            this.label3 = label3;
+        public CData(Context context, String p_szLabel) {
+            m_szLabel = p_szLabel;
         }
 
         public String getLabel() {
-            return label1;
+            return m_szLabel;
         }
 
-        public String getLabel2() {
-            return label2;
-        }
-
-        public String getLabel3() {
-            return label3;
+        public String getData() {
+            return m_szData;
         }
 
         public int getData2() {

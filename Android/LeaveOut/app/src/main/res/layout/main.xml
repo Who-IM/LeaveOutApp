@@ -41,7 +41,7 @@
         <!-- 메뉴바 나타나는 창 -->
         <ListView
             android:id="@+id/main_menu"
-            android:layout_width="290dp"
+            android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"
             android:background="#EDEDED"

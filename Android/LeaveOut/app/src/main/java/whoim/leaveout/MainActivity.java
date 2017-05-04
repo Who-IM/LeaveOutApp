@@ -85,7 +85,6 @@ public class MainActivity extends AppCompatActivity
     // ---------------------------------------------------------------------
 
     // 메뉴 관련 인스턴스
-    private final String[] navItems = {"프로필", "친구 목록", "환경설정"};
     private ListView list;
     private FrameLayout Container;
     private DrawerLayout Drawer;
@@ -111,6 +110,10 @@ public class MainActivity extends AppCompatActivity
 
         mActivity = this;
 
+        // google map
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.main_google_map);
+        mapFragment.getMapAsync(this);
+
         // 폰트 설정
         setFont();
 
@@ -130,9 +133,6 @@ public class MainActivity extends AppCompatActivity
         button.setTypeface(typeface);
         button1.setTypeface(typeface);
         button2.setTypeface(typeface);
-
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.main_google_map);
-        mapFragment.getMapAsync(this);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    // 임시 메뉴 커스텀
+    // 메뉴 커스텀
     private class DataAdapter extends ArrayAdapter<menuData> {
         // 레이아웃 XML을 읽어들이기 위한 객체
         private LayoutInflater mInflater;
@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    // CData안에 받은 값을 직접 할당
+    // menuData안에 받은 값을 직접 할당
     class menuData {
         private String label1; // text 처리
         private String label2; // text 처리2
@@ -295,27 +295,16 @@ public class MainActivity extends AppCompatActivity
             this.label2 = label2;
         }
 
-        public menuData(Context context, String label) {
-            label1 = label;
-        }
-
-        public String getLabel() {
-            return label1;
-        }
-
-        public String getLabel2() {
-            return label2;
-        }
-
-        public int getImage() {
-            return menu_image;
-        }
-
+        public menuData(Context context, String label) { label1 = label; }
+        public String getLabel() { return label1; }
+        public String getLabel2() { return label2; }
+        public int getImage() { return menu_image; }
     }
 
     // 뒤로가기
     @Override
     public void onBackPressed() {
+        // 메뉴 화면이 open 되있을 경우
         if (Drawer.isDrawerOpen(list)) {
             buttonbox.bringToFront();     // 글쓰기, 체크, 모아보기 앞으로
             main_map.bringToFront();      // 맵 layout 앞으로

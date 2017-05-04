@@ -211,6 +211,19 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    //글보기 임시버튼
+    public void view_button(View v)
+    {
+        Intent intent = new Intent(getApplicationContext(), View_article.class);
+        startActivity(intent);
+    }
+
+    public void collectButton(View v)
+    {
+        Intent intent = new Intent(getApplicationContext(), Collect.class);
+        startActivity(intent);
+    }
+
     // 여기부터 현재위치 받아오기
     @Override
     protected void onStart() {
@@ -297,6 +310,7 @@ public class MainActivity extends AppCompatActivity
     // 위도 경도 찍기(현재위치에서 누를시 위도 경도나옴)
     @Override
     public void onLocationChanged(Location location) {
+
         String markerTitle = getCurrentAddress(location);
         String markerSnippet = "위도:" + String.valueOf(location.getLatitude())
                 + " 경도:" + String.valueOf(location.getLongitude());
@@ -304,7 +318,9 @@ public class MainActivity extends AppCompatActivity
         // 현재위치 받아오기
         TextView v = (TextView) findViewById(R.id.main_location);
         //v.setText("위도 : " + location.getLongitude() +" 경도 : " + location.getLatitude());
+
         v.setText(markerTitle); //현재 위치
+
         //---------------------------------
 
         //현재 위치에 마커 생성
@@ -389,8 +405,9 @@ public class MainActivity extends AppCompatActivity
     public boolean checkLocationServicesStatus() {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)  // GPS 정보 가져오기
+                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER); // 현재 네트워크 상태 값 알아오기
+
     }
 
     public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {

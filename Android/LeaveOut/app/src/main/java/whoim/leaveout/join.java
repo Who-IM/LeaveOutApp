@@ -10,7 +10,7 @@ import android.widget.TextView;
 import static whoim.leaveout.R.id.join_name;
 
 
-public class join extends AppCompatActivity
+public class Join extends AppCompatActivity
 {
     TextView join;
     @Override

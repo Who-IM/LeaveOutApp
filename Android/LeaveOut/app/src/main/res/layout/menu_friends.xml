@@ -8,6 +8,8 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:src="@drawable/friends_icon"
+        android:layout_marginLeft="3dp"
+
         android:layout_marginTop="5dp" />
 
     <!-- 프로필 -->
@@ -17,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
         android:text="친구"
-        android:textSize="41dp"
+        android:textSize="40dp"
         android:layout_alignBottom="@+id/menu_friends_icon"
         android:layout_toEndOf="@+id/menu_friends_icon"
         android:layout_marginStart="12dp" />

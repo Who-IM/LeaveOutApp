@@ -15,7 +15,6 @@ public class Collect extends AppCompatActivity {
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
         TextView title = (TextView) findViewById(R.id.collect_title);
         title.setTypeface(typeface);
-
     }
 
     // 뒤로가기

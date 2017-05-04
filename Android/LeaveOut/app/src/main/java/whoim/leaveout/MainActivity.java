@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity
     // ---------------------------------------------------------------------
 
     // 메뉴 관련 인스턴스
-    private final String[] navItems = {"프로필", "친구 목록"};
+    private final String[] navItems = {"프로필", "친구 목록", "환경설정"};
     private ListView list;
     private FrameLayout Container;
     private DrawerLayout Drawer;
@@ -206,8 +206,10 @@ public class MainActivity extends AppCompatActivity
 
     // 임시로 해놓은것
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        Intent preferences_button;  //환경설정 버튼
         @Override
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+
             switch (position) {
                 case 0:
                     Container.setBackgroundColor(Color.parseColor("#A52A2A"));
@@ -216,13 +218,8 @@ public class MainActivity extends AppCompatActivity
                     Container.setBackgroundColor(Color.parseColor("#5F9EA0"));
                     break;
                 case 2:
-                    Container.setBackgroundColor(Color.parseColor("#556B2F"));
-                    break;
-                case 3:
-                    Container.setBackgroundColor(Color.parseColor("#FF8C00"));
-                    break;
-                case 4:
-                    Container.setBackgroundColor(Color.parseColor("#DAA520"));
+                    preferences_button = new Intent(getApplicationContext(), Preferences.class);
+                    startActivity(preferences_button);
                     break;
             }
             Drawer.closeDrawer(list);
@@ -316,9 +313,16 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    //환경설정(임시)
-    public void preferences(View v) {
-        Intent intent = new Intent(getApplicationContext(), Preferences.class);
+    //글보기 임시버튼
+    public void view_button(View v)
+    {
+        Intent intent = new Intent(getApplicationContext(), View_article.class);
+        startActivity(intent);
+    }
+
+    public void collectButton(View v)
+    {
+        Intent intent = new Intent(getApplicationContext(), Collect.class);
         startActivity(intent);
     }
 
@@ -408,6 +412,7 @@ public class MainActivity extends AppCompatActivity
     // 위도 경도 찍기(현재위치에서 누를시 위도 경도나옴)
     @Override
     public void onLocationChanged(Location location) {
+
         String markerTitle = getCurrentAddress(location);
         String markerSnippet = "위도:" + String.valueOf(location.getLatitude())
                 + " 경도:" + String.valueOf(location.getLongitude());
@@ -415,7 +420,9 @@ public class MainActivity extends AppCompatActivity
         // 현재위치 받아오기
         TextView v = (TextView) findViewById(R.id.main_location);
         //v.setText("위도 : " + location.getLongitude() +" 경도 : " + location.getLatitude());
+
         v.setText(markerTitle); //현재 위치
+
         //---------------------------------
 
         //현재 위치에 마커 생성
@@ -500,8 +507,9 @@ public class MainActivity extends AppCompatActivity
     public boolean checkLocationServicesStatus() {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)  // GPS 정보 가져오기
+                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER); // 현재 네트워크 상태 값 알아오기
+
     }
 
     public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {

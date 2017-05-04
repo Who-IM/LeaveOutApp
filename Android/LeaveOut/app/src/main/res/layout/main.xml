@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:background="#00000000"
                 app:srcCompat="@drawable/public_menu"
-                android:layout_margin="15dp"
+                android:layout_margin="12dp"
                 />
         </FrameLayout>
 
@@ -128,6 +128,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/public_button"
+            android:onClick="collectButton"
             android:text="모아보기"
             android:textColor="#FFFFFFFF"
             android:textSize="30dp" />
@@ -154,8 +155,20 @@
         android:background="@drawable/gps_location"
         android:gravity="center"
         android:textColor="#FFFFFFFF"
-        android:textSize="20dp"
+        android:textSize="15dp"
         android:textStyle="bold" />
+
+    <!--글보기 임시버튼-->
+    <ImageButton
+        android:id="@+id/view_article_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="65dp"
+        android:onClick="view_button"
+        android:text="글보기(임시)"
+        android:background="@drawable/marker"
+        android:layout_below="@+id/main_location"
+        android:layout_alignStart="@+id/main_search" />
 
     <!--&lt;!&ndash; 환경설정(임시) &ndash;&gt;-->
     <!--<Button-->

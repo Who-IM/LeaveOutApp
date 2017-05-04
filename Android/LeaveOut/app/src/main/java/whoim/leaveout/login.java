@@ -37,7 +37,7 @@ public class login extends AppCompatActivity {
 
     //회원가입 화면
     public void joinButton(View v) {
-        Intent intent = new Intent(getApplicationContext(), join.class);
+        Intent intent = new Intent(getApplicationContext(), Join.class);
         startActivity(intent);
     }
     // 메인화면으로 넘어가기

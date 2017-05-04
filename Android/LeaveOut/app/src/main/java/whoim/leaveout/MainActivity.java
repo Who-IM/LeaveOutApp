@@ -2,6 +2,7 @@ package whoim.leaveout;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,7 +25,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,6 +35,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -53,6 +57,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -80,7 +85,6 @@ public class MainActivity extends AppCompatActivity
     // ---------------------------------------------------------------------
 
     // 메뉴 관련 인스턴스
-    private final String[] navItems = {"프로필", "친구 목록", "환경설정"};
     private ListView list;
     private FrameLayout Container;
     private DrawerLayout Drawer;
@@ -91,7 +95,11 @@ public class MainActivity extends AppCompatActivity
     private EditText main_editext;
     private ImageButton main_search;
     private TextView main_location;
+
+    DataAdapter adapter; // 데이터를 연결할 Adapter
+    ArrayList<menuData> alist; // 데이터를 담을 자료구조
     // ----------------------------------------------------------------------
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +110,21 @@ public class MainActivity extends AppCompatActivity
 
         mActivity = this;
 
+        // google map
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.main_google_map);
+        mapFragment.getMapAsync(this);
+
+        // 폰트 설정
+        setFont();
+
+        // 메뉴 커스텀
+        setMenuCustom();
+    }
+
+
+
+    // 폰트 설정
+    private void setFont() {
         //버튼 폰트
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
         Button button = (Button) findViewById(R.id.main_write);
@@ -111,15 +134,14 @@ public class MainActivity extends AppCompatActivity
         button1.setTypeface(typeface);
         button2.setTypeface(typeface);
 
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.main_google_map);
-        mapFragment.getMapAsync(this);
-
         toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
         setSupportActionBar(toolbar);//액션바와 같게 만들어줌
+    }
 
-        //---------------------------------------------------------------------
-        // 매뉴
+    // 메뉴 커스텀 (나중에 DB받아서 수정)
+    private void setMenuCustom() {
+        // 매뉴 구성
         list = (ListView)findViewById(R.id.main_menu);
         Container = (FrameLayout)findViewById(R.id.main_menu_container);
         Drawer = (DrawerLayout)findViewById(R.id.main_drawer);
@@ -135,6 +157,7 @@ public class MainActivity extends AppCompatActivity
         // 매뉴 imagebutton 누를 시 이벤트 처리
         menu_btn.setOnClickListener(new View.OnClickListener() {
             @Override
+            // 메뉴화면 펼치기(layout 앞으로 이동)
             public void onClick(View v) {
                 Drawer.bringToFront();
                 Container.bringToFront();
@@ -146,6 +169,7 @@ public class MainActivity extends AppCompatActivity
         // 빈화면 터치시 이벤트 처리
         Container.setOnClickListener(new View.OnClickListener() {
             @Override
+            // 메뉴화면 닫기면 메인화면의 위젯, 레이아웃들 앞으로 이동
             public void onClick(View v) {
                 buttonbox.bringToFront();     // 글쓰기, 체크, 모아보기 앞으로
                 main_map.bringToFront();      // 맵 layout 앞으로
@@ -156,14 +180,131 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        // ArrayList객체를 생성합니다
+        alist = new ArrayList<menuData>();
+        // 데이터를 받기위해 데이터어댑터 객체 선언
+        adapter = new DataAdapter(this, alist);
+        // 리스트뷰에 어댑터 연결
+        list.setAdapter(adapter);
+
         // 메뉴에 글 목록 등록
-        list.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, navItems));
         list.setOnItemClickListener(new DrawerItemClickListener());
+
+        // 자기 프로필(사진, 이름, email)
+        adapter.add(new menuData(getApplicationContext(), R.drawable.basepicture, "허 성 문", "gjtjdans123@naver.com"));  // 안의 데이터는 db받아서
+        adapter.add(new menuData()); // 프로필아이콘 & 프로필(text)
+        adapter.add(new menuData()); // 친구아이콘 & 친구(text)
+        adapter.add(new menuData()); // 환경설정아이콘 & 환경설정(text)
+    }
+
+    /* 매뉴 눌렀을 시 이벤트 처리
+        0 : 자기 프로필(아무것도 처리 x)
+        1 : 프로필로 이동 (미구현)
+        2 : 친구 보기 펼치기 (미구현)
+        3 : 환경설정                        */
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        Intent preferences_button;  //환경설정 버튼
+        @Override
+        public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+            switch (position) {
+                case 1:
+
+                    break;
+                case 2:
+
+                    break;
+                case 3: // 환경설정으로 이동
+                    preferences_button = new Intent(getApplicationContext(), Preferences.class);
+                    startActivity(preferences_button);
+                    break;
+            }
+            Drawer.closeDrawer(list);
+        }
+    }
+
+    // 메뉴 커스텀
+    private class DataAdapter extends ArrayAdapter<menuData> {
+        // 레이아웃 XML을 읽어들이기 위한 객체
+        private LayoutInflater mInflater;
+
+        public DataAdapter(Context context, ArrayList<menuData> object) {
+            // 상위 클래스의 초기화 과정
+            // context, 0, 자료구조
+            super(context, 0, object);
+            mInflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        }
+        // 보여지는 스타일을 자신이 만든 xml로 보이기 위한 구문
+        @Override
+        public View getView(int position, View v, ViewGroup parent) {
+            View view = null;
+            // 현재 리스트의 하나의 항목에 보일 컨트롤 얻기
+
+            // view 구성하기 (0 : 자기 프로필 화면, 1 : 프로필 아이콘 & text, 2 : 친구아이콘 & text)
+            if (v == null && position == 0) {
+                view = mInflater.inflate(R.layout.menu_profile_title, null);
+            } else if(position == 1) {
+                view = mInflater.inflate(R.layout.menu_profile, null);
+            } else if(position == 2) {
+                view = mInflater.inflate(R.layout.menu_friends, null);
+            } else if(position == 3) {
+                view = mInflater.inflate(R.layout.menu_preferences, null);
+            }
+
+            // 자료를 받는다.
+            final menuData data = this.getItem(position);
+
+            // 자기 프로필
+            if (data != null && position == 0) {
+                // 자기 사진
+                ImageView iv = (ImageView) view.findViewById(R.id.menu_home_icon);
+                iv.setImageResource(data.getImage());
+
+                // 이름. email
+                TextView tv = (TextView) view.findViewById(R.id.menu_profile_myname);
+                TextView tv2 = (TextView) view.findViewById(R.id.menu_profile_myemail);
+                tv.setText(data.getLabel());
+                tv2.setText(data.getLabel2());
+            }
+            else if (position == 1) {
+
+            }
+            else if (position == 2) {
+
+            }
+            else if (position == 3) {
+
+            }
+
+            return view;
+        }
+    }
+
+    // menuData안에 받은 값을 직접 할당
+    class menuData {
+        private String label1; // text 처리
+        private String label2; // text 처리2
+        private int menu_image; // 이미지 처리
+
+        public menuData() {}
+
+        public menuData(Context context, int image, String label1, String label2) {
+            menu_image = image;
+            this.label1 = label1;
+            this.label2 = label2;
+        }
+
+        public menuData(Context context, String label) { label1 = label; }
+        public String getLabel() { return label1; }
+        public String getLabel2() { return label2; }
+        public int getImage() { return menu_image; }
     }
 
     // 뒤로가기
     @Override
     public void onBackPressed() {
+        // 메뉴 화면이 open 되있을 경우
         if (Drawer.isDrawerOpen(list)) {
             buttonbox.bringToFront();     // 글쓰기, 체크, 모아보기 앞으로
             main_map.bringToFront();      // 맵 layout 앞으로
@@ -176,27 +317,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    // 임시로 해놓은것
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        Intent preferences_button;  //환경설정 버튼
-        @Override
-        public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
-
-            switch (position) {
-                case 0:
-                    Container.setBackgroundColor(Color.parseColor("#A52A2A"));
-                    break;
-                case 1:
-                    Container.setBackgroundColor(Color.parseColor("#5F9EA0"));
-                    break;
-                case 2:
-                    preferences_button = new Intent(getApplicationContext(), Preferences.class);
-                    startActivity(preferences_button);
-                    break;
-            }
-            Drawer.closeDrawer(list);
-        }
-    }
 
     //체크 버튼 눌렀을시 토스트 작동
     public void checkButton(View v) {

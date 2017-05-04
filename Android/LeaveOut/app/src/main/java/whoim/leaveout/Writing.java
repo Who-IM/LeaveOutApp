@@ -107,12 +107,6 @@ public class Writing extends AppCompatActivity {
                     Bitmap bm = (Bitmap) data.getExtras().get("data");  //이미지 저장
                     imageView.setImageBitmap(bm);   //이미지뷰에다가 이미지 저장
                 }
-//                else if(count == 2)
-//                {
-//                    ImageView imageView = (ImageView) findViewById(R.id.input_picture2);  //이미지 뷰에다가 찍은 사진 저장
-//                    Bitmap bm = (Bitmap) data.getExtras().get("data");  //이미지 저장
-//                    imageView.setImageBitmap(bm);   //이미지뷰에다가 이미지 저장
-//                }
                 count++;
             }  catch (Exception e) {
                 e.printStackTrace();

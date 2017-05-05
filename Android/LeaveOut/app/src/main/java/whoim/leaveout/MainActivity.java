@@ -203,19 +203,21 @@ public class MainActivity extends AppCompatActivity
         2 : 친구 보기 펼치기 (미구현)
         3 : 환경설정                        */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        Intent preferences_button;  //환경설정 버튼
+        Intent button;  //환경설정 버튼
         @Override
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
             switch (position) {
                 case 1:
 
                     break;
-                case 2:
-
+                case 2: // 친구목록으로 이동
+                    // 폰트 설정
+                    button = new Intent(getApplicationContext(), Friend_list.class);
+                    startActivity(button);
                     break;
                 case 3: // 환경설정으로 이동
-                    preferences_button = new Intent(getApplicationContext(), Preferences.class);
-                    startActivity(preferences_button);
+                    button = new Intent(getApplicationContext(), Preferences.class);
+                    startActivity(button);
                     break;
             }
             Drawer.closeDrawer(list);

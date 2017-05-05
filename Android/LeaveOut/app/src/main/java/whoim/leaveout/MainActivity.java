@@ -235,7 +235,6 @@ public class MainActivity extends AppCompatActivity
             super(context, 0, object);
             mInflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
         }
         // 보여지는 스타일을 자신이 만든 xml로 보이기 위한 구문
         @Override

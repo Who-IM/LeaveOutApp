@@ -40,10 +40,10 @@
         <!-- 메뉴바 나타나는 창 -->
         <ListView
             android:id="@+id/main_menu"
-            android:layout_width="290dp"
+            android:layout_width="230dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:background="#007574"
+            android:background="#FF68c3fe"
             android:choiceMode="singleChoice"
             android:divider="@android:color/transparent"
             android:dividerHeight="0dp" />

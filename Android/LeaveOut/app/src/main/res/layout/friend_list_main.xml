@@ -28,7 +28,7 @@
 
     <!--친구목록-->
     <TextView
-        android:id="@+id/pre_preferences"
+        android:id="@+id/friend_list_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="친구목록"

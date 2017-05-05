@@ -9,8 +9,8 @@
         android:layout_height="50dp"
         android:src="@drawable/friends_icon"
         android:layout_marginLeft="3dp"
-
-        android:layout_marginTop="5dp" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
 
     <!-- 프로필 -->
     <TextView
@@ -18,18 +18,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
+        android:layout_marginBottom="7dp"
+        android:textSize="30dp"
         android:text="친구"
-        android:textSize="40dp"
-        android:layout_alignBottom="@+id/menu_friends_icon"
+        android:layout_above="@+id/relativeLayout"
         android:layout_toEndOf="@+id/menu_friends_icon"
-        android:layout_marginStart="12dp" />
+        android:layout_marginStart="15dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:layout_below="@+id/menu_friends_icon"
         android:background="#477e7d"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:id="@+id/relativeLayout">
 
     </RelativeLayout>
 

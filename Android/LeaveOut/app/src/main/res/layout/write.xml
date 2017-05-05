@@ -38,7 +38,6 @@
         android:layout_alignBottom="@+id/write_title" />
 
     <!--StamLine에 게시-->
-
     <TextView
         android:id="@+id/write_title"
         android:layout_width="wrap_content"

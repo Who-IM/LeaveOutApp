@@ -8,6 +8,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/home_icon"
+            android:layout_marginLeft="3dp"
             android:layout_marginTop="5dp" />
 
         <!-- 프로필 -->
@@ -18,7 +19,7 @@
             android:layout_alignBaseline="@+id/menu_home_icon"
             android:layout_marginLeft="15dp"
             android:text="프로필"
-            android:textSize="41dp"
+            android:textSize="40dp"
             android:layout_toEndOf="@+id/menu_home_icon" />
 
     <RelativeLayout

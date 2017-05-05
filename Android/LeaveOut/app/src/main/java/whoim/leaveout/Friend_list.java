@@ -1,10 +1,10 @@
 package whoim.leaveout;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Friend_list extends Activity {
+public class Friend_list extends AppCompatActivity {
 
     ExpandableListAdapter listAdapter;
     ExpandableListView expListView;
@@ -28,6 +28,7 @@ public class Friend_list extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.friend_list_main);
+
 
         // 확장 listview 생성
         expListView = (ExpandableListView) findViewById(R.id.friend_list);
@@ -97,8 +98,7 @@ public class Friend_list extends Activity {
 
         @Override
         public Object getChild(int groupPosition, int childPosititon) {
-            return this._listDataChild.get(this._listDataHeader.get(groupPosition))
-                    .get(childPosititon);
+            return this._listDataChild.get(this._listDataHeader.get(groupPosition)).get(childPosititon);
         }
 
         @Override
@@ -113,8 +113,7 @@ public class Friend_list extends Activity {
             final String childText = (String) getChild(groupPosition, childPosition);
 
             if (convertView == null) {
-                LayoutInflater infalInflater = (LayoutInflater) this._context
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater infalInflater = (LayoutInflater) this._context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = infalInflater.inflate(R.layout.friend_list_item, null);
             }
 
@@ -129,8 +128,7 @@ public class Friend_list extends Activity {
         // 자식항목 숫자
         @Override
         public int getChildrenCount(int groupPosition) {
-            return this._listDataChild.get(this._listDataHeader.get(groupPosition))
-                    .size();
+            return this._listDataChild.get(this._listDataHeader.get(groupPosition)).size();
         }
 
         @Override
@@ -151,8 +149,7 @@ public class Friend_list extends Activity {
         }
 
         @Override
-        public View getGroupView(int groupPosition, boolean isExpanded,
-                                 View convertView, ViewGroup parent) {
+        public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
             String headerTitle = (String) getGroup(groupPosition);
             if (convertView == null) {
                 LayoutInflater infalInflater = (LayoutInflater) this._context
@@ -160,8 +157,7 @@ public class Friend_list extends Activity {
                 convertView = infalInflater.inflate(R.layout.friend_list_group, null);
             }
 
-            TextView lblListHeader = (TextView) convertView
-                    .findViewById(R.id.friend_list_header);
+            TextView lblListHeader = (TextView) convertView.findViewById(R.id.friend_list_header);
             lblListHeader.setTypeface(null, Typeface.BOLD);
             lblListHeader.setText(headerTitle);
 

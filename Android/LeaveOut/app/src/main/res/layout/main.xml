@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- 툴바 -->
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -50,13 +49,27 @@
             android:dividerHeight="0dp" />
     </android.support.v4.widget.DrawerLayout>
 
+    <!-- 검색 상자 -->
+    <EditText
+        android:id="@+id/main_search"
+        android:paddingLeft="10dp"
+        android:paddingRight="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/public_search"
+        android:inputType="text"
+        android:textSize="20dp" />
+
     <!--지도 틀-->
     <RelativeLayout
         android:id="@+id/main_map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/main_line"
-        android:layout_below="@+id/main_search">
+        android:layout_below="@+id/toolbar">
 
         <!-- 구글 지도 화면 -->
         <fragment
@@ -66,16 +79,6 @@
             android:layout_height="match_parent" />
 
     </RelativeLayout>
-
-    <!-- 검색 상자 -->
-    <EditText
-        android:id="@+id/main_search"
-        android:layout_width="300dp"
-        android:layout_height="55dp"
-        android:layout_alignLeft="@+id/back_icon"
-        android:layout_marginLeft="60dp"
-        android:background="@drawable/public_search"
-        android:textSize="20dp" />
 
     <!-- 돋보기 버튼 -->
     <ImageButton
@@ -169,16 +172,5 @@
         android:background="@drawable/marker"
         android:layout_below="@+id/main_location"
         android:layout_alignStart="@+id/main_search" />
-
-    <!--&lt;!&ndash; 환경설정(임시) &ndash;&gt;-->
-    <!--<Button-->
-        <!--android:id="@+id/button3"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="환경설정"-->
-        <!--android:layout_marginBottom="16dp"-->
-        <!--android:layout_above="@+id/relativeLayout7"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:onClick="preferences"/>-->
 
 </RelativeLayout>

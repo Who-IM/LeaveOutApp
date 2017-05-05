@@ -116,22 +116,22 @@ public class Writing extends AppCompatActivity {
         else if (requestCode == 2)
         {
             try{
-                if(count == 0)
-                {
-                    Uri imgUri = data.getData();    //이미지 위치 url
-                    ImageView imageView = (ImageView)findViewById(R.id.input_picture);  //이미지 뷰에다가 찍은 사진 저장
-                    Bitmap bm = MediaStore.Images.Media.getBitmap(getContentResolver(), imgUri );
-                    imageView.setImageBitmap(bm);   //이미지뷰에다가 이미지 저장
-                }
-                else if(count == 1)
-                {
-                    Uri imgUri = data.getData();    //이미지 위치 url
-                    ImageView imageView = (ImageView)findViewById(R.id.input_picture2);  //이미지 뷰에다가 찍은 사진 저장
-                    Bitmap bm = MediaStore.Images.Media.getBitmap(getContentResolver(), imgUri );
-                    imageView.setImageBitmap(bm);   //이미지뷰에다가 이미지 저장
-                }
-                else if(count == 2)
-                {
+                    if(count == 0)
+                    {
+                        Uri imgUri = data.getData();    //이미지 위치 url
+                        ImageView imageView = (ImageView)findViewById(R.id.input_picture);  //이미지 뷰에다가 찍은 사진 저장
+                        Bitmap bm = MediaStore.Images.Media.getBitmap(getContentResolver(), imgUri );
+                        imageView.setImageBitmap(bm);   //이미지뷰에다가 이미지 저장
+                    }
+                    else if(count == 1)
+                    {
+                        Uri imgUri = data.getData();    //이미지 위치 url
+                        ImageView imageView = (ImageView)findViewById(R.id.input_picture2);  //이미지 뷰에다가 찍은 사진 저장
+                        Bitmap bm = MediaStore.Images.Media.getBitmap(getContentResolver(), imgUri );
+                        imageView.setImageBitmap(bm);   //이미지뷰에다가 이미지 저장
+                    }
+                    else if(count == 2)
+                    {
                     Uri imgUri = data.getData();    //이미지 위치 url
                     ImageView imageView = (ImageView)findViewById(R.id.input_picture3);  //이미지 뷰에다가 찍은 사진 저장
                     Bitmap bm = MediaStore.Images.Media.getBitmap(getContentResolver(), imgUri );

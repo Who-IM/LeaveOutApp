@@ -75,7 +75,6 @@ public class Writing extends AppCompatActivity {
 
         collect_list_view_data(int aIcon) {
             Icon = aIcon;   //이미지
-
         }
     }
 
@@ -193,5 +192,4 @@ public class Writing extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
     }
-
 }

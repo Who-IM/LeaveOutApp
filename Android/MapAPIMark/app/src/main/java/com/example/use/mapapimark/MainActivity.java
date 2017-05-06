@@ -1,11 +1,17 @@
 package com.example.use.mapapimark;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.use.mapapimark.MapAPI.LocationBackground;
 import com.example.use.mapapimark.MapAPI.MapAPIActivity;
 import com.example.use.mapapimark.StartSetting.Permission;
 import com.google.android.gms.location.LocationServices;
@@ -16,15 +22,21 @@ import com.google.android.gms.location.LocationServices;
  * */
 public class MainActivity extends MapAPIActivity {
 
-    private static final String CAMERA_POSITION = "camera_position";        // 액티비티 정지시 상태 저장(구글맵 카메라 위치)
-    private static final String LOCATION = "location";                      // 액티비티 정지시 상태 저장(구글맵 GPS 위치)
-    private static final String GPS_ADDRES = "gps_address";
+    private static final String CAMERA_POSITION = "camera_position_state_save";        // 액티비티 정지시 상태 저장(구글맵 카메라 위치)
+    private static final String LOCATION = "location_state_save";                      // 액티비티 정지시 상태 저장(구글맵 GPS 위치)
+
+    private BroadcastReceiver mBroadcastLocation;   // 자신 위치 정보 브로드 캐스트 수신용
+    private boolean mBroadcastCheck;                // 브로드 캐스트 활성화 상태 확인
+
+    private TextView mAddressView;      // 주소 텍스트 뷰
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         restoreState(savedInstanceState);     // 상태 불러오기
         setContentView(R.layout.activity_main);
+
+        mAddressView = (TextView) findViewById(R.id.textAddress);
 
         /* 나중에 처음에 실행될 액티비티에 한꺼번에 묶을 예정 */
         /*
@@ -39,26 +51,42 @@ public class MainActivity extends MapAPIActivity {
         super.mGoogleApiClient.connect();     // connect 메소드가 성공하면 onConnect() 콜백 메소드를 호출
     }
 
-/*    @Override
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.registerReceiver();        // 사용자 위치 브로드 캐스트 수신 설정
+/*        if(super.mGoogleApiClient.isConnected()) {
+            getDeviceLocation();
+        }*/
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
+/*        // 백그라운드 브로드 캐스트 죽일때 사용
+        if(mBroadcastCheck) {
+            unregisterReceiver(mBroadcastLocation);
+            mBroadcastCheck = false;
+        }*/
+
+/*        // 다른 액티비티로 넘어가거나 액티비티 종료시 버리기
         if(super.mGoogleApiClient.isConnected()) {
 //            PendingIntent LocationIntent = PendingIntent.getService(this, 0, new Intent(this, LocationBackground.class), PendingIntent.FLAG_UPDATE_CURRENT);   // 다른 컴포넌트에게 인텐트 권한 주기
             LocationServices.FusedLocationApi.removeLocationUpdates(super.mGoogleApiClient, super.mLocationPendingIntent);
-        }
-    }*/
+        }*/
+    }
 
-    /*    @Override
-    protected void onResume() {
-        if(super.mGoogleApiClient.isConnected()) {
-            getDeviceLocation();
-        }
-        super.onResume();
-    }*/
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        Toast.makeText(this,"종료",Toast.LENGTH_SHORT).show();
+        unregisterReceiver(mBroadcastLocation);     // 브로드캐스트 종료
+    }
 
     // 뒤로가기 버튼 눌렀을시 콜백메소드
     @Override
     public void onBackPressed() {
+        // 나가기 버튼 눌렀을 시 구글 맵 기능 종료
         if(super.mGoogleApiClient.isConnected()) {
 //            PendingIntent LocationIntent = PendingIntent.getService(this, 0, new Intent(this, LocationBackground.class), PendingIntent.FLAG_UPDATE_CURRENT);   // 다른 컴포넌트에게 인텐트 권한 주기
             LocationServices.FusedLocationApi.removeLocationUpdates(super.mGoogleApiClient, super.mLocationPendingIntent);
@@ -116,6 +144,7 @@ public class MainActivity extends MapAPIActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    // startActivityForResult 함수를 호출한 액티비티에서 종료했을때 콜백 메소드
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -125,7 +154,32 @@ public class MainActivity extends MapAPIActivity {
                 if(!checkLocationServicesStatus()) Toast.makeText(getApplicationContext(),"위치 서비스를 사용 할 수 없습니다.",Toast.LENGTH_SHORT).show();
                 break;
         }
+    }
 
+    // 브로드 캐스트 만들기(로케이션)
+    private void registerReceiver() {
+
+        // 이미 브로드캐스트 수신 설정 했으면 안하기
+        if(mBroadcastCheck == true) return;
+
+        if(mBroadcastLocation == null) {
+            // 사용자 위치 정보 브로드캐스트 수신 객체
+            mBroadcastLocation = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    MainActivity.super.mCurrentLocation = intent.getExtras().getParcelable(LocationBackground.EXTRA_CURRENT_LOCATION);
+                    String s = MainActivity.super.getCurrentAddress(mCurrentLocation);
+                    mAddressView.setText(s);
+                    Log.d(LocationBackground.ACTION_LOCATION_BROADCAST, "mLatitudelocation" + mCurrentLocation.getLatitude());
+                    Log.d(LocationBackground.ACTION_LOCATION_BROADCAST, "mLongitudelocation" + mCurrentLocation.getLongitude());
+                }
+            };
+        }
+        // 사용자 위치 정보 브로드캐스트 수신 설정
+        if(mBroadcastLocation != null) {
+            registerReceiver(mBroadcastLocation, new IntentFilter(LocationBackground.ACTION_LOCATION_BROADCAST));
+            mBroadcastCheck = true; // 브로드캐스트 설정 완료
+        }
     }
 
     // 버튼 onClick 콜백 메소드
@@ -133,7 +187,4 @@ public class MainActivity extends MapAPIActivity {
         Intent intent = new Intent(this,Main2Activity.class);
         startActivity(intent);
     }
-
-
-
 }

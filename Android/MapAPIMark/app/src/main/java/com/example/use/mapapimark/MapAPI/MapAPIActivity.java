@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -24,13 +26,19 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+
 /**
  * 구글 맵에 있는 기능 들은 MapAPIActivity 클래스에 인터페이스 구현을 하도록 한다.
  */
 public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallback,
                                GoogleApiClient.ConnectionCallbacks,
                                GoogleApiClient.OnConnectionFailedListener,
-        GoogleMap.OnMyLocationButtonClickListener {
+                                GoogleMap.OnMyLocationButtonClickListener {
 
     protected static final int GPS_ENABLE_REQUEST_CODE = 1000;      // GPS 서비스 요청 코드
 
@@ -49,6 +57,8 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
 
     private LocationManager mLocationManager;       // 로케이션 매니저(GPS 활성화 여부를 위해 사용)
 
+    protected ClusterMaker mClusterMaker;           // 클러스터 기능 관리 및 제공 객체
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +70,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
     public void onMapReady(GoogleMap googleMap) {
         this.mGoogleMap = googleMap;
         updateLocationUI();     // 구글맵 자신 GPS UI 셋팅
+        mClusterMaker = new ClusterMaker(this, mGoogleMap); // 클러스터 기능 관리 및 제공 객체
 
         if(mCameraPosition != null)     // 카메라 위치 정보가 있을경우
             mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));      // 초기 화면 셋팅
@@ -71,7 +82,17 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
 //            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
 
-/*        LatLng seoul = new LatLng(37.56, 126.97);
+/*        // 테스트 중(마커 생성)
+        mClusterMaker.clerMakerAll();
+        Random mRandom = new Random(1984);
+        List<SNSInfoMaker> item = new ArrayList<>();
+        for(int i = 0; i< 100; i++) {
+            item.add(new SNSInfoMaker(new LatLng(mRandom.nextDouble() * (37.56 - 37.78494009999999) + 37.78494009999999, mRandom.nextDouble() * (126.97 - 127.97) + 127.97)));
+        }
+        mClusterMaker.addSNSInfoMakerList(item);*/
+
+/*
+        LatLng seoul = new LatLng(37.56, 126.97);
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(seoul);
@@ -80,16 +101,17 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         mGoogleMap.addMarker(markerOptions);
 
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(seoul));
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(10));*/
+        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(10));
+        */
 
     }
 
-/*    // LocationListener 의 함수
+/*    // LocationListener 의 함수(구현 중)
     // 로케이션 정보를 얻을 때 콜백 메소드
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-        Toast.makeText(this,"x : "+ mCurrentLocation.getLatitude() + "y : " + mCurrentLocation.getLongitude(),Toast.LENGTH_SHORT).show();
+        Log.d("mCurrentLocation","x : "+ location.getLatitude() + "y : " + location.getLongitude());
     }*/
 
     // GoogleApiClient.ConnectionCallbacks 의 함수
@@ -114,13 +136,29 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
 
     }
 
+    Random mRandom = new Random(1984);
+
     // 자기 자신 GPS 버튼을 눌렀을경우 콜백 메소드 호출
     @Override
     public boolean onMyLocationButtonClick() {
         // GPS 위치 서비스 활성화 안 될시 하라는 화면 표시
         if (!checkLocationServicesStatus()) showDialogForLocationServiceSetting();
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
         Toast.makeText(this,"버튼 누름",Toast.LENGTH_SHORT).show();
-        return false;
+
+        // 테스트 중(마커 생성)
+        mClusterMaker.clerMakerAll();
+        List<SNSInfoMaker> item = new ArrayList<>();
+        for(int i = 0; i< 100; i++) {
+            item.add(new SNSInfoMaker(new LatLng(
+                    mRandom.nextDouble() * (mCurrentLocation.getLatitude() - mCurrentLocation.getLatitude() + 0.5d) + mCurrentLocation.getLatitude() + 0.5d,
+                    mRandom.nextDouble() * (mCurrentLocation.getLongitude() - mCurrentLocation.getLongitude()+1.0d) + mCurrentLocation.getLongitude()+1.0d))
+            );
+        }
+        mClusterMaker.addSNSInfoMakerList(item);
+        mClusterMaker.resetCluster();
+
+        return true;
     }
 
     // GPS 권한 확인
@@ -129,10 +167,10 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
     protected void getDeviceLocation() {
         if (Permission.checkPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
             mLocationPermissionGranted = true;
-            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
+//            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
 //            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);   // 내 위치의 업데이트 각 기능 주기 등 셋팅
             mLocationPendingIntent = PendingIntent.getService(this, 0, mLocationIntent, PendingIntent.FLAG_UPDATE_CURRENT);   // 다른 컴포넌트에게 인텐트 권한 주기
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, mLocationPendingIntent);   // 내 위치의 업데이트 각 기능 주기 등 셋팅
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, mLocationPendingIntent);   // 내 위치의 업데이트 각 기능 주기 등 셋팅 및 백그라운드에서 GPS 위치 찾기
         }
         else {
             // 권한이 없으니 다시 확인메세지 띄우기
@@ -140,7 +178,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         }
     }
 
-    // GooglePlayServicesClient 객체를 생성 메서드
+    // GooglePlayServicesClient 객체를 생성 메서드(구글 맵 api 가져오기)
     public synchronized void buildGoogleApiClient() {
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -153,12 +191,12 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         createLocationRequest();
     }
 
-    // 디바이스 GPS 위치요청 하는 객체 만들기
+    // 디바이스 GPS 위치요청 하는 설정 객체 만들기
     private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);           // 업데이트 되는 주기(ms 단위)
         mLocationRequest.setFastestInterval(5000);  // 위치 획득 후 업데이트 되는 주기(ms 단위)
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY); // 정확도
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY); // 정확도
     }
 
     // 구글 맵에 각 GPS UI 기능 셋팅
@@ -213,4 +251,32 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         builder.create().show();
     }
 
+    // GPS를 주소로 변환
+    public String getCurrentAddress(Location location){
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses;
+
+        try {
+            addresses = geocoder.getFromLocation(
+                    location.getLatitude(),
+                    location.getLongitude(),
+                    1);
+        } catch (IOException ioException) {
+            //네트워크 문제
+//            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
+            return "지오코더 서비스 사용불가";
+        }
+        if (addresses == null || addresses.size() == 0) {
+//            Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
+            return "주소 미발견";
+        } else {
+            Address address = addresses.get(0);
+            return address.getAddressLine(0).toString();
+        }
+    }
+
 }
+
+
+
+

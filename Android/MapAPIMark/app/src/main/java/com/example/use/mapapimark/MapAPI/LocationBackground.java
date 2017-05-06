@@ -13,7 +13,10 @@ import com.google.android.gms.location.LocationResult;
  * */
 public class LocationBackground extends IntentService {
 
-    Location mLocation;
+    /* 구글맵있는 액티비티로 브로드캐스트 전송 */
+    public static final String ACTION_LOCATION_BROADCAST = LocationBackground.class.getName() + "broadcast";
+    public static final String EXTRA_CURRENT_LOCATION = "current_location";
+    private Intent mBroadcastIntent;
 
     public LocationBackground() {
         super("LocationBackground");
@@ -28,6 +31,7 @@ public class LocationBackground extends IntentService {
     public void onCreate() {
         super.onCreate();
         Log.d("on","create");
+        if(mBroadcastIntent == null) mBroadcastIntent = new Intent(ACTION_LOCATION_BROADCAST);
     }
 
     @Override
@@ -43,9 +47,9 @@ public class LocationBackground extends IntentService {
                 LocationResult locationResult = LocationResult.extractResult(intent);
                 Location location = locationResult.getLastLocation();
                 if (location != null) {
-                    mLocation = location;
-                    Log.d("mCurrentLocation","x : "+ mLocation.getLatitude() + "y : " + mLocation.getLongitude());
-
+                    Log.d("mCurrentLocation","x : "+ location.getLatitude() + "y : " + location.getLongitude());
+                    mBroadcastIntent.putExtra(EXTRA_CURRENT_LOCATION,location);
+                    sendBroadcast(mBroadcastIntent);
                 }
             }
         }

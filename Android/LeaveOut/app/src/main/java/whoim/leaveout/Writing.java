@@ -23,13 +23,12 @@ import java.util.ArrayList;
 
 // 글쓰기
 public class Writing extends AppCompatActivity {
-    int count = 0;
     Toolbar toolbar;
     ImageButton camera_button = null;
     ImageButton image_button = null;
     ImageView picture = null;
 
-    ArrayList<collect_list_view_data> ar_write_pic_data;    //그림 넣는 공간
+    ArrayList<write_list_view_data> ar_write_pic_data;    //그림 넣는 공간
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +52,12 @@ public class Writing extends AppCompatActivity {
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
         Button_start(); //글쓰기 버튼들 활성화
 
-        ar_write_pic_data = new ArrayList<collect_list_view_data>();
-        collect_list_view_data list_view;
-        list_view = new collect_list_view_data(R.drawable.public_wirte_background);
+        ar_write_pic_data = new ArrayList<write_list_view_data>();
+        write_list_view_data list_view;
+        list_view = new write_list_view_data(R.drawable.public_wirte_background);
         ar_write_pic_data.add(list_view);
 
-        collect_adapter adapter = new collect_adapter(this, R.layout.write, ar_write_pic_data);
+        write_adapter adapter = new write_adapter(this, R.layout.write, ar_write_pic_data);
 
         //리스트뷰 추가
         ListView list;
@@ -67,25 +66,25 @@ public class Writing extends AppCompatActivity {
     }
 
     // 리스트뷰에 출력할 항목 클래스
-    class collect_list_view_data {
+    class write_list_view_data {
 
         int Icon;
         String Name;
 
-        collect_list_view_data(int aIcon) {
+        write_list_view_data(int aIcon) {
             Icon = aIcon;   //이미지
         }
     }
 
     // 어댑터 클래스
-    class collect_adapter extends BaseAdapter {
+    class write_adapter extends BaseAdapter {
 
         Context con;
         LayoutInflater inflacter;
-        ArrayList<collect_list_view_data> arD;
+        ArrayList<write_list_view_data> arD;
         int layout;
 
-        public collect_adapter(Context context, int alayout, ArrayList<collect_list_view_data> aarD) {
+        public write_adapter(Context context, int alayout, ArrayList<write_list_view_data> aarD) {
             con = context;
             inflacter = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             arD = aarD;
@@ -119,7 +118,6 @@ public class Writing extends AppCompatActivity {
             //사진 넣는 공간
             ImageView img = (ImageView) convertView.findViewById(R.id.input_picture);
             img.setImageResource(arD.get(position).Icon);
-
             return convertView;
         }
     }
@@ -138,7 +136,6 @@ public class Writing extends AppCompatActivity {
             public void onClick(View v)
             {
                 Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //카메라 기능 불러오기
-
                 startActivityForResult(camera_intent, 1);
             }
         });
@@ -168,6 +165,7 @@ public class Writing extends AppCompatActivity {
                 ImageView imageView = (ImageView) findViewById(R.id.input_picture);  //이미지 뷰에다가 찍은 사진 저장
                 Bitmap bm = (Bitmap) data.getExtras().get("data");  //이미지 저장
                 imageView.setImageBitmap(bm);   //이미지뷰에다가 이미지 저장
+
             }  catch (Exception e) {
                 e.printStackTrace();
             }

@@ -29,7 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:layout_below="@+id/menu_profile_icon"
-        android:background="#477e7d"
+        android:background="#ff8fd3ff"
         android:layout_alignParentStart="true"
         android:id="@+id/relativeLayout">
 

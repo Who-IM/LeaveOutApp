@@ -27,7 +27,7 @@ public class View_article extends AppCompatActivity
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
         TextView title = (TextView) findViewById(R.id.view_title);
         title.setTypeface(typeface);
-        // collect_list_view_data 클래스 형태의 데이터 준비
+        // write_list_view_data 클래스 형태의 데이터 준비
         ar_view_data = new ArrayList<view_list_view_data>();
         view_list_view_data list_view;
         list_view = new view_list_view_data(R.drawable.basepicture, "허성문","대구 북구 복현로 영진전문대","2017.05.05 19:03", "5", "57", "미용실 여기 싸고 좋다.");

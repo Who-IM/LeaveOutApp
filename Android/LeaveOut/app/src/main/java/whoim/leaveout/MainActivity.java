@@ -206,7 +206,8 @@ public class MainActivity extends AppCompatActivity
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
             switch (position) {
                 case 1:
-
+                    button = new Intent(getApplicationContext(), Profile.class);
+                    startActivity(button);
                     break;
                 case 2: // 친구목록으로 이동
                     // 폰트 설정

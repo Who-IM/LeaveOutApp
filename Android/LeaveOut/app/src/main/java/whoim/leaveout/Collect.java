@@ -63,7 +63,6 @@ public class Collect extends AppCompatActivity
             like = aLike;   //추천수
             views = aViews; //조회수
             contents = aContents;   //글내용
-
         }
     }
 

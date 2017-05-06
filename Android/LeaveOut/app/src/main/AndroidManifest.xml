@@ -26,6 +26,8 @@
         <activity android:name=".View_article"></activity>
         <activity android:name=".Collect"></activity>
         <activity android:name=".Friend_list"></activity>
+        <activity android:name=".Profile"></activity>
+
 
         // 구글 Map
         <meta-data

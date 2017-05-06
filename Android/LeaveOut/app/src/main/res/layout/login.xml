@@ -6,23 +6,25 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/login_main"
-    tools:context="whoim.leaveout.login">
+    tools:context="whoim.leaveout.login"
+    android:weightSum="1">
 
     <!-- Leave Out text-->
     <TextView
         android:id="@+id/title01"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Leave Out"
-        android:textSize="85dp"
-        android:textColor="#ffffffff"
         android:layout_gravity="center"
-        android:layout_marginTop="80dp"/>
+        android:layout_marginTop="40dp"
+        android:text="Leave Out"
+        android:textColor="#ffffffff"
+        android:textSize="80dp" />
 
     <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp">
+        android:layout_height="249dp"
+        android:layout_marginTop="20dp"
+        android:layout_weight="0.16">
 
         <!-- 아이디 -->
         <EditText
@@ -33,7 +35,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:paddingLeft="10dp"
-            android:background="@drawable/rec"
+            android:background="@drawable/login_text"
             android:inputType="text"
             android:hint="아이디"/>
 
@@ -48,9 +50,11 @@
             android:layout_marginRight="20dp"
             android:layout_marginTop="20dp"
             android:paddingLeft="10dp"
-            android:background="@drawable/rec"
+            android:background="@drawable/login_text"
             android:inputType="textPassword"
             android:hint="패스워드"/>
+
+
 
         <!-- 로그인 -->
         <Button
@@ -62,9 +66,23 @@
             android:layout_marginRight="20dp"
             android:layout_marginTop="20dp"
             android:layout_below="@id/passWord"
-            android:background="@drawable/rec2"
+            android:background="@drawable/login_button"
             android:onClick="loginButton"
-            android:textSize="35dp"/>
+            android:textSize="35dp" />
+
+
+        <Button
+            android:id="@+id/facebook_loginBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="페이스북 으로 로그인"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/login_facebook_login"
+            android:onClick="facebook_loginButton"
+            android:textSize="35dp"
+            android:textColor="#FFFFFFFF"
+            android:layout_above="@+id/insertlogin"
+            android:layout_alignStart="@+id/loginBtn" />
 
         <!-- 회원가입 -->
         <Button
@@ -75,11 +93,11 @@
             android:background="#00000000"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/loginBtn"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginTop="10dp"
-            android:onClick="joinButton"/>
+            android:onClick="joinButton"
+            android:layout_alignParentBottom="true"
+            android:layout_alignStart="@+id/loginBtn" />
 
         <!-- ID/PW찾기 -->
         <Button
@@ -90,12 +108,10 @@
             android:background="#00000000"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/loginBtn"
-            android:layout_alignParentRight="true"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginTop="10dp"/>
-
+            android:layout_alignParentBottom="true"
+            android:layout_alignEnd="@+id/loginBtn" />
 
     </RelativeLayout>
 

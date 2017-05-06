@@ -276,7 +276,6 @@ public class MainActivity extends AppCompatActivity
             else if (position == 3) {
 
             }
-
             return view;
         }
     }

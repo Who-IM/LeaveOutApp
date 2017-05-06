@@ -42,12 +42,11 @@ public class Writing extends AppCompatActivity {
         TextView textView2 = (TextView) findViewById(R.id.write_title);
         TextView textView3 = (TextView) findViewById(R.id.write_loc_text);
         TextView textView4 = (TextView) findViewById(R.id.write_fence);
-        TextView textView5 = (TextView) findViewById(R.id.write_input);
+
         textView.setTypeface(typeface);
         textView2.setTypeface(typeface);
         textView3.setTypeface(typeface);
         textView4.setTypeface(typeface);
-        textView5.setTypeface(typeface);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게

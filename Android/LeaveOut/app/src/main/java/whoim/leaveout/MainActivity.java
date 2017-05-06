@@ -121,8 +121,6 @@ public class MainActivity extends AppCompatActivity
         setMenuCustom();
     }
 
-
-
     // 폰트 설정
     private void setFont() {
         //버튼 폰트
@@ -317,7 +315,6 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
-
 
     //체크 버튼 눌렀을시 토스트 작동
     public void checkButton(View v) {

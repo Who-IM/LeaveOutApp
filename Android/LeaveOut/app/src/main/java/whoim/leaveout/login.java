@@ -13,6 +13,7 @@ public class login extends AppCompatActivity {
 
     TextView title;
     Button login;
+    Button facebook_login;
     TextView insertlogin;
     TextView id_pwSelect;
 
@@ -25,11 +26,13 @@ public class login extends AppCompatActivity {
 
         title = (TextView) findViewById(R.id.title01);
         login = (Button) findViewById(R.id.loginBtn);
+        facebook_login = (Button) findViewById(R.id.facebook_loginBtn);
         insertlogin = (TextView) findViewById(R.id.insertlogin);
         id_pwSelect = (TextView) findViewById(R.id.id_pwSelect);
 
         title.setTypeface(typeface);
         login.setTypeface(typeface);
+        facebook_login.setTypeface(typeface);
         insertlogin.setTypeface(typeface);
         id_pwSelect.setTypeface(typeface);
 
@@ -42,6 +45,12 @@ public class login extends AppCompatActivity {
     }
     // 메인화면으로 넘어가기
     public void loginButton(View v) {
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
+    }
+
+    // 메인화면으로 넘어가기
+    public void facebook_loginButton(View v) {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
     }

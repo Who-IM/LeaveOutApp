@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- 툴바 -->
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@drawable/public_toobar"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <!--뒤로가기-->
+    <ImageButton
+        android:id="@+id/back_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="9dp"
+        android:background="#00000000"
+        android:onClick="Back"
+        android:layout_alignParentTop="true"
+        android:layout_alignBottom="@+id/toolbar"
+        app:srcCompat="@drawable/public_back" />
+
+    <!--환경설정-->
+    <TextView
+        android:id="@+id/profile_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="프로필"
+        android:textColor="#FF000000"
+        android:textSize="35dp"
+        android:layout_alignLeft="@id/back_icon"
+        android:layout_alignTop="@id/back_icon"
+        android:layout_marginLeft="60dp" />
+</RelativeLayout>

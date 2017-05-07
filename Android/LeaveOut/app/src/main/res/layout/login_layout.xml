@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@drawable/login_main"
-    tools:context="whoim.leaveout.login"
-    android:weightSum="1">
+    android:orientation="vertical"
+    android:weightSum="1"
+    tools:context="whoim.leaveout.login">
 
     <!-- Leave Out text-->
     <TextView
@@ -34,10 +34,10 @@
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:paddingLeft="10dp"
             android:background="@drawable/login_text"
+            android:hint="아이디"
             android:inputType="text"
-            android:hint="아이디"/>
+            android:paddingLeft="10dp" />
 
         <!-- 패스워드 -->
         <EditText
@@ -49,11 +49,10 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="20dp"
-            android:paddingLeft="10dp"
             android:background="@drawable/login_text"
+            android:hint="패스워드"
             android:inputType="textPassword"
-            android:hint="패스워드"/>
-
+            android:paddingLeft="10dp" />
 
 
         <!-- 로그인 -->
@@ -61,13 +60,13 @@
             android:id="@+id/loginBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="로그인"
+            android:layout_below="@id/passWord"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="20dp"
-            android:layout_below="@id/passWord"
             android:background="@drawable/login_button"
             android:onClick="loginButton"
+            android:text="로그인"
             android:textSize="35dp" />
 
 
@@ -75,43 +74,43 @@
             android:id="@+id/facebook_loginBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="페이스북 으로 로그인"
+            android:layout_above="@+id/insertlogin"
+            android:layout_alignStart="@+id/loginBtn"
             android:layout_marginRight="20dp"
             android:background="@drawable/login_facebook_login"
             android:onClick="facebook_loginButton"
-            android:textSize="35dp"
+            android:text="페이스북 으로 로그인"
             android:textColor="#FFFFFFFF"
-            android:layout_above="@+id/insertlogin"
-            android:layout_alignStart="@+id/loginBtn" />
+            android:textSize="35dp" />
 
         <!-- 회원가입 -->
         <Button
             android:id="@+id/insertlogin"
-            android:text="*회원가입"
-            android:textSize="25dp"
-            android:textColor="#FFFFFFFF"
-            android:background="#00000000"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignStart="@+id/loginBtn"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
+            android:background="#00000000"
             android:onClick="joinButton"
-            android:layout_alignParentBottom="true"
-            android:layout_alignStart="@+id/loginBtn" />
+            android:text="*회원가입"
+            android:textColor="#FFFFFFFF"
+            android:textSize="25dp" />
 
         <!-- ID/PW찾기 -->
         <Button
             android:id="@+id/id_pwSelect"
-            android:text="*ID/PW찾기"
-            android:textSize="25dp"
-            android:textColor="#FFFFFFFF"
-            android:background="#00000000"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/loginBtn"
+            android:layout_alignParentBottom="true"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignEnd="@+id/loginBtn" />
+            android:background="#00000000"
+            android:text="*ID/PW찾기"
+            android:textColor="#FFFFFFFF"
+            android:textSize="25dp" />
 
     </RelativeLayout>
 

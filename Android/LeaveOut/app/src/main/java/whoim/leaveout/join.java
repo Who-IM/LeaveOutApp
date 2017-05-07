@@ -13,7 +13,7 @@ public class Join extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.join);
+        setContentView(R.layout.join_layout);
 
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
         TextView join_title = (TextView) findViewById(R.id.join_name);

@@ -12,7 +12,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/public_toobar"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true" >
 
     <!--뒤로가기-->
     <ImageButton
@@ -35,8 +35,9 @@
         android:textColor="#FF000000"
         android:textSize="35dp"
         android:layout_alignLeft="@id/back_icon"
-        android:layout_alignTop="@id/back_icon"
-        android:layout_marginLeft="60dp" />
+        android:layout_alignTop="@id/back_icon" />
+
+    </android.support.v7.widget.Toolbar>
 
     <HorizontalScrollView
         android:layout_width="match_parent"

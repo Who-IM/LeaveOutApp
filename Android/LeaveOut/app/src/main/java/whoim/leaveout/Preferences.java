@@ -13,7 +13,7 @@ public class Preferences extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.preferences);
+        setContentView(R.layout.preferences_layout);
 
         Typeface menu_bar = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
         TextView menu = (TextView) findViewById(R.id.pre_preferences);

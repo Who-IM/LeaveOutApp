@@ -23,7 +23,7 @@ public class Collect extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.collect_main);
+        setContentView(R.layout.collect_layout);
 
         //폰트
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");

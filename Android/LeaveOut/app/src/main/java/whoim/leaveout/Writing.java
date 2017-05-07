@@ -33,7 +33,7 @@ public class Writing extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.write_main);
+        setContentView(R.layout.write_layout);
 
         //폰트처리
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");

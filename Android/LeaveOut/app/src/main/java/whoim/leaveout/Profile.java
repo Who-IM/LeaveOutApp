@@ -12,7 +12,7 @@ public class Profile extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.profile_main);
+        setContentView(R.layout.profile_layout);
 
         Typeface menu_bar = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
         TextView menu = (TextView) findViewById(R.id.profile_title);

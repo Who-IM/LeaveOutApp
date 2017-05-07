@@ -22,7 +22,7 @@ public class View_article extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.view_article_main);
+        setContentView(R.layout.view_article_layout);
 
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
         TextView title = (TextView) findViewById(R.id.view_title);

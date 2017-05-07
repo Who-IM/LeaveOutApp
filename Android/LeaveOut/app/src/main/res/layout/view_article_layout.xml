@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- 툴바 -->
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/public_toobar">
+
+        <!--뒤로가기-->
+        <ImageButton
+            android:id="@+id/back_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/toolbar"
+            android:layout_alignParentTop="true"
+            android:layout_margin="9dp"
+            android:background="#00000000"
+            android:onClick="Back"
+            app:srcCompat="@drawable/public_back" />
+
+        <!--모아보기-->
+        <TextView
+            android:id="@+id/view_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/back_icon"
+            android:layout_alignTop="@id/back_icon"
+            android:text="글 보기"
+            android:textColor="#FF000000"
+            android:textSize="35dp" />
+    </android.support.v7.widget.Toolbar>
+
+
+    <ListView
+        android:id="@+id/view_listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/toolbar"
+        android:choiceMode="singleChoice" />
+
+</RelativeLayout>

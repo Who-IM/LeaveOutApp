@@ -27,7 +27,7 @@ public class Friend_list extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.friend_list_main);
+        setContentView(R.layout.friend_list_layout);
 
 
         // 확장 listview 생성

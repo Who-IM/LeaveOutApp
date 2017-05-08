@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -19,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.tsengvn.typekit.TypekitContextWrapper;
+
 import java.util.ArrayList;
 
 // 글쓰기
@@ -27,6 +28,7 @@ public class Writing extends AppCompatActivity {
     ImageButton camera_button = null;
     ImageButton image_button = null;
     ImageView picture = null;
+    TextView mAddressText;
 
     ArrayList<write_list_view_data> ar_write_pic_data;    //그림 넣는 공간
 
@@ -34,22 +36,14 @@ public class Writing extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.write_layout);
-
-        //폰트처리
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
-        TextView textView = (TextView) findViewById(R.id.write_commit);
-        TextView textView2 = (TextView) findViewById(R.id.write_title);
-        TextView textView3 = (TextView) findViewById(R.id.write_loc_text);
-        TextView textView4 = (TextView) findViewById(R.id.write_fence);
-
-        textView.setTypeface(typeface);
-        textView2.setTypeface(typeface);
-        textView3.setTypeface(typeface);
-        textView4.setTypeface(typeface);
+        Intent data = getIntent();      // 데이터 가져오기
+        mAddressText = (TextView) findViewById(R.id.write_address);
+        if(data != null) mAddressText.setText(data.getStringExtra("address"));  // 주소 창 표시
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
+        getSupportActionBar().setDisplayShowTitleEnabled(false);        //액션바에 표시되는 제목의 표시유무를 설정합니다.
         Button_start(); //글쓰기 버튼들 활성화
 
         ar_write_pic_data = new ArrayList<write_list_view_data>();
@@ -188,5 +182,11 @@ public class Writing extends AppCompatActivity {
     public void writeBack(View v) {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
+    }
+
+    // 폰트 바꾸기
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
 }

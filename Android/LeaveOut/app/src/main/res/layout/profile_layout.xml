@@ -33,6 +33,7 @@
             android:layout_alignLeft="@id/back_icon"
             android:layout_alignTop="@id/back_icon"
             android:text="프로필"
+            app:font="custom1"
             android:textColor="#FF000000"
             android:textSize="35dp" />
     </android.support.v7.widget.Toolbar>

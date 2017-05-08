@@ -2,9 +2,10 @@ package whoim.leaveout;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +14,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.tsengvn.typekit.TypekitContextWrapper;
+
 import java.util.ArrayList;
 
 //모아보기
-public class Collect extends AppCompatActivity
-{
+public class Collect extends AppCompatActivity {
     ArrayList<collect_list_view_data> ar_view_data;
 
     @Override
@@ -25,10 +27,10 @@ public class Collect extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.collect_layout);
 
-        //폰트
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
-        TextView title = (TextView) findViewById(R.id.collect_title);   //제목
-        title.setTypeface(typeface);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
+        toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
+        setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
+        getSupportActionBar().setDisplayShowTitleEnabled(false);        //액션바에 표시되는 제목의 표시유무를 설정합니다.
 
         // collect_list_view_data 클래스 형태의 데이터 준비
         ar_view_data = new ArrayList<collect_list_view_data>();
@@ -142,6 +144,13 @@ public class Collect extends AppCompatActivity
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
     }
+
+    // 폰트 바꾸기
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
+    }
+
 }
 
 

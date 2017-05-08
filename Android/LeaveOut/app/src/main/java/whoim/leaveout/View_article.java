@@ -2,7 +2,6 @@ package whoim.leaveout;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -12,6 +11,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.tsengvn.typekit.TypekitContextWrapper;
 
 import java.util.ArrayList;
 
@@ -24,9 +25,6 @@ public class View_article extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_article_layout);
 
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
-        TextView title = (TextView) findViewById(R.id.view_title);
-        title.setTypeface(typeface);
         // write_list_view_data 클래스 형태의 데이터 준비
         ar_view_data = new ArrayList<view_list_view_data>();
         view_list_view_data list_view;
@@ -139,6 +137,12 @@ public class View_article extends AppCompatActivity
     public void Back(View v) {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
+    }
+
+    // 폰트 바꾸기
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
 }
 

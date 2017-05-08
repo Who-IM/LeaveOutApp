@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />     //갤러리 퍼미션
 
     <application
+        android:name=".CustomFont.CustomStartApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -28,6 +29,10 @@
         <activity android:name=".Friend_list"></activity>
         <activity android:name=".Profile"></activity>
 
+        <service
+            android:name=".MapAPI.LocationBackground"
+            android:enabled="true"
+            android:exported="false" />
 
         // 구글 Map
         <meta-data

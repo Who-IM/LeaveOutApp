@@ -2,6 +2,7 @@ package whoim.leaveout;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -16,121 +17,134 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 
 import java.util.ArrayList;
 
+// 글 보기
 public class View_articleActivity extends AppCompatActivity
 {
-    ArrayList<view_list_view_data> ar_view_data;
+    private ListView list = null;
+    private article_Adapter adapter = null;
 
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_article_layout);
 
-        // write_list_view_data 클래스 형태의 데이터 준비
-        ar_view_data = new ArrayList<view_list_view_data>();
-        view_list_view_data list_view;
-        list_view = new view_list_view_data(R.drawable.basepicture, "허성문","대구 북구 복현로 영진전문대","2017.05.05 19:03", "5", "57", "미용실 여기 싸고 좋다.");
-        ar_view_data.add(list_view);
+        // 메뉴
+        list = (ListView) findViewById(R.id.collect_listview);
 
-        collect_adapter adapter = new collect_adapter(this, R.layout.view_article, ar_view_data);
+        // 어뎁터 생성민 등록
+        adapter = new article_Adapter(this);
+        list.setAdapter(adapter);
 
-        //리스트뷰 추가
-        ListView list;
-        list = (ListView)findViewById(R.id.view_listview);
-        list.setAdapter(adapter);   //어뎁터 샛팅
+        // 실제 데이터 삽입
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),
+                "허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),
+                "김창석", "대구 복현동 뚝불", "2017.05.08 19:22","1230","2325","값싸다");
     }
 
-    // 리스트뷰에 출력할 항목 클래스
-    class view_list_view_data {
-
-        int Icon;
-        String Name;
-        String location;
-        String time;
-        String like;
-        String views;
-        String contents;
-
-        view_list_view_data(int aIcon, String aName, String aLocation, String aTime, String aLike, String aViews, String aContents) {
-            Icon = aIcon;   //이미지
-            Name = aName;   //이름
-            location = aLocation;   //장소
-            time = aTime;   //시간
-            like = aLike;   //추천수
-            views = aViews; //조회수
-            contents = aContents;   //글내용
-
-        }
+    private class article_ViewHolder {
+        public ImageView Image;
+        public TextView name;
+        public TextView location;
+        public TextView time;
+        public TextView recom_num;
+        public TextView views_num;
+        public TextView contents;
     }
 
-    // 어댑터 클래스
-    class collect_adapter extends BaseAdapter {
+    // 리스트뷰 어뎁터
+    private class article_Adapter extends BaseAdapter {
+        private Context mContext = null;
+        private ArrayList<article_ListData> mListData = new ArrayList<article_ListData>();
 
-        Context con;
-        LayoutInflater inflacter;
-        ArrayList<view_list_view_data> arD;
-        int layout;
-
-        public collect_adapter(Context context, int alayout, ArrayList<view_list_view_data> aarD) {
-            con = context;
-            inflacter = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            arD = aarD;
-            layout = alayout;
+        public article_Adapter(Context mContext) {
+            super();
+            this.mContext = mContext;
         }
 
-        // 어댑터에 몇 개의 항목이 있는지 조사
         @Override
         public int getCount() {
-            return arD.size();
+            return mListData.size();
         }
 
-        // position 위치의 항목 Name 반환
         @Override
         public Object getItem(int position) {
-            return arD.get(position).Name;
+            return mListData.get(position);
         }
 
-        // position 위치의 항목 ID 반환
         @Override
         public long getItemId(int position) {
             return position;
         }
 
-        // 각 항목의 뷰 생성 후 반환
+        // 생성자로 값을 받아 셋팅
+        public void addItem(Drawable image, String name, String location, String time, String recom_num, String views_num, String contents) {
+            article_ListData addInfo = null;
+            addInfo = new article_ListData();
+            addInfo.Image = image;
+            addInfo.name = name;
+            addInfo.location = location;
+            addInfo.time = time;
+            addInfo.recom_num = recom_num;
+            addInfo.views_num = views_num;
+            addInfo.contents = contents;
+
+            mListData.add(addInfo);
+        }
+
         @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, ViewGroup parent) {
+            article_ViewHolder holder;
             if (convertView == null) {
-                convertView = inflacter.inflate(layout, parent, false);
+                holder = new article_ViewHolder();
+
+                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.view_article, null);
+
+                holder.Image = (ImageView) convertView.findViewById(R.id.view_Image);
+                holder.name = (TextView) convertView.findViewById(R.id.view_name);
+                holder.location = (TextView) convertView.findViewById(R.id.view_location);
+                holder.time = (TextView) convertView.findViewById(R.id.view_time);
+                holder.recom_num = (TextView) convertView.findViewById(R.id.view_recom_num);
+                holder.views_num = (TextView) convertView.findViewById(R.id.view_views_num);
+                holder.contents = (TextView) convertView.findViewById(R.id.view_contents);
+
+                convertView.setTag(holder);
+            }else{
+                holder = (article_ViewHolder) convertView.getTag();
             }
-            // 사람 이미지
-            ImageView img = (ImageView) convertView.findViewById(R.id.imageView);
-            img.setImageResource(arD.get(position).Icon);
 
-            // 이름
-            TextView name = (TextView) convertView.findViewById(R.id.view_name);
-            name.setText(arD.get(position).Name);
+            article_ListData mData = mListData.get(position);
 
-            // 장소
-            TextView loc = (TextView) convertView.findViewById(R.id.view_location);
-            loc.setText(arD.get(position).location);
+            // 이미지 처리
+            if (mData.Image != null) {
+                holder.Image.setVisibility(View.VISIBLE);
+                holder.Image.setImageDrawable(mData.Image);
+            }else{
+                holder.Image.setVisibility(View.GONE);
+            }
 
-            // 시간
-            TextView time = (TextView) convertView.findViewById(R.id.view_time);
-            time.setText(arD.get(position).time);
-
-            // 추천수
-            TextView like = (TextView) convertView.findViewById(R.id.view_recom_num);
-            like.setText(arD.get(position).like);
-
-            // 조회수
-            TextView view = (TextView) convertView.findViewById(R.id.view_views_num);
-            view.setText(arD.get(position).views);
-
-            // 글내용
-            TextView con = (TextView) convertView.findViewById(R.id.view_contents);
-            con.setText(arD.get(position).contents);
+            // textView 처리
+            holder.name.setText(mData.name);
+            holder.location.setText(mData.location);
+            holder.time.setText(mData.time);
+            holder.recom_num.setText(mData.recom_num);
+            holder.views_num.setText(mData.views_num);
+            holder.contents.setText(mData.contents);
 
             return convertView;
         }
+    }
+
+    // 메뉴의 실제 데이터를 저장할 class
+    class article_ListData {
+        public Drawable Image;
+        public String name;
+        public String location;
+        public String time;
+        public String recom_num;
+        public String views_num;
+        public String contents;
     }
 
     // 뒤로가기

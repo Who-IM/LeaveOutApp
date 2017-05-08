@@ -7,21 +7,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
-import static whoim.leaveout.R.id.join_name;
-
-
-public class join extends AppCompatActivity
+public class Join extends AppCompatActivity
 {
-    TextView join;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.join);
+        setContentView(R.layout.join_layout);
 
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
-        join = (TextView) findViewById(join_name);
-        join.setTypeface(typeface);
+        TextView join_title = (TextView) findViewById(R.id.join_name);
+        join_title.setTypeface(typeface);
     }
 
     public void joinButton(View v)

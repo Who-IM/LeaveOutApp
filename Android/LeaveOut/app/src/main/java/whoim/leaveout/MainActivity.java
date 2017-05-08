@@ -2,6 +2,7 @@ package whoim.leaveout;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,14 +25,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,8 +55,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -59,6 +69,7 @@ public class MainActivity extends AppCompatActivity
 
     // 툴바
     Toolbar toolbar;
+    int index;      // 테스트용
 
     // 구글맵 현재 위치 찍기
     private GoogleApiClient mGoogleApiClient = null;
@@ -76,11 +87,22 @@ public class MainActivity extends AppCompatActivity
     boolean askPermissionOnceAgain = false;
     // ---------------------------------------------------------------------
 
-    private final String[] navItems = {"Brown", "Cadet Blue", "Dark Olive Green", "Dark Orange", "Golden Rod"};
-    private ListView lvNavList;
-    private FrameLayout flContainer;
-    private DrawerLayout dlDrawer;
-    private ImageButton btn;
+    // 메뉴 관련 인스턴스
+    private ListView list;
+    private FrameLayout Container;
+    private DrawerLayout Drawer;
+    private ImageButton menu_btn;
+
+    private LinearLayout buttonbox;
+    private RelativeLayout main_map;
+    private EditText main_editext;
+    private ImageButton main_search;
+    private TextView main_location;
+
+    DataAdapter adapter; // 데이터를 연결할 Adapter
+    ArrayList<menuData> alist; // 데이터를 담을 자료구조
+    // ----------------------------------------------------------------------
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,61 +113,209 @@ public class MainActivity extends AppCompatActivity
 
         mActivity = this;
 
+        // google map
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.main_google_map);
+        mapFragment.getMapAsync(this);
+
+        // 폰트 설정
+        setFont();
+
+        // 메뉴 커스텀
+        setMenuCustom();
+    }
+
+    // 폰트 설정
+    private void setFont() {
         //버튼 폰트
         Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
-        Button button = (Button) findViewById(R.id.button);
-        Button button1 = (Button) findViewById(R.id.button1);
-        Button button2 = (Button) findViewById(R.id.button2);
+        Button button = (Button) findViewById(R.id.main_write);
+        Button button1 = (Button) findViewById(R.id.main_check);
+        Button button2 = (Button) findViewById(R.id.main_collect);
         button.setTypeface(typeface);
         button1.setTypeface(typeface);
         button2.setTypeface(typeface);
 
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
         toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
         setSupportActionBar(toolbar);//액션바와 같게 만들어줌
+    }
 
-        lvNavList = (ListView)findViewById(R.id.lv_activity_main_nav_list);
+    // 메뉴 커스텀 (나중에 DB받아서 수정)
+    private void setMenuCustom() {
+        // 매뉴 구성
+        list = (ListView)findViewById(R.id.main_menu);
+        Container = (FrameLayout)findViewById(R.id.main_menu_container);
+        Drawer = (DrawerLayout)findViewById(R.id.main_drawer);
+        menu_btn = (ImageButton)findViewById(R.id.menu_btn);
 
-        flContainer = (FrameLayout)findViewById(R.id.fl_activity_main_container);
-        btn = (ImageButton)findViewById(R.id.btn);
+        // 메인화면 (글쓰기, 체크, 모아보기, 맵화면, location, search, search icon)
+        buttonbox = (LinearLayout) findViewById(R.id.main_button_layout);
+        main_map = (RelativeLayout) findViewById(R.id.main_map);
+        main_editext = (EditText) findViewById(R.id.main_search);
+        main_search = (ImageButton) findViewById(R.id.search_icon);
+        main_location = (TextView) findViewById(R.id.main_location);
 
-        btn.setOnClickListener(new View.OnClickListener() {
+        // 매뉴 imagebutton 누를 시 이벤트 처리
+        menu_btn.setOnClickListener(new View.OnClickListener() {
             @Override
+            // 메뉴화면 펼치기(layout 앞으로 이동)
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "open", Toast.LENGTH_SHORT).show();
-                dlDrawer.openDrawer(lvNavList);
+                Drawer.bringToFront();
+                Container.bringToFront();
+                list.bringToFront();
+                Drawer.openDrawer(list); // 펼치기
             }
         });
 
-        dlDrawer = (DrawerLayout)findViewById(R.id.dl_activity_main_drawer);
-        lvNavList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, navItems));
-        lvNavList.setOnItemClickListener(new DrawerItemClickListener());
+        // 빈화면 터치시 이벤트 처리
+        Container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            // 메뉴화면 닫기면 메인화면의 위젯, 레이아웃들 앞으로 이동
+            public void onClick(View v) {
+                buttonbox.bringToFront();     // 글쓰기, 체크, 모아보기 앞으로
+                main_map.bringToFront();      // 맵 layout 앞으로
+                main_editext.bringToFront();  // search editext 앞으로
+                main_search.bringToFront();   // search icon 앞으로
+                main_location.bringToFront(); // 위치 text 앞으로
+                Drawer.closeDrawer(list);      // 메뉴 종료
+            }
+        });
+
+        // ArrayList객체를 생성합니다
+        alist = new ArrayList<menuData>();
+        // 데이터를 받기위해 데이터어댑터 객체 선언
+        adapter = new DataAdapter(this, alist);
+        // 리스트뷰에 어댑터 연결
+        list.setAdapter(adapter);
+
+        // 메뉴에 글 목록 등록
+        list.setOnItemClickListener(new DrawerItemClickListener());
+
+        // 자기 프로필(사진, 이름, email)
+        adapter.add(new menuData(getApplicationContext(), R.drawable.basepicture, "허 성 문", "gjtjdans123@naver.com"));  // 안의 데이터는 db받아서
+        adapter.add(new menuData()); // 프로필아이콘 & 프로필(text)
+        adapter.add(new menuData()); // 친구아이콘 & 친구(text)
+        adapter.add(new menuData()); // 환경설정아이콘 & 환경설정(text)
     }
 
+    /* 매뉴 눌렀을 시 이벤트 처리
+        0 : 자기 프로필(아무것도 처리 x)
+        1 : 프로필로 이동 (미구현)
+        2 : 친구 보기 펼치기 (미구현)
+        3 : 환경설정                        */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        Intent button;  //환경설정 버튼
         @Override
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
             switch (position) {
-                case 0:
-                    flContainer.setBackgroundColor(Color.parseColor("#A52A2A"));
-                    break;
                 case 1:
-                    flContainer.setBackgroundColor(Color.parseColor("#5F9EA0"));
+                    button = new Intent(getApplicationContext(), Profile.class);
+                    startActivity(button);
                     break;
-                case 2:
-                    flContainer.setBackgroundColor(Color.parseColor("#556B2F"));
+                case 2: // 친구목록으로 이동
+                    // 폰트 설정
+                    button = new Intent(getApplicationContext(), Friend_list.class);
+                    startActivity(button);
                     break;
-                case 3:
-                    flContainer.setBackgroundColor(Color.parseColor("#FF8C00"));
-                    break;
-                case 4:
-                    flContainer.setBackgroundColor(Color.parseColor("#DAA520"));
+                case 3: // 환경설정으로 이동
+                    button = new Intent(getApplicationContext(), Preferences.class);
+                    startActivity(button);
                     break;
             }
-            dlDrawer.closeDrawer(lvNavList);
+            Drawer.closeDrawer(list);
+        }
+    }
+
+    // 메뉴 커스텀
+    private class DataAdapter extends ArrayAdapter<menuData> {
+        // 레이아웃 XML을 읽어들이기 위한 객체
+        private LayoutInflater mInflater;
+
+        public DataAdapter(Context context, ArrayList<menuData> object) {
+            // 상위 클래스의 초기화 과정
+            // context, 0, 자료구조
+            super(context, 0, object);
+            mInflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+        // 보여지는 스타일을 자신이 만든 xml로 보이기 위한 구문
+        @Override
+        public View getView(int position, View v, ViewGroup parent) {
+            View view = null;
+            // 현재 리스트의 하나의 항목에 보일 컨트롤 얻기
+
+            // view 구성하기 (0 : 자기 프로필 화면, 1 : 프로필 아이콘 & text, 2 : 친구아이콘 & text)
+            if (v == null && position == 0) {
+                view = mInflater.inflate(R.layout.menu_profile_title, null);
+            } else if(position == 1) {
+                view = mInflater.inflate(R.layout.menu_profile, null);
+            } else if(position == 2) {
+                view = mInflater.inflate(R.layout.menu_friends, null);
+            } else if(position == 3) {
+                view = mInflater.inflate(R.layout.menu_preferences, null);
+            }
+
+            // 자료를 받는다.
+            final menuData data = this.getItem(position);
+
+            // 자기 프로필
+            if (data != null && position == 0) {
+                // 자기 사진
+                ImageView iv = (ImageView) view.findViewById(R.id.menu_home_icon);
+                iv.setImageResource(data.getImage());
+
+                // 이름. email
+                TextView tv = (TextView) view.findViewById(R.id.menu_profile_myname);
+                TextView tv2 = (TextView) view.findViewById(R.id.menu_profile_myemail);
+                tv.setText(data.getLabel());
+                tv2.setText(data.getLabel2());
+            }
+            else if (position == 1) {
+
+            }
+            else if (position == 2) {
+
+            }
+            else if (position == 3) {
+
+            }
+            return view;
+        }
+    }
+
+    // menuData안에 받은 값을 직접 할당
+    class menuData {
+        private String label1; // text 처리
+        private String label2; // text 처리2
+        private int menu_image; // 이미지 처리
+
+        public menuData() {}
+
+        public menuData(Context context, int image, String label1, String label2) {
+            menu_image = image;
+            this.label1 = label1;
+            this.label2 = label2;
+        }
+
+        public menuData(Context context, String label) { label1 = label; }
+        public String getLabel() { return label1; }
+        public String getLabel2() { return label2; }
+        public int getImage() { return menu_image; }
+    }
+
+    // 뒤로가기
+    @Override
+    public void onBackPressed() {
+        // 메뉴 화면이 open 되있을 경우
+        if (Drawer.isDrawerOpen(list)) {
+            buttonbox.bringToFront();     // 글쓰기, 체크, 모아보기 앞으로
+            main_map.bringToFront();      // 맵 layout 앞으로
+            main_editext.bringToFront();  // search editext 앞으로
+            main_search.bringToFront();   // search icon 앞으로
+            main_location.bringToFront(); // 위치 text 앞으로
+            Drawer.closeDrawer(list);      // 메뉴 종료
+        } else {
+            super.onBackPressed();
         }
     }
 
@@ -162,19 +332,17 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    //환경설정(임시)
-    public void preferences(View v) {
-        Intent intent = new Intent(getApplicationContext(), Preferences.class);
+    //글보기 임시버튼
+    public void view_button(View v)
+    {
+        Intent intent = new Intent(getApplicationContext(), View_article.class);
         startActivity(intent);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (dlDrawer.isDrawerOpen(lvNavList)) {
-            dlDrawer.closeDrawer(lvNavList);
-        } else {
-            super.onBackPressed();
-        }
+    public void collectButton(View v)
+    {
+        Intent intent = new Intent(getApplicationContext(), Collect.class);
+        startActivity(intent);
     }
 
     // 여기부터 현재위치 받아오기
@@ -192,10 +360,8 @@ public class MainActivity extends AppCompatActivity
 
         //앱 정보에서 퍼미션을 허가했는지를 다시 검사해봐야 한다.
         if (askPermissionOnceAgain) {
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 askPermissionOnceAgain = false;
-
                 checkPermissions();
             }
         }
@@ -260,19 +426,41 @@ public class MainActivity extends AppCompatActivity
             }
             mGoogleMap.setMyLocationEnabled(true);
         }
+
+        double seoul_lat = 37.56;
+        double seoul_lng = 126.97;
+
+        ClusterManager<CheckMaker> mClusterManager = new ClusterManager<>(getApplicationContext(), map);
+//        map.setOnCameraChangeListener(mClusterManager);
+        map.setOnCameraIdleListener(mClusterManager);
+        map.setOnMarkerClickListener(mClusterManager);
+        mClusterManager.setRenderer(new OwnRenring(getApplicationContext(),map,mClusterManager));
+
+        for(int i = 1; i <= 10; i++) {
+            index++;
+            double lat = seoul_lat + (i / 200d);
+            double lng = seoul_lng + (i / 200d);
+            Log.d("x,y",lat+","+lng+"");
+            CheckMaker checkMaker = new CheckMaker(new LatLng(lat,lng),"서울"+ index,"서울 설명" + index);
+            mClusterManager.addItem(checkMaker);
+        }
+
     }
 
     // 위도 경도 찍기(현재위치에서 누를시 위도 경도나옴)
     @Override
     public void onLocationChanged(Location location) {
+
         String markerTitle = getCurrentAddress(location);
         String markerSnippet = "위도:" + String.valueOf(location.getLatitude())
                 + " 경도:" + String.valueOf(location.getLongitude());
 
         // 현재위치 받아오기
-        TextView v = (TextView) findViewById(R.id.location);
+        TextView v = (TextView) findViewById(R.id.main_location);
         //v.setText("위도 : " + location.getLongitude() +" 경도 : " + location.getLatitude());
+
         v.setText(markerTitle); //현재 위치
+
         //---------------------------------
 
         //현재 위치에 마커 생성
@@ -357,8 +545,9 @@ public class MainActivity extends AppCompatActivity
     public boolean checkLocationServicesStatus() {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)  // GPS 정보 가져오기
+                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER); // 현재 네트워크 상태 값 알아오기
+
     }
 
     public void setCurrentLocation(Location location, String markerTitle, String markerSnippet) {
@@ -410,7 +599,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int permsRequestCode, String[] permissions, int[] grantResults) {
         if (permsRequestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION && grantResults.length > 0) {
             boolean permissionAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
 

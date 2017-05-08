@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/login_main"
+    tools:ignore="missingPrefix"
+    tools:context=".Join">
+
+    <TextView
+        android:id="@+id/join_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:textSize="60dp"
+        android:text="회원가입"
+        app:font="custom1"
+        android:textColor="#FFFFFFFF"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <!--ID 구간-->
+    <TextView
+        android:id="@+id/id_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*ID"
+        android:textColor="#FFFFFFFF"
+        android:textSize="25dp"
+        android:layout_below="@+id/join_name"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="25dp" />
+
+    <EditText
+        android:id="@+id/id_insert"
+        android:layout_width="160dp"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:background="@drawable/login_text"
+        android:hint="입력하세요"
+        android:textSize="17dp"
+        android:inputType="text"
+        android:layout_marginLeft="90dp"
+        android:layout_above="@+id/pw_text"
+        android:layout_toEndOf="@+id/id_text"
+        />
+
+    <Button
+        android:id="@+id/id_overlap"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:text="중복확인"
+        android:textSize="17dp"
+        android:background="@drawable/join_overlap"
+        android:layout_marginStart="30dp"
+        android:layout_toEndOf="@+id/join_name"
+        android:layout_alignBottom="@+id/id_insert"
+        android:layout_alignTop="@+id/id_insert" />
+    <!--ID 구간 끝-->
+
+    <!--비밀번호 구간-->
+    <TextView
+        android:id="@+id/pw_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*비밀 번호"
+        android:textColor="#FFFFFFFF"
+        android:textSize="25dp"
+        android:layout_below="@+id/id_text"
+        android:layout_alignStart="@+id/id_text"
+        android:layout_marginTop="20dp" />
+
+    <EditText
+        android:id="@+id/pw_insert"
+        android:layout_width="160dp"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:layout_marginRight="40dp"
+        android:background="@drawable/login_text"
+        android:hint="입력하세요"
+        android:textSize="17dp"
+        android:layout_alignTop="@+id/pw_text"
+        android:layout_alignStart="@+id/id_insert"
+        android:inputType="text" />
+    <!--비밀번호 구간 끝-->
+
+    <!--비밀번호 확인 구간-->
+    <TextView
+        android:id="@+id/re_pw_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*비번 확인"
+        android:textColor="#FFFFFFFF"
+        android:textSize="25dp"
+        android:layout_below="@+id/pw_text"
+        android:layout_alignStart="@+id/pw_text"
+        android:layout_marginTop="20dp" />
+
+    <EditText
+        android:id="@+id/re_pw_insert"
+        android:layout_width="160dp"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:background="@drawable/login_text"
+        android:hint="입력하세요"
+        android:textSize="17dp"
+        android:layout_alignTop="@+id/re_pw_text"
+        android:layout_alignStart="@+id/pw_insert"
+        android:inputType="text" />
+    <!--비밀번호 확인 구간 끝-->
+
+    <!--이름구간-->
+    <TextView
+        android:id="@+id/name_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*이름"
+        android:textColor="#FFFFFFFF"
+        android:textSize="25dp"
+        android:layout_below="@+id/re_pw_text"
+        android:layout_alignStart="@+id/re_pw_text"
+        android:layout_marginTop="20dp" />
+
+    <EditText
+        android:id="@+id/name_insert"
+        android:layout_width="160dp"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:background="@drawable/login_text"
+        android:hint="입력하세요"
+        android:textSize="17dp"
+        android:layout_alignTop="@+id/name_text"
+        android:layout_alignStart="@+id/re_pw_insert"
+        android:inputType="text" />
+    <!--이름확인 구간 끝-->
+
+    <!--전화번호 구간-->
+    <TextView
+        android:id="@+id/p_number_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*전화 번호"
+        android:textColor="#FFFFFFFF"
+        android:textSize="25dp"
+        android:layout_below="@+id/name_text"
+        android:layout_alignStart="@+id/name_text"
+        android:layout_marginTop="20dp" />
+
+    <EditText
+        android:id="@+id/p_number_insert"
+        android:layout_width="160dp"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:background="@drawable/login_text"
+        android:hint="입력하세요"
+        android:textSize="17dp"
+        android:layout_alignTop="@+id/p_number_text"
+        android:layout_alignStart="@+id/name_insert"
+        android:inputType="text" />
+    <!--전화번호 구간 끝-->
+
+    <!--email 구간-->
+    <TextView
+        android:id="@+id/mail_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="*E-mail"
+        android:textColor="#FFFFFFFF"
+        android:textSize="25dp"
+        android:layout_below="@+id/p_number_text"
+        android:layout_alignStart="@+id/p_number_text"
+        android:layout_marginTop="20dp" />
+
+    <EditText
+        android:id="@+id/mail_insert"
+        android:layout_width="160dp"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:background="@drawable/login_text"
+        android:hint="입력하세요"
+        android:textSize="17dp"
+        android:layout_alignTop="@+id/mail_text"
+        android:layout_alignStart="@+id/p_number_insert"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/email_overlap"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:text="중복확인"
+        android:textSize="17dp"
+        android:background="@drawable/join_overlap"
+        android:layout_alignStart="@+id/id_overlap"
+        android:layout_alignBottom="@+id/mail_insert"
+        android:layout_alignTop="@+id/mail_insert" />
+    <!--email 구간 끝-->
+
+    <!-- 회원가입 -->
+    <Button
+        android:id="@+id/join_insert"
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:text="가입하기"
+        android:background="@drawable/login_button"
+        android:onClick="joinButton"
+        android:textSize="23dp"
+        android:layout_marginTop="18dp"
+        android:layout_below="@+id/mail_text"
+        android:layout_marginLeft="60dp" />
+
+    <!-- 취소 -->
+    <Button
+        android:id="@+id/join_cancel"
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:text="취소"
+        android:background="@drawable/login_button"
+        android:onClick="Join_cancel_Button"
+        android:textSize="23dp"
+        android:layout_marginRight="60dp"
+        android:layout_alignBottom="@+id/join_insert"
+        android:layout_alignParentEnd="true" />
+
+</RelativeLayout>

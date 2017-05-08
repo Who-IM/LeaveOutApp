@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 툴바 -->
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@drawable/public_toobar"
+        app:contentInsetStart="0dp">
+
+        <!--뒤로가기-->
+        <ImageButton
+            android:id="@+id/back_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="9dp"
+            android:background="#00000000"
+            android:onClick="Back"
+            android:layout_alignParentTop="true"
+            android:layout_alignBottom="@+id/toolbar"
+            app:srcCompat="@drawable/public_back" />
+
+        <!--모아보기-->
+        <TextView
+            android:id="@+id/collect_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="모아보기"
+            app:font="custom1"
+            android:textColor="#FF000000"
+            android:textSize="35dp"
+            android:layout_alignLeft="@id/back_icon"
+            android:layout_alignTop="@id/back_icon" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/toolbar"
+        android:id="@+id/horizontalScrollView">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/public_bar">
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="전체" />
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="경대" />
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="영진전문대" />
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="대구대학교" />
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="영진전문대" />
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    <ListView
+        android:id="@+id/collect_listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:choiceMode="singleChoice"
+        android:layout_below="@+id/horizontalScrollView"
+        android:layout_alignParentEnd="true" />
+
+</RelativeLayout>

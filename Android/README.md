@@ -14,8 +14,8 @@
    - 각 UI 
       - UI클래스이름_xxx.확장명
       
-## 3.Activity
-   - JAVA
+## 3.JAVA
+   - Activity
      - XxxActivity.java
      - 단어 첫글자는 대문자로
 

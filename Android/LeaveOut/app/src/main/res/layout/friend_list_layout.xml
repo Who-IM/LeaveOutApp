@@ -34,6 +34,7 @@
             android:layout_alignLeft="@id/back_icon"
             android:layout_alignTop="@id/back_icon"
             android:text="친구목록"
+            app:font="custom1"
             android:textColor="#FF000000"
             app:font="custom1"
             android:textSize="35dp" />

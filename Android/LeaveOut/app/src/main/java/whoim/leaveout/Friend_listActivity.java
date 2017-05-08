@@ -13,11 +13,13 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tsengvn.typekit.TypekitContextWrapper;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Friend_list extends AppCompatActivity {
+public class Friend_listActivity extends AppCompatActivity {
 
     ExpandableListAdapter listAdapter;
     ExpandableListView expListView;
@@ -184,6 +186,12 @@ public class Friend_list extends AppCompatActivity {
         friend_list_header.setTypeface(typeface);
         friend_list_name.setTypeface(typeface);
     }*/
+
+    // 폰트 바꾸기
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
+    }
 
     // 뒤로가기
     public void Back(View v) {

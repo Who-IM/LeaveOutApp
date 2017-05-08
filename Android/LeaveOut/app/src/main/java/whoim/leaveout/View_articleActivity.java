@@ -16,7 +16,7 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 
 import java.util.ArrayList;
 
-public class View_article extends AppCompatActivity
+public class View_articleActivity extends AppCompatActivity
 {
     ArrayList<view_list_view_data> ar_view_data;
 

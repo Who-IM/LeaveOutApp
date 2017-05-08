@@ -19,7 +19,7 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 import java.util.ArrayList;
 
 //모아보기
-public class Collect extends AppCompatActivity {
+public class CollectActivity extends AppCompatActivity {
     ArrayList<collect_list_view_data> ar_view_data;
 
     @Override

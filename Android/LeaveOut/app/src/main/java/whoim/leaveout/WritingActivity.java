@@ -41,7 +41,7 @@ import java.util.Date;
 import java.util.List;
 
 // 글쓰기
-public class Writing extends AppCompatActivity {
+public class WritingActivity extends AppCompatActivity {
     Toolbar toolbar;
     ImageView image = null;
 
@@ -111,11 +111,11 @@ public class Writing extends AppCompatActivity {
         try {
             photoFile = createImageFile();
         } catch (IOException e) {
-            Toast.makeText(Writing.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(WritingActivity.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
             finish();
         }
         if (photoFile != null) {
-            photoUri = FileProvider.getUriForFile(Writing.this, "whoim.leaveout.provider", photoFile); //FileProvider의 경우 이전 포스트를 참고하세요.
+            photoUri = FileProvider.getUriForFile(WritingActivity.this, "whoim.leaveout.provider", photoFile); //FileProvider의 경우 이전 포스트를 참고하세요.
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri); //사진을 찍어 해당 Content uri를 photoUri에 적용시키기 위함
             startActivityForResult(intent, PICK_FROM_CAMERA);
         }
@@ -145,7 +145,7 @@ public class Writing extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (resultCode != RESULT_OK) {
-            Toast.makeText(Writing.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(WritingActivity.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
         }
         if (requestCode == PICK_FROM_ALBUM) {
             if (data == null) {
@@ -155,7 +155,7 @@ public class Writing extends AppCompatActivity {
             cropImage();
         } else if (requestCode == PICK_FROM_CAMERA) {
             cropImage();
-            MediaScannerConnection.scanFile(Writing.this, //앨범에 사진을 보여주기 위해 Scan을 합니다.
+            MediaScannerConnection.scanFile(WritingActivity.this, //앨범에 사진을 보여주기 위해 Scan을 합니다.
                     new String[]{photoUri.getPath()}, null,
                     new MediaScannerConnection.OnScanCompletedListener() {
                         public void onScanCompleted(String path, Uri uri) {
@@ -169,6 +169,7 @@ public class Writing extends AppCompatActivity {
                     bitmap.setWidth(1047);
                     bitmap.setHeight(786);
                 }
+
                 Bitmap thumbImage = ThumbnailUtils.extractThumbnail(bitmap, bitmap.getWidth(), bitmap.getHeight());  //사진 크기를 조절
                 ByteArrayOutputStream bs = new ByteArrayOutputStream();
                 thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
@@ -214,7 +215,7 @@ public class Writing extends AppCompatActivity {
             File folder = new File(Environment.getExternalStorageDirectory() + "/test/");
             File tempFile = new File(folder.toString(), croppedFileName.getName());
 
-            photoUri = FileProvider.getUriForFile(Writing.this,
+            photoUri = FileProvider.getUriForFile(WritingActivity.this,
                     "whoim.leaveout.provider", tempFile);
 
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

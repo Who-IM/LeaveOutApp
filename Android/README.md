@@ -16,7 +16,7 @@
       
 ## 3.Activity
    - JAVA
-     - XxxActivity.java
+     - XxxActivity.java
      - 단어 첫글자는 대문자로
 
 ※ 각 필요한 인터페이스 및 일반 클래스 정의를 하셨으면 이슈에 올려주세요

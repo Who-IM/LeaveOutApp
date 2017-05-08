@@ -17,10 +17,10 @@
         android:id="@+id/view_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/imageView"
+        android:layout_alignTop="@+id/view_Image"
         android:layout_marginStart="20dp"
         android:textSize="23dp"
-        android:layout_toEndOf="@+id/imageView"
+        android:layout_toEndOf="@+id/view_Image"
         android:text="장소" />
 
     <TextView
@@ -74,10 +74,10 @@
         android:layout_height="wrap_content"
         android:text="이름"
         android:gravity="center_horizontal"
-        android:layout_below="@+id/imageView"
+        android:layout_below="@+id/view_Image"
         android:layout_centerHorizontal="true"
-        android:layout_alignStart="@+id/imageView"
-        android:layout_alignEnd="@+id/imageView"/>
+        android:layout_alignStart="@+id/view_Image"
+        android:layout_alignEnd="@+id/view_Image"/>
 
 
     <TextView

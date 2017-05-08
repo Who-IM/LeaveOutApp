@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/login_main">
+    android:background="@drawable/login_main"
+    tools:ignore="missingPrefix"
+    tools:context=".Join">
 
     <TextView
         android:id="@+id/join_name"
@@ -11,6 +15,7 @@
         android:layout_marginTop="30dp"
         android:textSize="60dp"
         android:text="회원가입"
+        app:font="custom1"
         android:textColor="#FFFFFFFF"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />

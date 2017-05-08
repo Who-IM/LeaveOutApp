@@ -1,11 +1,12 @@
 package whoim.leaveout;
 
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.TextView;
+
+import com.tsengvn.typekit.TypekitContextWrapper;
 
 public class Join extends AppCompatActivity
 {
@@ -14,10 +15,6 @@ public class Join extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.join_layout);
-
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
-        TextView join_title = (TextView) findViewById(R.id.join_name);
-        join_title.setTypeface(typeface);
     }
 
     public void joinButton(View v)
@@ -31,4 +28,11 @@ public class Join extends AppCompatActivity
         Intent intent = new Intent(getApplicationContext(), login.class);
         startActivity(intent);
     }
+
+    // 폰트 바꾸기
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
+    }
+
 }

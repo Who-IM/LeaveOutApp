@@ -11,31 +11,31 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/public_toobar"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" >
+        app:contentInsetStart="0dp">
 
-    <!--뒤로가기-->
-    <ImageButton
-        android:id="@+id/back_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="9dp"
-        android:background="#00000000"
-        android:onClick="Back"
-        android:layout_alignParentTop="true"
-        android:layout_alignBottom="@+id/toolbar"
-        app:srcCompat="@drawable/public_back" />
+        <!--뒤로가기-->
+        <ImageButton
+            android:id="@+id/back_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="9dp"
+            android:background="#00000000"
+            android:onClick="Back"
+            android:layout_alignParentTop="true"
+            android:layout_alignBottom="@+id/toolbar"
+            app:srcCompat="@drawable/public_back" />
 
-    <!--모아보기-->
-    <TextView
-        android:id="@+id/collect_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="모아보기"
-        android:textColor="#FF000000"
-        android:textSize="35dp"
-        android:layout_alignLeft="@id/back_icon"
-        android:layout_alignTop="@id/back_icon" />
+        <!--모아보기-->
+        <TextView
+            android:id="@+id/collect_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="모아보기"
+            app:font="custom1"
+            android:textColor="#FF000000"
+            android:textSize="35dp"
+            android:layout_alignLeft="@id/back_icon"
+            android:layout_alignTop="@id/back_icon" />
 
     </android.support.v7.widget.Toolbar>
 

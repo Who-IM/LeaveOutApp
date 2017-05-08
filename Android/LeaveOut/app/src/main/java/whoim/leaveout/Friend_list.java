@@ -175,7 +175,7 @@ public class Friend_list extends AppCompatActivity {
         }
     }
 
-    // 폰트 셋팅
+/*    // 폰트 셋팅
     public void setFont() {
         Typeface typeface = Typeface.createFromAsset(getAssets(), "HMKMMAG.TTF");
         TextView friend_list_header = (TextView) findViewById(R.id.friend_list_header); // 그룹 폰트 설정
@@ -183,7 +183,7 @@ public class Friend_list extends AppCompatActivity {
 
         friend_list_header.setTypeface(typeface);
         friend_list_name.setTypeface(typeface);
-    }
+    }*/
 
     // 뒤로가기
     public void Back(View v) {

@@ -9,7 +9,7 @@ import android.view.View;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 // 환경설정
-public class PreferencesActivity extends AppCompatActivity {
+public class PreferenceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

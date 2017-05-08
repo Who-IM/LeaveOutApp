@@ -14,20 +14,69 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".loginActivity">
+        <!--첫 화면-->
+        <activity
+            android:name=".loginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"></activity>
-        <activity android:name=".WritingActivity"></activity>
-        <activity android:name=".PreferencesActivity"></activity>
-        <activity android:name=".JoinActivity"></activity>
-        <activity android:name=".View_articleActivity"></activity>
-        <activity android:name=".CollectActivity"></activity>
-        <activity android:name=".Friend_listActivity"></activity>
-        <activity android:name=".ProfileActivity"></activity>
+
+        <!--회원가입 화면-->
+        <activity
+            android:name=".JoinActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--메인 화면-->
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--글 쓰기 화면-->
+        <activity
+            android:name=".WritingActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--환경설정 화면-->
+        <activity
+            android:name=".PreferenceActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--글 보기 화면-->
+        <activity
+            android:name=".View_articleActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--모아보기 화면-->
+        <activity
+            android:name=".CollectActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--친구목록 화면-->
+        <activity
+            android:name=".Friend_listActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--프로필 화면-->
+        <activity
+            android:name=".ProfileActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
 
         <service
             android:name=".MapAPI.LocationBackground"

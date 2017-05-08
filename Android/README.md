@@ -2,11 +2,9 @@
 ## 각각 이름을 지정하는 방법
 ### 1.XML
   - 공용 
-     - public_xxx.xml
-  - 각 View
-     - UI클래스이름_xxx_view.xml
-  - Activity에 쓰는 UI
-     - xxx_layout.xml
+      - public_xxx.xml
+  - 동적으로 쓰는 View
+      - UI클래스이름_xxx.xml
 
 ## 2.image
    - 공용 

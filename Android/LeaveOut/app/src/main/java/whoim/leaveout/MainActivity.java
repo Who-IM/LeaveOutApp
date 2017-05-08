@@ -114,21 +114,24 @@ public class MainActivity extends MapAPIActivity {
 
         // 자기 프로필(사진, 이름, email)
         adapter.add(new MenuData(getApplicationContext(), R.drawable.basepicture, "허 성 문", "gjtjdans123@naver.com"));  // 안의 데이터는 db받아서
-        adapter.add(new MenuData()); // 프로필아이콘 & 프로필(text)
-        adapter.add(new MenuData()); // 친구아이콘 & 친구(text)
-        adapter.add(new MenuData()); // 환경설정아이콘 & 환경설정(text)
+        adapter.add(new MenuData(getApplicationContext(), R.drawable.profile_icon, "프로필")); // 프로필아이콘 & 프로필(text)
+        adapter.add(new MenuData(getApplicationContext(), R.drawable.friends_icon, "친구목록")); // 친구아이콘 & 친구(text)
+        adapter.add(new MenuData(getApplicationContext(), R.drawable.preferences_icon, "환경설정")); // 환경설정아이콘 & 환경설정(text)
     }
 
     /* 매뉴 눌렀을 시 이벤트 처리
         0 : 자기 프로필(아무것도 처리 x)
-        1 : 프로필로 이동 (미구현)
-        2 : 친구 보기 펼치기 (미구현)
-        3 : 환경설정                        */
+        1 : 프로필로 이동
+        2 : 친구 보기 이동
+        3 : 환경설정 이동                  */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         Intent button;  //환경설정 버튼
         @Override
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
             switch (position) {
+                case 0:
+
+                    break;
                 case 1:
                     button = new Intent(getApplicationContext(), ProfileActivity.class);
                     startActivity(button);
@@ -167,12 +170,8 @@ public class MainActivity extends MapAPIActivity {
             // view 구성하기 (0 : 자기 프로필 화면, 1 : 프로필 아이콘 & text, 2 : 친구아이콘 & text)
             if (v == null && position == 0) {
                 view = mInflater.inflate(R.layout.menu_profile_title, null);
-            } else if(position == 1) {
-                view = mInflater.inflate(R.layout.menu_profile, null);
-            } else if(position == 2) {
-                view = mInflater.inflate(R.layout.menu_friends, null);
-            } else if(position == 3) {
-                view = mInflater.inflate(R.layout.menu_preferences, null);
+            } else  {
+                view = mInflater.inflate(R.layout.menu_item, null);
             }
 
             // 자료를 받는다.
@@ -190,14 +189,12 @@ public class MainActivity extends MapAPIActivity {
                 tv.setText(data.getLabel());
                 tv2.setText(data.getLabel2());
             }
-            else if (position == 1) {
+            else {
+                ImageView iv = (ImageView) view.findViewById(R.id.menu_icon);
+                iv.setImageResource(data.getImage());
 
-            }
-            else if (position == 2) {
-
-            }
-            else if (position == 3) {
-
+                TextView tv = (TextView) view.findViewById(R.id.menu_text);
+                tv.setText(data.getLabel());
             }
             return view;
         }
@@ -209,7 +206,10 @@ public class MainActivity extends MapAPIActivity {
         private String label2; // text 처리2
         private int menu_image; // 이미지 처리
 
-        public MenuData() {}
+        public MenuData(Context context, int image, String label1) {
+            menu_image = image;
+            this.label1 = label1;
+        }
 
         public MenuData(Context context, int image, String label1, String label2) {
             menu_image = image;

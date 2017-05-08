@@ -111,10 +111,10 @@
         android:id="@+id/write_textarea"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/write_line1"
         android:focusable="true"
-        android:focusableInTouchMode="true">
+        android:focusableInTouchMode="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/write_line1">
 
         <!-- 글을 입력하세요. -->
         <EditText

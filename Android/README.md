@@ -1,10 +1,10 @@
 # 안드로이드 개발
 ## 각각 이름을 지정하는 방법
 ### 1.XML
-  - 공용 
+   - 공용 
       - public_xxx.xml
-  - 동적으로 쓰는 View
-      - UI클래스이름_xxx.xml
+   - 동적으로 쓰는 View
+      - UI클래스이름_xxx_view.확장명
 
 ## 2.image
    - 공용 

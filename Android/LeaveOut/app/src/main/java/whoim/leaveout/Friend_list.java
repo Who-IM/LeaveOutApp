@@ -12,7 +12,6 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +27,6 @@ public class Friend_list extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.friend_list_layout);
-
 
         // 확장 listview 생성
         expListView = (ExpandableListView) findViewById(R.id.friend_list);
@@ -174,16 +172,6 @@ public class Friend_list extends AppCompatActivity {
             return true;
         }
     }
-
-/*    // 폰트 셋팅
-    public void setFont() {
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "HMKMMAG.TTF");
-        TextView friend_list_header = (TextView) findViewById(R.id.friend_list_header); // 그룹 폰트 설정
-        TextView friend_list_name= (TextView) findViewById(R.id.friend_list_name);      // 툴바 이름 폰트 설정
-
-        friend_list_header.setTypeface(typeface);
-        friend_list_name.setTypeface(typeface);
-    }*/
 
     // 뒤로가기
     public void Back(View v) {

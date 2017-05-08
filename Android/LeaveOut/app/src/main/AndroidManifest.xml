@@ -14,20 +14,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".login">
+        <activity android:name=".loginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity"></activity>
-        <activity android:name=".Writing"></activity>
-        <activity android:name=".Preferences"></activity>
-        <activity android:name=".Join"></activity>
-        <activity android:name=".View_article"></activity>
-        <activity android:name=".Collect"></activity>
-        <activity android:name=".Friend_list"></activity>
-        <activity android:name=".Profile"></activity>
+        <activity android:name=".WritingActivity"></activity>
+        <activity android:name=".PreferencesActivity"></activity>
+        <activity android:name=".JoinActivity"></activity>
+        <activity android:name=".View_articleActivity"></activity>
+        <activity android:name=".CollectActivity"></activity>
+        <activity android:name=".Friend_listActivity"></activity>
+        <activity android:name=".ProfileActivity"></activity>
 
         <service
             android:name=".MapAPI.LocationBackground"

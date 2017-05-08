@@ -18,7 +18,7 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 import java.util.ArrayList;
 
 //모아보기
-public class Collect extends AppCompatActivity {
+public class CollectActivity extends AppCompatActivity {
     private ListView list = null;
     private collect_Adapter adapter = null;
 

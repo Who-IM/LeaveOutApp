@@ -8,24 +8,23 @@ import android.view.View;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
-public class Join extends AppCompatActivity
-{
+// 환경설정
+public class PreferencesActivity extends AppCompatActivity {
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.join_layout);
+        setContentView(R.layout.preferences_layout);
     }
 
-    public void joinButton(View v)
-    {
-        Intent intent = new Intent(getApplicationContext(), login.class);
+    // 로그아웃
+    public void logout(View v) {
+        Intent intent = new Intent(getApplicationContext(), loginActivity.class);
         startActivity(intent);
     }
 
-    public void Join_cancel_Button(View v)
-    {
-        Intent intent = new Intent(getApplicationContext(), login.class);
+    // 뒤로가기
+    public void Back(View v) {
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
     }
 

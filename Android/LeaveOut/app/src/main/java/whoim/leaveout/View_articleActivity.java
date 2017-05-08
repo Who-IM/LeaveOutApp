@@ -18,7 +18,7 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 import java.util.ArrayList;
 
 // 글 보기
-public class View_article extends AppCompatActivity
+public class View_articleActivity extends AppCompatActivity
 {
     private ListView list = null;
     private article_Adapter adapter = null;

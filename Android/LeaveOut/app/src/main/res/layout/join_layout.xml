@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/login_main"
     tools:ignore="missingPrefix"
-    tools:context=".Join">
+    tools:context=".JoinActivity">
 
     <TextView
         android:id="@+id/join_name"

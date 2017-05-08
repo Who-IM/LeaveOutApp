@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -82,14 +83,14 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
 //            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
 
-/*        // 테스트 중(마커 생성)
+       // 테스트 중(마커 생성)
         mClusterMaker.clerMakerAll();
         Random mRandom = new Random(1984);
         List<SNSInfoMaker> item = new ArrayList<>();
         for(int i = 0; i< 100; i++) {
             item.add(new SNSInfoMaker(new LatLng(mRandom.nextDouble() * (37.56 - 37.78494009999999) + 37.78494009999999, mRandom.nextDouble() * (126.97 - 127.97) + 127.97)));
         }
-        mClusterMaker.addSNSInfoMakerList(item);*/
+        mClusterMaker.addSNSInfoMakerList(item);
 
 /*
         LatLng seoul = new LatLng(37.56, 126.97);

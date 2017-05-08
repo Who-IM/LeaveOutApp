@@ -3,8 +3,10 @@
 ### 1.XML
    - 공용 
       - public_xxx.xml
+   - Activity에 쓰인 layout
+      - xxx_layout.xml
    - 동적으로 쓰는 View
-      - UI클래스이름_xxx_view.확장명
+      - UI클래스이름_xxx_view.xml
 
 ## 2.image
    - 공용 

@@ -36,6 +36,7 @@
             android:text="친구목록"
             app:font="custom1"
             android:textColor="#FF000000"
+            app:font="custom1"
             android:textSize="35dp" />
 
     </android.support.v7.widget.Toolbar>
@@ -45,6 +46,8 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_below="@+id/toolbar"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:background="@drawable/public_bar">
 
         <!-- 검색 상자 -->
@@ -80,6 +83,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/toolbar"
+        app:font="custom1"
         android:layout_marginTop="50dp" />
 
 

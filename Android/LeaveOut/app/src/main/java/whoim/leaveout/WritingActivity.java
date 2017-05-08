@@ -169,7 +169,6 @@ public class WritingActivity extends AppCompatActivity {
                     bitmap.setWidth(1047);
                     bitmap.setHeight(786);
                 }
-
                 Bitmap thumbImage = ThumbnailUtils.extractThumbnail(bitmap, bitmap.getWidth(), bitmap.getHeight());  //사진 크기를 조절
                 ByteArrayOutputStream bs = new ByteArrayOutputStream();
                 thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축

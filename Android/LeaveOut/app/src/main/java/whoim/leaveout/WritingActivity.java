@@ -52,7 +52,6 @@ public class WritingActivity extends AppCompatActivity {
     ImageButton image_button = null;
     ImageView picture = null;
     Uri photoUri;
-    Bitmap thumbImage = null;
     private String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}; //권한 설정 변수
 
@@ -85,8 +84,7 @@ public class WritingActivity extends AppCompatActivity {
     }
 
     //이미지 셋팅팅
-    private void setCameraImage() {
-        adapter.addItem(thumbImage);
+        adapter.addItem(b);
     }
 
     //실제로 이미지 데이터 넣는것
@@ -244,10 +242,9 @@ public class WritingActivity extends AppCompatActivity {
                     bitmap.setWidth(1047);
                     bitmap.setHeight(786);
                 }
-                thumbImage = ThumbnailUtils.extractThumbnail(bitmap, bitmap.getWidth(), bitmap.getHeight());  //사진 크기를 조절
+                Bitmap thumbImage = ThumbnailUtils.extractThumbnail(bitmap, bitmap.getWidth(), bitmap.getHeight());  //사진 크기를 조절
                 ByteArrayOutputStream bs = new ByteArrayOutputStream();
                 thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
-                setCameraImage();
 
                 //여기서는 ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우시면 됩니다.
             } catch (Exception e) {

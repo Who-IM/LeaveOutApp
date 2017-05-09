@@ -26,7 +26,7 @@
        - Ex) mNumberCheck
      - 상수로 지정한 변수는 m을 쓰지 않고 모든 단어를 대문자로 바꾼다
         - 단어가 길어지면 (_)로 단어를 이어 붙인다
-        - Ex) public static final EXTRA_Number_CHECK = 100;
+        - Ex) public static final ACTION_NUMBER_CHECK = 100;
      - 클래스의 메소드는 두번째 단어 첫글자에 대문자로
 
 ※ 각 필요한 인터페이스 및 일반 클래스 정의를 하셨으면 이슈에 올려주세요

@@ -29,6 +29,7 @@
       - 단어가 길어지면 (_)로 단어를 이어 붙인다
       - Ex) public static final ACTION_NUMBER_CHECK = 100;
    - 메소드는 두번째 단어 첫글자에 대문자로
+      - Ex) public void checkExample();
 
 ※ 각 필요한 인터페이스 및 일반 클래스 정의를 하셨으면 이슈에 올려주세요
 -> [이동](https://github.com/Who-IM/LeaveOutApp/issues/17)

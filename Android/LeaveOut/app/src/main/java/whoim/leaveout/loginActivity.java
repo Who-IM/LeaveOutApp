@@ -9,7 +9,7 @@ import android.view.View;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 // 로그인
-public class login extends AppCompatActivity {
+public class loginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,7 +19,7 @@ public class login extends AppCompatActivity {
 
     //회원가입 화면
     public void joinButton(View v) {
-        Intent intent = new Intent(getApplicationContext(), Join.class);
+        Intent intent = new Intent(getApplicationContext(), JoinActivity.class);
         startActivity(intent);
     }
     // 메인화면으로 넘어가기

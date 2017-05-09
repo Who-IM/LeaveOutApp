@@ -133,15 +133,15 @@ public class MainActivity extends MapAPIActivity {
 
                     break;
                 case 1:
-                    button = new Intent(getApplicationContext(), Profile.class);
+                    button = new Intent(getApplicationContext(), ProfileActivity.class);
                     startActivity(button);
                     break;
                 case 2: // 친구목록으로 이동
-                    button = new Intent(getApplicationContext(), Friend_list.class);
+                    button = new Intent(getApplicationContext(), Friend_listActivity.class);
                     startActivity(button);
                     break;
                 case 3: // 환경설정으로 이동
-                    button = new Intent(getApplicationContext(), Preferences.class);
+                    button = new Intent(getApplicationContext(), PreferenceActivity.class);
                     startActivity(button);
                     break;
             }
@@ -228,7 +228,7 @@ public class MainActivity extends MapAPIActivity {
         Intent intent = null;
         switch (v.getId()) {
             case R.id.main_write:       // 글쓰기 버튼(글쓰기 액티비티 이동)
-                intent = new Intent(getApplicationContext(), Writing.class);
+                intent = new Intent(getApplicationContext(), WritingActivity.class);
                 intent.putExtra("address",mAddressView.getText().toString());
                 startActivity(intent);
                 break;
@@ -238,7 +238,7 @@ public class MainActivity extends MapAPIActivity {
                 toastView.show();
                 break;
             case R.id.main_collect:     // 모아보기 버튼(모아보기 액티비티 이동)
-                intent = new Intent(getApplicationContext(), Collect.class);
+                intent = new Intent(getApplicationContext(), CollectActivity.class);
                 startActivity(intent);
                 break;
         }
@@ -382,7 +382,7 @@ public class MainActivity extends MapAPIActivity {
     //글보기 임시버튼(테스트)
     public void view_button(View v)
     {
-        Intent intent = new Intent(getApplicationContext(), View_article.class);
+        Intent intent = new Intent(getApplicationContext(), View_articleActivity.class);
         startActivity(intent);
     }
 

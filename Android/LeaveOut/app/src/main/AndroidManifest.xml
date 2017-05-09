@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="whoim.leaveout">
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>       //지도 퍼미션
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />    //카메라 퍼미션
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />     //갤러리 퍼미션
+    <!--지도 퍼미션-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <!--카메라 퍼미션-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--갤러리 퍼미션-->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".CustomFont.CustomStartApp"
@@ -14,31 +16,84 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".login">
+        <!--첫 화면-->
+        <activity
+            android:name=".loginActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action
+                    android:name="android.intent.action.MAIN" />
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"></activity>
-        <activity android:name=".Writing"></activity>
-        <activity android:name=".Preferences"></activity>
-        <activity android:name=".Join"></activity>
-        <activity android:name=".View_article"></activity>
-        <activity android:name=".Collect"></activity>
-        <activity android:name=".Friend_list"></activity>
-        <activity android:name=".Profile"></activity>
+
+        <!--회원가입 화면-->
+        <activity
+            android:name=".JoinActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--메인 화면-->
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--글 쓰기 화면-->
+        <activity
+            android:name=".WritingActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--환경설정 화면-->
+        <activity
+            android:name=".PreferenceActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--글 보기 화면-->
+        <activity
+            android:name=".View_articleActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--모아보기 화면-->
+        <activity
+            android:name=".CollectActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--친구목록 화면-->
+        <activity
+            android:name=".Friend_listActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--프로필 화면-->
+        <activity
+            android:name=".ProfileActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
 
         <service
             android:name=".MapAPI.LocationBackground"
             android:enabled="true"
             android:exported="false" />
 
-        // 구글 Map
+        <!--구글 Map-->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAs6TKQVaOyF3sclxbqMapgHhEMg_WshJE"/>
 
+        <!--7.0버전 이상부터는 URI접근이 되지 않기 때문에 URI에 대해 임시 액세스 권한을 부여-->
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="whoim.leaveout.provider"
@@ -48,8 +103,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
         </provider>
-
     </application>
-
 </manifest>
 

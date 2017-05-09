@@ -84,6 +84,7 @@ public class WritingActivity extends AppCompatActivity {
     }
 
     //이미지 셋팅팅
+    private void setCameraImage(Bitmap b) {
         adapter.addItem(b);
     }
 
@@ -245,6 +246,7 @@ public class WritingActivity extends AppCompatActivity {
                 Bitmap thumbImage = ThumbnailUtils.extractThumbnail(bitmap, bitmap.getWidth(), bitmap.getHeight());  //사진 크기를 조절
                 ByteArrayOutputStream bs = new ByteArrayOutputStream();
                 thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
+                setCameraImage(thumbImage);
 
                 //여기서는 ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우시면 됩니다.
             } catch (Exception e) {

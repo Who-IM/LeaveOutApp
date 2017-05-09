@@ -19,10 +19,11 @@
      - XxxActivity.java
      - 단어 첫글자는 대문자로
      - 절대로 (_)쓰지말기
+     - Ex) MainCustomActivity.java
    - 공통 클래스
      - 멤버변수 이름은 첫 글자에 m을 붙인다
        - 단어의 첫글자는 대문자로
-       - Ex)mNumber
+       - Ex) mNumberCheck
      - 클래스의 메소드는 두번째 단어 첫글자에 대문자로
 
 ※ 각 필요한 인터페이스 및 일반 클래스 정의를 하셨으면 이슈에 올려주세요

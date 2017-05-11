@@ -24,8 +24,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageButton;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -48,9 +47,6 @@ public class WritingActivity extends AppCompatActivity {
     private static final int PICK_FROM_CAMERA = 1; //카메라 촬영으로 사진 가져오기
     private static final int PICK_FROM_ALBUM = 2; //앨범에서 사진 가져오기
     private static final int CROP_FROM_CAMERA = 3; //가져온 사진을 자르기 위한 변수
-    ImageButton camera_button = null;
-    ImageButton image_button = null;
-    ImageView picture = null;
     Uri photoUri;
     Bitmap thumbImage = null;
     private String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -58,9 +54,12 @@ public class WritingActivity extends AppCompatActivity {
 
     private static final int MULTIPLE_PERMISSIONS = 101; //권한 동의 여부 문의 후 CallBack 함수에 쓰일 변수
 
-    // 메뉴
-    private ListView list = null;
-    private write_Adapter adapter = null;
+    // 메뉴 관련 인스턴스
+    private ListView list;
+
+    DataAdapter adapter; // 데이터를 연결할 Adapter
+    ArrayList<MenuData> alist; // 데이터를 담을 자료구조
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,93 +73,72 @@ public class WritingActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
         getSupportActionBar().setDisplayShowTitleEnabled(false);        //액션바에 표시되는 제목의 표시유무를 설정합니다.
 
-        // 메뉴
+        checkPermissions(); //권한 묻기
+
+        // 매뉴 구성
         list = (ListView) findViewById(R.id.write_listview);
 
-        // 어뎁터 생성민 등록
-        adapter = new write_Adapter(this);
-        list.setAdapter(adapter);
-
-        checkPermissions(); //권한 묻기
+        // ArrayList객체를 생성합니다
+        alist = new ArrayList<MenuData>();
     }
 
-    //이미지 셋팅팅
-    private void setCameraImage() {
-        adapter.addItem(thumbImage);
+    public void setWriteAdapter(Bitmap th) {
+        // 자기 프로필(사진, 이름, email)
+        adapter.add(new MenuData(th));
     }
 
-    //실제로 이미지 데이터 넣는것
-    private class write_ViewHolder {
-        public ImageView Image;
-    }
+    // 메뉴 커스텀
+    private class DataAdapter extends ArrayAdapter<MenuData> {
+        // 레이아웃 XML을 읽어들이기 위한 객체
+        private LayoutInflater mInflater;
 
-    // 리스트뷰 어뎁터
-    private class write_Adapter extends BaseAdapter {
-        private Context mContext = null;
-        private ArrayList<write_ListData> mListData = new ArrayList<write_ListData>();
-
-        public write_Adapter(Context mContext) {
-            super();
-            this.mContext = mContext;
+        public DataAdapter(Context context, ArrayList<MenuData> object) {
+            // 상위 클래스의 초기화 과정
+            // context, 0, 자료구조
+            super(context, 0, object);
+            mInflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
+        // 보여지는 스타일을 자신이 만든 xml로 보이기 위한 구문
         @Override
-        public int getCount() {
-            return mListData.size();
-        }
+        public View getView(int position, View v, ViewGroup parent) {
+            View view = null;
+            // 현재 리스트의 하나의 항목에 보일 컨트롤 얻기
 
-        @Override
-        public Object getItem(int position) {
-            return mListData.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        // 생성자로 값을 받아 셋팅
-        public void addItem(Bitmap image) {
-            write_ListData addInfo = null;
-            addInfo = new write_ListData();
-            addInfo.Image = image;
-
-            mListData.add(addInfo);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            write_ViewHolder holder;
-            if (convertView == null) {
-                holder = new write_ViewHolder();
-
-                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.write, null);   //리스트뷰에 등록
-
-                holder.Image = (ImageView) convertView.findViewById(R.id.input_picture);    //이미지 넣을 공간
-                convertView.setTag(holder);
-            }else{
-                holder = (write_ViewHolder) convertView.getTag();
+            // view 구성하기 (0 : 자기 프로필 화면, 1 : 프로필 아이콘 & text, 2 : 친구아이콘 & text)
+            if (v == null) {
+                view = mInflater.inflate(R.layout.write, null);
+            } else {
+                view = v;
             }
 
-            write_ListData mData = mListData.get(position);
+            // 자료를 받는다.
+            final MenuData data = this.getItem(position);
 
-            // 이미지 처리
-            if (mData.Image != null) {
-                holder.Image.setVisibility(View.VISIBLE);
-                holder.Image.setImageBitmap(mData.Image);
-            }else{
-                holder.Image.setVisibility(View.GONE);
+            // 자기 프로필
+            if (data != null) {
+                // 자기 사진
+                iv = (ImageView) view.findViewById(R.id.write_input_picture);
+                iv.setImageBitmap(data.getImage());
             }
+            return view;
+        }
+    }       // DataAdapter class -- END --
 
-            return convertView;
+    // menuData안에 받은 값을 직접 할당
+    private class MenuData {
+        private Bitmap bitmapimg; // 이미지 처리
+
+        public MenuData(Bitmap image) {
+            bitmapimg = image;
+        }
+
+        public Bitmap getImage() {
+            return bitmapimg;
         }
     }
 
-    // 메뉴의 실제 데이터를 저장할 class
-    class write_ListData {
-        public Bitmap Image;
-    }
 
     private boolean checkPermissions() {
         int result;
@@ -216,11 +194,12 @@ public class WritingActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if (resultCode != RESULT_OK) {
             Toast.makeText(WritingActivity.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
         }
+
         if (requestCode == PICK_FROM_ALBUM) {
+
             if (data == null) {
                 return;
             }
@@ -228,7 +207,6 @@ public class WritingActivity extends AppCompatActivity {
             cropImage();
 
         } else if (requestCode == PICK_FROM_CAMERA) {
-
             cropImage();
             MediaScannerConnection.scanFile(WritingActivity.this, //앨범에 사진을 보여주기 위해 Scan을 합니다.
                     new String[]{photoUri.getPath()}, null,
@@ -238,17 +216,19 @@ public class WritingActivity extends AppCompatActivity {
                     });
         } else if (requestCode == CROP_FROM_CAMERA) {
             try { //저는 bitmap 형태의 이미지로 가져오기 위해 아래와 같이 작업하였으며 Thumbnail을 추출하였습니다.
-                iv = (ImageView) findViewById(R.id.input_picture);
+                iv = (ImageView) findViewById(R.id.write_input_picture);
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-                if (bitmap.getWidth() >= 1047 || bitmap.getHeight() >= 786) {
-                    bitmap.setWidth(1047);
-                    bitmap.setHeight(786);
-                }
-                thumbImage = ThumbnailUtils.extractThumbnail(bitmap, bitmap.getWidth(), bitmap.getHeight());  //사진 크기를 조절
+                thumbImage = ThumbnailUtils.extractThumbnail(bitmap, 1024, 768);  //사진 크기를 조절
                 ByteArrayOutputStream bs = new ByteArrayOutputStream();
-                thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
-                setCameraImage();
 
+                thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
+
+                // 데이터를 받기위해 데이터어댑터 객체 선언
+                adapter = new DataAdapter(getApplicationContext(), alist);
+
+                // 리스트뷰에 어댑터 연결
+                list.setAdapter(adapter);
+                setWriteAdapter(thumbImage);
                 //여기서는 ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우시면 됩니다.
             } catch (Exception e) {
                 Log.e("ERROR", e.getMessage().toString());
@@ -256,8 +236,6 @@ public class WritingActivity extends AppCompatActivity {
         }
     }
 
-    //Android N crop image (이 부분에서 몇일동안 정신 못차렸습니다 ㅜ)
-    //모든 작업에 있어 사전에 FALG_GRANT_WRITE_URI_PERMISSION과 READ 퍼미션을 줘야 uri를 활용한 작업에 지장을 받지 않는다는 것이 핵심입니다.
     public void cropImage() {
         this.grantUriPermission("com.android.camera", photoUri,
                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -276,8 +254,8 @@ public class WritingActivity extends AppCompatActivity {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             intent.putExtra("crop", "true");
-            intent.putExtra("aspectX", 4);
-            intent.putExtra("aspectY", 3);
+            intent.putExtra("aspectX", 16);
+            intent.putExtra("aspectY", 9);
             intent.putExtra("scale", true);
             File croppedFileName = null;
             try {

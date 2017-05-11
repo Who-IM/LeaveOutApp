@@ -82,12 +82,7 @@ public class WritingActivity extends AppCompatActivity {
 
         checkPermissions(); //권한 묻기
     }
-
-    //이미지 셋팅팅
-    private void setCameraImage(Bitmap b) {
-        adapter.addItem(b);
-    }
-
+    
     //실제로 이미지 데이터 넣는것
     private class write_ViewHolder {
         public ImageView Image;

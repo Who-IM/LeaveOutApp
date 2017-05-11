@@ -132,25 +132,30 @@
 
     </RelativeLayout>
 
+
     <!--사진 띄울울 공간-->
-    <RelativeLayout
+    <ScrollView
+        android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/write_fence"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/write_textarea">
 
-        <ScrollView
-                android:id="@+id/scroll"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
             <ListView
                 android:id="@+id/write_listview"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:choiceMode="singleChoice"
                 android:divider="#00ffffff"
                 android:dividerHeight="0px" />
-            </ScrollView>
-    </RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
 
     <!--울타리글-->
     <TextView

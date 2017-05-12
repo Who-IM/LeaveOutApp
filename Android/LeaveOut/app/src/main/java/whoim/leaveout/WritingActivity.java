@@ -53,9 +53,8 @@ public class WritingActivity extends AppCompatActivity {
 
     // 메뉴 관련 인스턴스
     private ListView list;
-
-    DataAdapter adapter; // 데이터를 연결할 Adapter
-    ArrayList<MenuData> alist; // 데이터를 담을 자료구조
+    write_DataAdapter adapter; // 데이터를 연결할 Adapter
+    ArrayList<bitMapData> alist; // 데이터를 담을 자료구조
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,20 +75,20 @@ public class WritingActivity extends AppCompatActivity {
         list = (ListView) findViewById(R.id.write_listview);
 
         // ArrayList객체를 생성합니다
-        alist = new ArrayList<MenuData>();
+        alist = new ArrayList<bitMapData>();
     }
 
     public void setWriteAdapter(Bitmap th) {
-        // 자기 프로필(사진, 이름, email)
-        adapter.add(new MenuData(th));
+        // 카메라, 겔러리 사진 업데이트
+        adapter.add(new bitMapData(th));
     }
 
     // 메뉴 커스텀
-    private class DataAdapter extends ArrayAdapter<MenuData> {
+    private class write_DataAdapter extends ArrayAdapter<bitMapData> {
         // 레이아웃 XML을 읽어들이기 위한 객체
         private LayoutInflater mInflater;
 
-        public DataAdapter(Context context, ArrayList<MenuData> object) {
+        public write_DataAdapter(Context context, ArrayList<bitMapData> object) {
             // 상위 클래스의 초기화 과정
             // context, 0, 자료구조
             super(context, 0, object);
@@ -101,9 +100,8 @@ public class WritingActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View v, ViewGroup parent) {
             View view = null;
-            // 현재 리스트의 하나의 항목에 보일 컨트롤 얻기
 
-            // view 구성하기 (0 : 자기 프로필 화면, 1 : 프로필 아이콘 & text, 2 : 친구아이콘 & text)
+            // view 구성하기
             if (v == null) {
                 view = mInflater.inflate(R.layout.write, null);
             } else {
@@ -111,29 +109,27 @@ public class WritingActivity extends AppCompatActivity {
             }
 
             // 자료를 받는다.
-            final MenuData data = this.getItem(position);
+            final bitMapData data = this.getItem(position);
 
-            // 자기 프로필
             if (data != null) {
-                // 자기 사진
+                // 카메라 사진
                 iv = (ImageView) view.findViewById(R.id.write_input_picture);
-                iv.setImageBitmap(data.getImage());
+                iv.setImageBitmap(data.getImage());  // bitmap으로 이미지 샛팅
             }
             return view;
         }
-    }       // DataAdapter class -- END --
+    }
 
-    // menuData안에 받은 값을 직접 할당
-    private class MenuData {
+    // 카메라 사진에 받은 값을 직접 할당(bitmap)
+    private class bitMapData {
         private Bitmap bitmapimg; // 이미지 처리
 
-        public MenuData(Bitmap image) {
+        public bitMapData(Bitmap image) {
             bitmapimg = image;
-        }
-
+        } // 생성자
         public Bitmap getImage() {
             return bitmapimg;
-        }
+        }        // getter
     }
 
     private boolean checkPermissions() {
@@ -150,6 +146,45 @@ public class WritingActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+
+    //아래는 권한 요청 Callback 함수입니다. PERMISSION_GRANTED로 권한을 획득했는지 확인할 수 있습니다. 아래에서는 !=를 사용했기에
+    //권한 사용에 동의를 안했을 경우를 if문으로 코딩되었습니다.
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MULTIPLE_PERMISSIONS: {
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < permissions.length; i++) {
+                        if (permissions[i].equals(this.permissions[0])) {
+                            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                                showNoPermissionToastAndFinish();
+                            }
+                        } else if (permissions[i].equals(this.permissions[1])) {
+                            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                                showNoPermissionToastAndFinish();
+
+                            }
+                        } else if (permissions[i].equals(this.permissions[2])) {
+                            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                                showNoPermissionToastAndFinish();
+
+                            }
+                        }
+                    }
+                } else {
+                    showNoPermissionToastAndFinish();
+                }
+                return;
+            }
+        }
+    }
+
+    //권한 획득에 동의를 하지 않았을 경우 아래 Toast 메세지를 띄우며 해당 Activity를 종료시킵니다.
+    private void showNoPermissionToastAndFinish() {
+        Toast.makeText(this, "권한 요청에 동의 해주셔야 이용 가능합니다. 설정에서 권한 허용 하시기 바랍니다.", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     // Android M에서는 Uri.fromFile 함수를 사용하였으나 7.0부터는 이 함수를 사용할 시 FileUriExposedException이
@@ -207,7 +242,7 @@ public class WritingActivity extends AppCompatActivity {
             photoUri = data.getData();  //Uri 주소값을 받아온다
             try {
                 imageExtraction();  //이미지 추출
-                adapter = new DataAdapter(getApplicationContext(), alist);  // 데이터를 받기위해 데이터어댑터 객체 선언
+                adapter = new write_DataAdapter(getApplicationContext(), alist);  // 데이터를 받기위해 데이터어댑터 객체 선언
                 list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
                 setWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
             } catch (Exception e) {
@@ -224,7 +259,7 @@ public class WritingActivity extends AppCompatActivity {
                     });
             try {
                 imageExtraction();  //이미지 추출
-                adapter = new DataAdapter(getApplicationContext(), alist);  // 데이터를 받기위해 데이터어댑터 객체 선언
+                adapter = new write_DataAdapter(getApplicationContext(), alist);  // 데이터를 받기위해 데이터어댑터 객체 선언
                 list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
                 setWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
 

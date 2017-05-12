@@ -198,7 +198,7 @@ public class MainActivity extends MapAPIActivity {
             }
             return view;
         }
-    }       // DataAdapter class -- END --
+    }       // write_DataAdapter class -- END --
 
     // menuData안에 받은 값을 직접 할당
     private class MenuData {
@@ -221,7 +221,7 @@ public class MainActivity extends MapAPIActivity {
         public String getLabel() { return label1; }
         public String getLabel2() { return label2; }
         public int getImage() { return menu_image; }
-    }    // MenuData class -- END --
+    }    // bitMapData class -- END --
 
     // 글쓰기, 체크, 모아보기 메뉴 onClick 메소드
     public void nextActivityButton(View v) {

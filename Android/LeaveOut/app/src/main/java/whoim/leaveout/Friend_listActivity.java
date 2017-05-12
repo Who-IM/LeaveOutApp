@@ -12,6 +12,9 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tsengvn.typekit.TypekitContextWrapper;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +25,8 @@ public class Friend_listActivity extends AppCompatActivity {
     ExpandableListView expListView;
     List<String> listDataHeader;
     HashMap<String, List<String>> listDataChild;
+    String[] friends_list_title = {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"};
+    ArrayList<List> dataControl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,27 +59,25 @@ public class Friend_listActivity extends AppCompatActivity {
 
     // 확장 리스트뷰 데이터 설정
     private void prepareListData() {
+        dataControl = new ArrayList<>();
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
 
-        // 큰 목록
-        listDataHeader.add("ㄱ");
-        listDataHeader.add("ㄴ");
-        listDataHeader.add("ㄷ");
-
         // 작은 목록들 추가
-        List<String> friend_list1 = new ArrayList<String>();
-        friend_list1.add("미정");
+        List<String> friend_list = new ArrayList<String>();
+        friend_list.add("미정");
 
-        List<String> friend_list2 = new ArrayList<String>();
-        friend_list2.add("미정");
+        // 큰 목록
+        for(int i = 0; i < friends_list_title.length; i++) {
+            listDataHeader.add(friends_list_title[i]);
+            setListData(i,friend_list);
+        }
+    }
 
-        List<String> friend_list3 = new ArrayList<String>();
-        friend_list3.add("미정");
-
-        listDataChild.put(listDataHeader.get(0), friend_list1);
-        listDataChild.put(listDataHeader.get(1), friend_list2);
-        listDataChild.put(listDataHeader.get(2), friend_list3);
+    // child data 셋팅
+    private void setListData(int index, List data) {
+        dataControl.add(index, data);
+        listDataChild.put(listDataHeader.get(index), dataControl.get(index));
     }
 
 
@@ -149,6 +152,7 @@ public class Friend_listActivity extends AppCompatActivity {
         @Override
         public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
             String headerTitle = (String) getGroup(groupPosition);
+            Typeface ty = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
             if (convertView == null) {
                 LayoutInflater infalInflater = (LayoutInflater) this._context
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -156,7 +160,7 @@ public class Friend_listActivity extends AppCompatActivity {
             }
 
             TextView lblListHeader = (TextView) convertView.findViewById(R.id.friend_list_header);
-            lblListHeader.setTypeface(null, Typeface.BOLD);
+            lblListHeader.setTypeface(ty);
             lblListHeader.setText(headerTitle);
 
             return convertView;
@@ -177,5 +181,11 @@ public class Friend_listActivity extends AppCompatActivity {
     public void Back(View v) {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
+    }
+
+    // 폰트 바꾸기
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
 }

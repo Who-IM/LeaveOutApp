@@ -22,11 +22,11 @@ import java.util.List;
 public class Friend_listActivity extends AppCompatActivity {
 
     ExpandableListAdapter listAdapter;
-    ExpandableListView expListView;
-    List<String> listDataHeader;
+    ExpandableListView expListView; // 확장 리스트 뷰
+    List<String> listDataHeader;    // 리스트 뷰(하위항목 )
     HashMap<String, List<String>> listDataChild;
     String[] friends_list_title = {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"};
-    ArrayList<List> dataControl;
+    ArrayList<List> dataControl; // child에 데이터 셋팅
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +35,9 @@ public class Friend_listActivity extends AppCompatActivity {
 
         // 확장 listview 생성
         expListView = (ExpandableListView) findViewById(R.id.friend_list);
-        prepareListData();
+        prepareListData(); // 확장 listview에 데이터 셋팅
 
-        // 어뎁터 생성
+        // 어뎁터 생성(header와 child)
         listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
 
         // 어뎁터 등록
@@ -63,6 +63,7 @@ public class Friend_listActivity extends AppCompatActivity {
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
 
+        // 여기부터 데이터 삽입인데 데이터베이스 추가시 수정
         // 작은 목록들 추가
         List<String> friend_list = new ArrayList<String>();
         friend_list.add("미정");
@@ -72,6 +73,7 @@ public class Friend_listActivity extends AppCompatActivity {
             listDataHeader.add(friends_list_title[i]);
             setListData(i,friend_list);
         }
+        //-------------------------------------------------------
     }
 
     // child data 셋팅
@@ -118,9 +120,7 @@ public class Friend_listActivity extends AppCompatActivity {
                 convertView = infalInflater.inflate(R.layout.friend_list_item, null);
             }
 
-            TextView txtListChild = (TextView) convertView
-                    .findViewById(R.id.friend_list_item);
-
+            TextView txtListChild = (TextView) convertView.findViewById(R.id.friend_list_item);
             txtListChild.setText(childText);
 
             return convertView;
@@ -149,6 +149,7 @@ public class Friend_listActivity extends AppCompatActivity {
             return groupPosition;
         }
 
+        // header(ㄱ ~ ㅎ)
         @Override
         public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
             String headerTitle = (String) getGroup(groupPosition);

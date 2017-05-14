@@ -121,6 +121,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:background="#00000000"
+            android:onClick="idPwSelect"
             android:text="*ID/PW찾기"
             app:font="custom1"
             android:textColor="#FFFFFFFF"

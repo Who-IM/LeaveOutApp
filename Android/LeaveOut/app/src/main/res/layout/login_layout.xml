@@ -73,7 +73,7 @@
             android:textSize="35dp" />
 
 
-        <Button
+     <!--   <Button
             android:id="@+id/facebook_loginBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,7 +85,15 @@
             android:text="페이스북 으로 로그인"
             app:font="custom1"
             android:textColor="#FFFFFFFF"
-            android:textSize="35dp" />
+            android:textSize="35dp" />-->
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/facebook_loginBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/insertlogin"
+            android:layout_alignStart="@+id/loginBtn"
+            android:layout_marginRight="20dp" />
 
         <!-- 회원가입 -->
         <Button

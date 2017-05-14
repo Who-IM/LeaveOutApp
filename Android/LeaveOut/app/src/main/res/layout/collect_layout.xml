@@ -15,7 +15,7 @@
 
         <!--뒤로가기-->
         <ImageButton
-            android:id="@+id/back_icon"
+            android:id="@+id/preferences_back_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="9dp"
@@ -34,8 +34,8 @@
             app:font="custom1"
             android:textColor="#FF000000"
             android:textSize="35dp"
-            android:layout_alignLeft="@id/back_icon"
-            android:layout_alignTop="@id/back_icon" />
+            android:layout_alignLeft="@id/preferences_back_icon"
+            android:layout_alignTop="@id/preferences_back_icon" />
 
     </android.support.v7.widget.Toolbar>
 

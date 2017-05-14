@@ -22,9 +22,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,19 +41,32 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import whoim.leaveout.SingleClick.OnSingleClickListener;
+
 // 글쓰기
 public class WritingActivity extends AppCompatActivity {
     Toolbar toolbar;
     TextView mAddressText;
-    ImageView iv = null;
+
+    //카메라 앨범 변수
     private static final int PICK_FROM_CAMERA = 1; //카메라 촬영으로 사진 가져오기
     private static final int PICK_FROM_ALBUM = 2; //앨범에서 사진 가져오기
+    ImageView iv = null;
     Uri photoUri;
     Bitmap thumbImage = null;
     private String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}; //권한 설정 변수
 
     private static final int MULTIPLE_PERMISSIONS = 101; //권한 동의 여부 문의 후 CallBack 함수에 쓰일 변수
+    //카메라 앨범 끝
+
+    //글 공개 여부 변수
+    boolean ispageOpen = false;     //글 공개여부 레이어 표시 여부
+    Animation translateLeftAnim;    //왼쪽으로 이동 애니메이션 객체
+    Animation translateRightAnim;   //오른쪽으로 이동 애니메이션 객체
+    RelativeLayout page;    //슬라이딩 애니메이션으로 보여줄 레이아웃
+    ImageButton whether_button;
+    //글 공개 여부 변수 끝
 
     // 메뉴 관련 인스턴스
     private ListView list;
@@ -76,6 +93,19 @@ public class WritingActivity extends AppCompatActivity {
 
         // ArrayList객체를 생성합니다
         alist = new ArrayList<bitMapData>();
+
+        page = (RelativeLayout) findViewById(R.id.write_whether_layout);
+        whether_button = (ImageButton) findViewById(R.id.whether_open);
+
+        translateLeftAnim = AnimationUtils.loadAnimation(this, R.anim.translate_left);
+        translateRightAnim = AnimationUtils.loadAnimation(this, R.anim.translate_right);
+
+        //슬라이딩 에니메이션 감지
+        SlidingPageAnimationListener animListener = new SlidingPageAnimationListener();
+        translateLeftAnim.setAnimationListener(animListener);
+        translateRightAnim.setAnimationListener(animListener);
+
+        whether_open_button();   // 공개여부 버튼 작동
     }
 
     public void setWriteAdapter(Bitmap th) {
@@ -148,7 +178,6 @@ public class WritingActivity extends AppCompatActivity {
         return true;
     }
 
-
     //아래는 권한 요청 Callback 함수입니다. PERMISSION_GRANTED로 권한을 획득했는지 확인할 수 있습니다. 아래에서는 !=를 사용했기에
     //권한 사용에 동의를 안했을 경우를 if문으로 코딩되었습니다.
     @Override
@@ -164,12 +193,10 @@ public class WritingActivity extends AppCompatActivity {
                         } else if (permissions[i].equals(this.permissions[1])) {
                             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                                 showNoPermissionToastAndFinish();
-
                             }
                         } else if (permissions[i].equals(this.permissions[2])) {
                             if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                                 showNoPermissionToastAndFinish();
-
                             }
                         }
                     }
@@ -268,7 +295,6 @@ public class WritingActivity extends AppCompatActivity {
                 Log.e("ERROR", e.getMessage().toString());
             }
         }
-
     }
 
     //이미지 추출
@@ -280,6 +306,51 @@ public class WritingActivity extends AppCompatActivity {
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
 
         thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
+    }
+
+    //공개여부
+    public void whether_open_button()
+    {
+        whether_button.setOnClickListener(new OnSingleClickListener() {
+            @Override
+            public void onSingleClick(View v)
+            {
+                if(ispageOpen)
+                {
+                    page.startAnimation(translateRightAnim);    //페이지가 열려있으면 오른쪽으로 애니메이션 주기
+                }
+                else
+                {
+                    page.setVisibility(View.VISIBLE);
+                    page.startAnimation(translateLeftAnim);     //페이지가 닫겨있으면 왼쪽으로 애니메이션 주기
+                }
+            }
+        });
+    }
+
+    //슬라이딩 에니메이션
+    private class SlidingPageAnimationListener implements Animation.AnimationListener {
+
+        @Override
+        public void onAnimationEnd(Animation animation)
+        {
+            if(ispageOpen)
+            {
+                page.setVisibility(View.INVISIBLE);     //페이지가 열려있으면 안보이도록 하기
+
+                ispageOpen = false;
+            }
+            else
+            {
+                ispageOpen = true;      //페이지가 닫겨있으면 보이도록 하기
+            }
+        }
+
+        @Override
+        public void onAnimationStart(Animation animation) {}
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {}
     }
 
     // 뒤로가기

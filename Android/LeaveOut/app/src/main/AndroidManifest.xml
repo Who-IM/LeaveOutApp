@@ -19,7 +19,8 @@
         android:theme="@style/AppTheme">
         <!--첫 화면-->
         <activity
-            android:name=".loginActivity">
+            android:name=".loginActivity"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action
                     android:name="android.intent.action.MAIN" />
@@ -31,6 +32,13 @@
         <!--회원가입 화면-->
         <activity
             android:name=".JoinActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--아이디 패스워드 찾기 화면-->
+        <activity
+            android:name=".FindActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait">
         </activity>
@@ -58,7 +66,7 @@
 
         <!--글 보기 화면-->
         <activity
-            android:name=".View_articleActivity"
+            android:name=".ViewArticleActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait">
         </activity>
@@ -72,7 +80,7 @@
 
         <!--친구목록 화면-->
         <activity
-            android:name=".Friend_listActivity"
+            android:name=".FriendListActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait">
         </activity>
@@ -106,4 +114,3 @@
         </provider>
     </application>
 </manifest>
-

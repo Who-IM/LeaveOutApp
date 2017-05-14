@@ -15,11 +15,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,12 +30,26 @@ import com.google.android.gms.location.LocationServices;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import whoim.leaveout.MapAPI.LocationBackground;
 import whoim.leaveout.MapAPI.MapAPIActivity;
 import whoim.leaveout.StartSetting.Permission;
 
 public class MainActivity extends MapAPIActivity {
+    private InputMethodManager imm;
+    RelativeLayout test;
+    // List view
+    private ListView searchList;
+
+    // Listview Adapter
+    ArrayAdapter<String> adapter_search;
+
+    // Search EditText
+    EditText inputSearch;
+
+    // ArrayList for Listview
+    ArrayList<HashMap<String, String>> productList;
 
     /* 구글 맵 API 정보 */
     private static final String CAMERA_POSITION = "camera_position_state_save";        // 액티비티 정지시 상태 저장(구글맵 카메라 위치)
@@ -63,18 +80,60 @@ public class MainActivity extends MapAPIActivity {
         // 화면 캡쳐 방지?
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.main_layout);
-
+        test = (RelativeLayout) findViewById(R.id.Test);
         mAddressView = (TextView) findViewById(R.id.main_location);
-
-        // 툴바 설정
-        setToolbar();
-
-        // 메뉴 커스텀
-        setMenuCustom();
 
         super.buildGoogleApiClient();         // GooglePlayServicesClient 객체를 생성
         super.mGoogleApiClient.connect();     // connect 메소드가 성공하면 onConnect() 콜백 메소드를 호출
+        // 툴바 설정
+        setToolbar();
+        // 메뉴 커스텀
+        setMenuCustom();
+//        setSerach();
+
+//        searchList.setVisibility(View.GONE);
+        list.setVisibility(View.GONE);
+
+
     }
+   /* private void setSerach() {
+               String products[] = {"Dell Inspiron", "HTC One X", "HTC Wildfire S", "HTC Sense", "HTC Sensation XE",
+                "iPhone 4S", "Samsung Galaxy Note 800",
+                "Samsung Galaxy S3", "MacBook Air", "Mac Mini", "MacBook Pro"};
+
+        searchList = (ListView) findViewById(R.id.main_search_list);
+        inputSearch = (EditText) findViewById(R.id.main_search_text);
+
+        // Adding items to listview
+        adapter_search = new ArrayAdapter<String>(this, R.layout.main_search_item, R.id.product_name, products);
+        searchList.setAdapter(adapter_search);
+
+        *//**
+         * Enabling Search Filter
+         * *//*
+        inputSearch.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+                // When user changed the Text
+                MainActivity.this.adapter_search.getFilter().filter(cs);
+                list.setVisibility(View.GONE);
+                searchList.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                                          int arg3) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                // TODO Auto-generated method stub
+            }
+        });
+    }*/
 
     // 폰트 설정
     private void setToolbar() {
@@ -99,6 +158,8 @@ public class MainActivity extends MapAPIActivity {
             // 메뉴화면 펼치기(layout 앞으로 이동)
             public void onClick(View v) {
                 Drawer.openDrawer(GravityCompat.START); // 펼치기
+//                searchList.setVisibility(View.GONE);
+                list.setVisibility(View.VISIBLE);
             }
         });
 
@@ -130,14 +191,13 @@ public class MainActivity extends MapAPIActivity {
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
             switch (position) {
                 case 0:
-
                     break;
                 case 1:
                     button = new Intent(getApplicationContext(), ProfileActivity.class);
                     startActivity(button);
                     break;
                 case 2: // 친구목록으로 이동
-                    button = new Intent(getApplicationContext(), Friend_listActivity.class);
+                    button = new Intent(getApplicationContext(), FriendListActivity.class);
                     startActivity(button);
                     break;
                 case 3: // 환경설정으로 이동
@@ -146,6 +206,8 @@ public class MainActivity extends MapAPIActivity {
                     break;
             }
             Drawer.closeDrawer(list);
+            list.setVisibility(View.GONE);
+//            searchList.setVisibility(View.VISIBLE);
         }
     }
 
@@ -198,7 +260,7 @@ public class MainActivity extends MapAPIActivity {
             }
             return view;
         }
-    }       // write_DataAdapter class -- END --
+    }       // DataAdapter class -- END --
 
     // menuData안에 받은 값을 직접 할당
     private class MenuData {
@@ -221,7 +283,7 @@ public class MainActivity extends MapAPIActivity {
         public String getLabel() { return label1; }
         public String getLabel2() { return label2; }
         public int getImage() { return menu_image; }
-    }    // bitMapData class -- END --
+    }    // MenuData class -- END --
 
     // 글쓰기, 체크, 모아보기 메뉴 onClick 메소드
     public void nextActivityButton(View v) {
@@ -249,6 +311,8 @@ public class MainActivity extends MapAPIActivity {
     public void onBackPressed() {
         // 메뉴 화면이 open 되있을 경우
         if (Drawer.isDrawerOpen(GravityCompat.START)) {
+            list.setVisibility(View.GONE);
+//            searchList.setVisibility(View.VISIBLE);
             Drawer.closeDrawer(GravityCompat.START); // 펼치기
         } else {
             // 나가기 버튼 눌렀을 시 구글 맵 기능 종료
@@ -382,7 +446,7 @@ public class MainActivity extends MapAPIActivity {
     //글보기 임시버튼(테스트)
     public void view_button(View v)
     {
-        Intent intent = new Intent(getApplicationContext(), View_articleActivity.class);
+        Intent intent = new Intent(getApplicationContext(), ViewArticleActivity.class);
         startActivity(intent);
     }
 
@@ -391,7 +455,5 @@ public class MainActivity extends MapAPIActivity {
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
-
-
-
 }
+

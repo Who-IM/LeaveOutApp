@@ -2,7 +2,7 @@ package whoim.leaveout.SingleClick;
 
 import android.os.SystemClock;
 import android.view.View;
-
+/*중복 클릭 방지 추상 클래스*/
 public abstract class OnSingleClickListener implements View.OnClickListener {
     // 중복 클릭 방지 시간 설정
     private static final long MIN_CLICK_INTERVAL=500;

@@ -19,7 +19,8 @@
         android:theme="@style/AppTheme">
         <!--첫 화면-->
         <activity
-            android:name=".loginActivity">
+            android:name=".loginActivity"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action
                     android:name="android.intent.action.MAIN" />
@@ -106,4 +107,3 @@
         </provider>
     </application>
 </manifest>
-

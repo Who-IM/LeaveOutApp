@@ -15,7 +15,7 @@
 
         <!--뒤로가기-->
         <ImageButton
-            android:id="@+id/back_icon"
+            android:id="@+id/preferences_back_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/toolbar"
@@ -30,8 +30,8 @@
             android:id="@+id/profile_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/back_icon"
-            android:layout_alignTop="@id/back_icon"
+            android:layout_alignLeft="@id/preferences_back_icon"
+            android:layout_alignTop="@id/preferences_back_icon"
             android:text="프로필"
             android:textColor="#FF000000"
             android:textSize="35dp"

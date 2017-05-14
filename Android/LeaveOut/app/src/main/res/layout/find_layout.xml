@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/login_main"
+    tools:ignore="missingPrefix">
+
+    <TextView
+        android:id="@+id/find_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:textSize="60dp"
+        android:text="ID/PW 찾기"
+        app:font="custom1"
+        android:textColor="#FFFFFFFF"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <!-- 찾기 -->
+    <Button
+        android:id="@+id/find_insert"
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:text="찾기"
+        android:background="@drawable/login_button"
+        android:onClick="findButton"
+        android:textSize="23dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="60dp"
+        android:layout_marginBottom="111dp" />
+
+    <!-- 취소 -->
+    <Button
+        android:id="@+id/find_cancel"
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:text="취소"
+        android:background="@drawable/login_button"
+        android:onClick="find_cancelButton"
+        android:textSize="23dp"
+        android:layout_marginRight="60dp"
+        android:layout_alignTop="@id/find_insert"
+        android:layout_alignParentEnd="true" />
+
+</RelativeLayout>

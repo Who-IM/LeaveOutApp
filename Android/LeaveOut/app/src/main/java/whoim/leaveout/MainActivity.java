@@ -197,7 +197,7 @@ public class MainActivity extends MapAPIActivity {
                     startActivity(button);
                     break;
                 case 2: // 친구목록으로 이동
-                    button = new Intent(getApplicationContext(), Friend_listActivity.class);
+                    button = new Intent(getApplicationContext(), FriendListActivity.class);
                     startActivity(button);
                     break;
                 case 3: // 환경설정으로 이동
@@ -446,7 +446,7 @@ public class MainActivity extends MapAPIActivity {
     //글보기 임시버튼(테스트)
     public void view_button(View v)
     {
-        Intent intent = new Intent(getApplicationContext(), View_articleActivity.class);
+        Intent intent = new Intent(getApplicationContext(), ViewArticleActivity.class);
         startActivity(intent);
     }
 

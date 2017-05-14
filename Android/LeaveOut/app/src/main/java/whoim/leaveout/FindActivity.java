@@ -8,22 +8,22 @@ import android.view.View;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
-public class JoinActivity extends AppCompatActivity
+public class FindActivity extends AppCompatActivity
 {
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.join_layout);
+        setContentView(R.layout.find_layout);
     }
 
-    public void joinButton(View v)
+    public void findButton(View v)
     {
         Intent intent = new Intent(getApplicationContext(), loginActivity.class);
         startActivity(intent);
     }
 
-    public void Join_cancelButton(View v)
+    public void find_cancelButton(View v)
     {
         Intent intent = new Intent(getApplicationContext(), loginActivity.class);
         startActivity(intent);

@@ -17,7 +17,7 @@
 
         <!--뒤로가기-->
         <ImageButton
-            android:id="@+id/back_icon"
+            android:id="@+id/preferences_back_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/toolbar"
@@ -29,101 +29,115 @@
 
         <!--환경설정-->
         <TextView
-            android:id="@+id/pre_preferences"
+            android:id="@+id/preferences"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/back_icon"
-            android:layout_alignTop="@id/back_icon"
+            android:layout_alignLeft="@id/preferences_back_icon"
+            android:layout_alignTop="@id/preferences_back_icon"
             android:text="환경설정"
             app:font="custom1"
             android:textColor="#FF000000"
             android:textSize="35dp" />
-
     </android.support.v7.widget.Toolbar>
-
 
     <!-- 기본설정 -->
     <TextView
-        android:id="@+id/pre_setting"
+        android:id="@+id/preferences_setting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="15dp"
         android:layout_marginTop="30dp"
         android:text="기본설정"
         app:font="custom2"
         android:textColor="#FFBBBBBB"
-        android:textSize="30dp" />
+        android:textSize="35dp" />
 
     <!-- 기본범위 -->
-    <TextView
-        android:id="@+id/pre_range"
+    <Switch
+        android:id="@+id/preferences_range"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/pre_setting"
-        android:layout_below="@+id/pre_setting"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="30dp"
-        android:text="기본범위"
+        android:track="@drawable/preferences_switch_track"
+        android:thumb="@drawable/preferences_switch_selector"
+        android:text="기본 범위"
         app:font="custom2"
-        android:textColor="#FF000000"
-        android:textSize="25dp" />
+        android:textSize="30dp"
+        android:layout_below="@+id/preferences_setting"
+        android:layout_alignStart="@+id/preferences_setting"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginRight="40dp"
+        android:layout_alignParentEnd="true"/>
 
     <!-- 공개여부 -->
-    <TextView
-        android:id="@+id/pre_open"
+    <Switch
+        android:id="@+id/preferences_open"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/pre_range"
-        android:layout_below="@+id/pre_range"
-        android:layout_marginTop="40dp"
-        android:text="공개여부"
+        android:track="@drawable/preferences_switch_track"
+        android:thumb="@drawable/preferences_switch_selector"
+        android:text="공개 여부"
         app:font="custom2"
-        android:textColor="#FF000000"
-        android:textSize="25dp" />
+        android:textSize="30dp"
+        android:layout_below="@+id/preferences_range"
+        android:layout_alignStart="@+id/preferences_range"
+        android:layout_marginTop="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_alignParentEnd="true"/>
 
     <!-- 푸쉬알림 -->
-    <TextView
-        android:id="@+id/pre_push"
+    <Switch
+        android:id="@+id/preferences_push"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/pre_open"
-        android:layout_below="@+id/pre_open"
-        android:layout_marginTop="40dp"
-        android:text="푸쉬알림"
+        android:track="@drawable/preferences_switch_track"
+        android:thumb="@drawable/preferences_switch_selector"
+        android:text="푸쉬 알림"
         app:font="custom2"
-        android:textColor="#FF000000"
-        android:textSize="25dp" />
+        android:textSize="30dp"
+        android:layout_below="@+id/preferences_open"
+        android:layout_alignStart="@+id/preferences_open"
+        android:layout_marginTop="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_alignParentEnd="true"/>
 
     <!-- GPS -->
-    <TextView
-        android:id="@+id/pre_gps_text"
+    <Switch
+        android:id="@+id/preferences_gps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/pre_push"
-        android:layout_below="@+id/pre_push"
-        android:layout_marginTop="40dp"
-        android:text="GPS"
+        android:track="@drawable/preferences_switch_track"
+        android:thumb="@drawable/preferences_switch_selector"
+        android:text="GPS 범위"
         app:font="custom2"
-        android:textColor="#FF000000"
-        android:textSize="25dp" />
+        android:textSize="30dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_below="@+id/preferences_push"
+        android:layout_alignStart="@+id/preferences_push"
+        android:layout_alignParentEnd="true"/>
 
     <!-- 자동 로그인 -->
-    <TextView
-        android:id="@+id/pre_autologin"
+    <Switch
+        android:id="@+id/preferences_autologin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/pre_gps_text"
-        android:layout_below="@+id/pre_gps_text"
-        android:layout_marginTop="40dp"
-        android:text="자동로그인"
+        android:track="@drawable/preferences_switch_track"
+        android:thumb="@drawable/preferences_switch_selector"
+        android:text="자동 로그인"
         app:font="custom2"
-        android:textColor="#FF000000"
-        android:textSize="25dp" />
+        android:textSize="30dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_below="@+id/preferences_gps"
+        android:layout_alignStart="@+id/preferences_gps"
+        android:layout_alignParentEnd="true" />
+
 
     <!-- 로그아웃 -->
     <Button
-        android:id="@+id/pre_logout"
+        android:id="@+id/preferences_logout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

@@ -33,6 +33,10 @@ public class loginActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
     }
+    public void findButton(View v) {
+        Intent intent = new Intent(getApplicationContext(), FindActivity.class);
+        startActivity(intent);
+    }
 
     // 폰트 바꾸기
     @Override

@@ -36,6 +36,13 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <!--아이디 패스워드 찾기 화면-->
+        <activity
+            android:name=".FindActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
         <!--메인 화면-->
         <activity
             android:name=".MainActivity"
@@ -59,7 +66,7 @@
 
         <!--글 보기 화면-->
         <activity
-            android:name=".View_articleActivity"
+            android:name=".ViewArticleActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait">
         </activity>
@@ -73,7 +80,7 @@
 
         <!--친구목록 화면-->
         <activity
-            android:name=".Friend_listActivity"
+            android:name=".FriendListActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait">
         </activity>

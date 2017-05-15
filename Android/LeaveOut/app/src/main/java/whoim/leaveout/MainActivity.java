@@ -10,12 +10,8 @@ import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -25,8 +21,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,8 +38,7 @@ import whoim.leaveout.StartSetting.Permission;
 
 public class MainActivity extends MapAPIActivity {
     private InputMethodManager imm;
-    LinearLayout search_layout;
-
+    RelativeLayout test;
     // List view
     private ListView searchList;
 
@@ -77,124 +72,68 @@ public class MainActivity extends MapAPIActivity {
     DataAdapter adapter; // 데이터를 연결할 Adapter
     ArrayList<MenuData> alist; // 데이터를 담을 자료구조
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         restoreState(savedInstanceState);     // 상태 불러오기
-        // 화면 캡쳐 방지
+        // 화면 캡쳐 방지?
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.main_layout);
-
-        // 인스턴스들 셋팅
-        setInstance();
+        test = (RelativeLayout) findViewById(R.id.Test);
+        mAddressView = (TextView) findViewById(R.id.main_location);
 
         super.buildGoogleApiClient();         // GooglePlayServicesClient 객체를 생성
         super.mGoogleApiClient.connect();     // connect 메소드가 성공하면 onConnect() 콜백 메소드를 호출
-
         // 툴바 설정
         setToolbar();
-
-        // 검색 셋팅
-        setSerach();
-        // 메뉴 셋팅
+        // 메뉴 커스텀
         setMenuCustom();
+//        setSerach();
 
-        // 검색 리스트뷰 숨기기
-        search_layout.setVisibility(View.GONE);
+//        searchList.setVisibility(View.GONE);
+        list.setVisibility(View.GONE);
 
-        // 매뉴 툴바 메뉴 버튼 누를 시 이벤트 처리
-        menu_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            // 메뉴화면 펼치기(layout 앞으로 이동)
-            public void onClick(View v) {
 
-                // 포커스가 검색란에 있으면
-                if(inputSearch.isFocused()) {
-                    hideKeyboard();  // 키보드 숨기기
-                    inputSearch.clearFocus();  // 포커스 해제
-                } else {
-                    search_layout.setVisibility(View.GONE); // 검색 창 리스트 숨기기
-                    list.setVisibility(View.VISIBLE);        // 메뉴 보이게하기
-                    Drawer.openDrawer(GravityCompat.START); // 펼치기
-                }
-            }
-        });
-
-        //
-        Drawer.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                list.setVisibility(View.GONE);
-                search_layout.setVisibility(View.GONE);
-                Drawer.closeDrawer(GravityCompat.START); // 펼치기
-                return true;
-            }
-        });
     }
-
-    // 인스턴스 셋팅
-    private void setInstance() {
-        mAddressView = (TextView) findViewById(R.id.main_location); // 지도 중간에 있는 자기위치
-
-        imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE); //키보드 숨기기위해 인풋메니저 등록
-
-        // 매뉴 관련 인스턴스
-        list = (ListView)findViewById(R.id.main_menu);
-        Drawer = (DrawerLayout)findViewById(R.id.main_drawer);
-        menu_btn = (ImageButton)findViewById(R.id.menu_btn); // 메뉴 버튼
-
-        // 메뉴에 글 목록 등록
-        list.setOnItemClickListener(new DrawerItemClickListener());
-
-        // 검색 관련 인스턴스
-        searchList = (ListView) findViewById(R.id.main_search_list);
-        inputSearch = (EditText) findViewById(R.id.main_search_text);
-        search_layout = (LinearLayout) findViewById(R.id.main_search_layout);
-        String products[] = {"Dell Inspiron", "HTC One X", "HTC Wildfire S", "HTC Sense", "HTC Sensation XE",
+   /* private void setSerach() {
+               String products[] = {"Dell Inspiron", "HTC One X", "HTC Wildfire S", "HTC Sense", "HTC Sensation XE",
                 "iPhone 4S", "Samsung Galaxy Note 800",
                 "Samsung Galaxy S3", "MacBook Air", "Mac Mini", "MacBook Pro"};
 
+        searchList = (ListView) findViewById(R.id.main_search_list);
+        inputSearch = (EditText) findViewById(R.id.main_search_text);
+
         // Adding items to listview
         adapter_search = new ArrayAdapter<String>(this, R.layout.main_search_item, R.id.product_name, products);
-    }
+        searchList.setAdapter(adapter_search);
 
-    // 검색관련 셋팅
-    private void setSerach() {
-
-        inputSearch.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                list.setVisibility(View.GONE);
-                return false;
-            }
-        });
-
+        *//**
+         * Enabling Search Filter
+         * *//*
         inputSearch.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 // When user changed the Text
-                search_layout.setVisibility(View.VISIBLE);
-                searchList.setAdapter(adapter_search);
                 MainActivity.this.adapter_search.getFilter().filter(cs);
+                list.setVisibility(View.GONE);
+                searchList.setVisibility(View.VISIBLE);
             }
 
             @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,int arg3) { }
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                                          int arg3) {
+                // TODO Auto-generated method stub
+
+            }
+
             @Override
-            public void afterTextChanged(Editable arg0) { }
+            public void afterTextChanged(Editable arg0) {
+                // TODO Auto-generated method stub
+            }
         });
-    }
-
-    // 키보드 숨기기
-    private void hideKeyboard(){
-        imm.hideSoftInputFromWindow(inputSearch.getWindowToken(), 0);
-    }
-
-    // 키보드 보이기
-    private void showKeyboard(){
-        imm.showSoftInput(inputSearch, 0);
-    }
+    }*/
 
     // 폰트 설정
     private void setToolbar() {
@@ -206,20 +145,39 @@ public class MainActivity extends MapAPIActivity {
 
     // 메뉴 커스텀 (나중에 DB받아서 수정)
     private void setMenuCustom() {
+        // 매뉴 구성
+        list = (ListView)findViewById(R.id.main_menu);
+        Drawer = (DrawerLayout)findViewById(R.id.main_drawer);
+
+        // 툴바 메뉴 버튼
+        menu_btn = (ImageButton)findViewById(R.id.menu_btn);
+
+        // 매뉴 툴바 메뉴 버튼 누를 시 이벤트 처리
+        menu_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            // 메뉴화면 펼치기(layout 앞으로 이동)
+            public void onClick(View v) {
+                Drawer.openDrawer(GravityCompat.START); // 펼치기
+//                searchList.setVisibility(View.GONE);
+                list.setVisibility(View.VISIBLE);
+            }
+        });
 
         // ArrayList객체를 생성합니다
         alist = new ArrayList<MenuData>();
         // 데이터를 받기위해 데이터어댑터 객체 선언
         adapter = new DataAdapter(this, alist);
+        // 리스트뷰에 어댑터 연결
+        list.setAdapter(adapter);
+
+        // 메뉴에 글 목록 등록
+        list.setOnItemClickListener(new DrawerItemClickListener());
 
         // 자기 프로필(사진, 이름, email)
         adapter.add(new MenuData(getApplicationContext(), R.drawable.basepicture, "허 성 문", "gjtjdans123@naver.com"));  // 안의 데이터는 db받아서
         adapter.add(new MenuData(getApplicationContext(), R.drawable.profile_icon, "프로필")); // 프로필아이콘 & 프로필(text)
         adapter.add(new MenuData(getApplicationContext(), R.drawable.friends_icon, "친구목록")); // 친구아이콘 & 친구(text)
         adapter.add(new MenuData(getApplicationContext(), R.drawable.preferences_icon, "환경설정")); // 환경설정아이콘 & 환경설정(text)
-
-        // 리스트뷰에 어댑터 연결
-        list.setAdapter(adapter);
     }
 
     /* 매뉴 눌렀을 시 이벤트 처리
@@ -249,7 +207,7 @@ public class MainActivity extends MapAPIActivity {
             }
             Drawer.closeDrawer(list);
             list.setVisibility(View.GONE);
-            search_layout.setVisibility(View.VISIBLE);
+//            searchList.setVisibility(View.VISIBLE);
         }
     }
 
@@ -338,7 +296,7 @@ public class MainActivity extends MapAPIActivity {
                 break;
             case R.id.main_check:       // 체크 버튼(토스트 출력)
                 Toast toastView = Toast.makeText(getApplicationContext(), "체크되었습니다.", Toast.LENGTH_LONG);
-                toastView.setGravity(Gravity.TOP, 0, 1300);
+//                toastView.setGravity(Gravity.TOP, 0, 1300);
                 toastView.show();
                 break;
             case R.id.main_collect:     // 모아보기 버튼(모아보기 액티비티 이동)
@@ -354,7 +312,7 @@ public class MainActivity extends MapAPIActivity {
         // 메뉴 화면이 open 되있을 경우
         if (Drawer.isDrawerOpen(GravityCompat.START)) {
             list.setVisibility(View.GONE);
-            search_layout.setVisibility(View.VISIBLE);
+//            searchList.setVisibility(View.VISIBLE);
             Drawer.closeDrawer(GravityCompat.START); // 펼치기
         } else {
             // 나가기 버튼 눌렀을 시 구글 맵 기능 종료
@@ -396,6 +354,7 @@ public class MainActivity extends MapAPIActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+//        Toast.makeText(this,"종료",Toast.LENGTH_SHORT).show();
         unregisterReceiver(mBroadcastLocation);     // 브로드캐스트 종료
     }
 
@@ -482,6 +441,13 @@ public class MainActivity extends MapAPIActivity {
             registerReceiver(mBroadcastLocation, new IntentFilter(LocationBackground.ACTION_LOCATION_BROADCAST));
             mBroadcastCheck = true; // 브로드캐스트 설정 완료
         }
+    }
+
+    //글보기 임시버튼(테스트)
+    public void view_button(View v)
+    {
+        Intent intent = new Intent(getApplicationContext(), View_articleActivity.class);
+        startActivity(intent);
     }
 
     // 폰트 바꾸기

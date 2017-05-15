@@ -8,11 +8,11 @@
     android:layout_height="match_parent">
 
     <!--주 레이아웃-->
-    <RelativeLayout
-    android:id="@+id/main_menu_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    <LinearLayout
+        android:id="@+id/main_menu_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <!--툴바-->
         <android.support.v7.widget.Toolbar
@@ -24,10 +24,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                >
+                android:layout_height="match_parent">
                 <!-- 메뉴버튼 -->
                 <ImageButton
                     android:id="@+id/menu_btn"
@@ -67,7 +64,6 @@
         <!--구글 맵 화면-->
         <RelativeLayout
             android:id="@+id/Test"
-            android:layout_below="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -91,7 +87,25 @@
                 android:textColor="#FFFFFFFF"
                 android:textSize="15dp"
                 android:textStyle="bold" />
+            <!--<LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:orientation="horizontal"
+                android:layout_above="@+id/main_line">
 
+                <ListView
+                    android:id="@+id/main_search_list"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#FFFFFFFF"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_above="@+id/main_line"
+                    android:layout_gravity="top"
+                    android:divider="@android:color/transparent" />
+            </LinearLayout>-->
             <!--경계선-->
             <View
                 android:id="@+id/main_line"
@@ -152,24 +166,9 @@
                     android:onClick="nextActivityButton"/>
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/main_search_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:orientation="horizontal">
-
-                <ListView
-                    android:id="@+id/main_search_list"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/toolbar"
-                    android:background="#FFFFFFFF"/>
-            </LinearLayout>
-
 
         </RelativeLayout>
-    </RelativeLayout>
+    </LinearLayout>
     <!-- 메뉴바 나타나는 창 -->
     <ListView
         android:id="@+id/main_menu"

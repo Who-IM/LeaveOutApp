@@ -8,23 +8,17 @@ import android.view.View;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
-// 환경설정
-public class PreferenceActivity extends AppCompatActivity {
-    @Override
+//알림
+public class PreferencesNoticeActivity extends AppCompatActivity
+{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.preferences_layout);
-    }
-
-    // 로그아웃
-    public void logout(View v) {
-        Intent intent = new Intent(getApplicationContext(), loginActivity.class);
-        startActivity(intent);
+        setContentView(R.layout.preferences_notice_layout);
     }
 
     // 뒤로가기
     public void Back(View v) {
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        Intent intent = new Intent(getApplicationContext(), PreferencesActivity.class);
         startActivity(intent);
     }
 
@@ -33,5 +27,4 @@ public class PreferenceActivity extends AppCompatActivity {
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
-
 }

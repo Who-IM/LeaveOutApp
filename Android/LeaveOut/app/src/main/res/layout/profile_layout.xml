@@ -199,8 +199,5 @@
                 android:layout_alignParentEnd="true" />
 
         </RelativeLayout>
-
     </ScrollView>
-
-
 </RelativeLayout>

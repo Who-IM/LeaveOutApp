@@ -38,7 +38,7 @@
             android:layout_alignTop="@id/preferences_back_icon" />
 
     </android.support.v7.widget.Toolbar>
-
+z
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="50dp"

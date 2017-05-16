@@ -243,7 +243,7 @@ public class MainActivity extends MapAPIActivity {
                     startActivity(button);
                     break;
                 case 3: // 환경설정으로 이동
-                    button = new Intent(getApplicationContext(), PreferenceActivity.class);
+                    button = new Intent(getApplicationContext(), PreferencesActivity.class);
                     startActivity(button);
                     break;
             }

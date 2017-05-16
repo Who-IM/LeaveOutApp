@@ -27,6 +27,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -48,9 +49,15 @@ public class WritingActivity extends AppCompatActivity {
     Toolbar toolbar;
     TextView mAddressText;
 
+    // checkList
+    LinearLayout writing_search_layout;
+    private ListView writing_searchList;
+    ArrayAdapter<String> writing_adapter_search;
+    ImageButton writing_inputSearch;
+
     //카메라 앨범 변수
     private static final int PICK_FROM_CAMERA = 1; //카메라 촬영으로 사진 가져오기
-    private static final int PICK_FROM_ALBUM = 2; //앨범에서 사진 가져오기
+    private static final int PICK_FROM_ALBUM = 2;  //앨범에서 사진 가져오기
     ImageView iv = null;
     Uri photoUri;
     Bitmap thumbImage = null;
@@ -77,6 +84,9 @@ public class WritingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.write_layout);
+        // 인스턴스 셋팅
+        setInstance();
+
         Intent data = getIntent();      // 데이터 가져오기
         mAddressText = (TextView) findViewById(R.id.write_address);
         if (data != null) mAddressText.setText(data.getStringExtra("address"));  // 주소 창 표시
@@ -106,6 +116,37 @@ public class WritingActivity extends AppCompatActivity {
         translateRightAnim.setAnimationListener(animListener);
 
         whether_open_button();   // 공개여부 버튼 작동
+
+        writing_search_layout.setVisibility(View.GONE); //
+        check_list_open();
+    }
+
+    private void setInstance() {
+
+        // 검색 관련 인스턴스
+        writing_searchList = (ListView) findViewById(R.id.write_search_list);
+        writing_inputSearch = (ImageButton) findViewById(R.id.open_list);
+        writing_search_layout = (LinearLayout) findViewById(R.id.write_search_layout);
+        String products[] = {"대구 수성구", "대구 동구", "대구 남구" };
+
+        // 검색 리스트 뷰
+        writing_adapter_search = new ArrayAdapter<String>(this, R.layout.main_search_item, R.id.product_name, products);
+    }
+
+    // 검색관련 셋팅
+    public void check_list_open() {
+
+        writing_inputSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(writing_search_layout.getVisibility() == View.GONE) {
+                    writing_search_layout.setVisibility(View.VISIBLE);
+                    writing_searchList.setAdapter(writing_adapter_search);
+                } else {
+                    writing_search_layout.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     public void setWriteAdapter(Bitmap th) {

@@ -325,7 +325,7 @@ public class MainActivity extends MapAPIActivity {
         public String getLabel() { return label1; }
         public String getLabel2() { return label2; }
         public int getImage() { return menu_image; }
-    }    // MenuData class -- END --
+    }    // profileData class -- END --
 
     // 글쓰기, 체크, 모아보기 메뉴 onClick 메소드
     public void nextActivityButton(View v) {

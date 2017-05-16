@@ -199,7 +199,5 @@
                 android:layout_below="@+id/profile_hscroll_view" />
 
         </RelativeLayout>
-
     </ScrollView>
-
 </RelativeLayout>

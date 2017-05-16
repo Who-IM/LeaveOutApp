@@ -5,11 +5,17 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +33,12 @@ public class FriendListActivity extends AppCompatActivity {
     HashMap<String, List<String>> listDataChild;
     String[] friends_list_title = {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"};
     ArrayList<List> dataControl; // child에 데이터 셋팅
+
+    // 검색
+    LinearLayout friend_search_layout;
+    private ListView friend_searchList;
+    ArrayAdapter<String> friend_adapter_search;
+    EditText friend_inputSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +66,49 @@ public class FriendListActivity extends AppCompatActivity {
                         , Toast.LENGTH_SHORT).show();
                 return false;
             }
+        });
+
+        // 인스턴스 셋팅
+        setInstance();
+
+        // 검색 셋팅
+        setSerach();
+        friend_search_layout.setVisibility(View.GONE);
+    }
+
+    private void setInstance() {
+
+        // 검색 관련 인스턴스
+        friend_searchList = (ListView) findViewById(R.id.friend_search_list);
+        friend_inputSearch = (EditText) findViewById(R.id.friend_search);
+        friend_search_layout = (LinearLayout) findViewById(R.id.friend_search_layout);
+        String products[] = {"홍길동", "홍길", "길동", "허성문", "성문", "김창석", "창석", "미정" };
+
+        // 검색 리스트 뷰
+        friend_adapter_search = new ArrayAdapter<String>(this, R.layout.main_search_item, R.id.product_name, products);
+    }
+
+    // 검색관련 셋팅
+    private void setSerach() {
+
+        // editText 글자 쳤을 시
+        friend_inputSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+                if(cs.toString().equals("")) {
+                    friend_search_layout.setVisibility(View.GONE);
+                    friend_searchList.setAdapter(null);
+                } else {
+                    friend_search_layout.setVisibility(View.VISIBLE);
+                    friend_searchList.setAdapter(friend_adapter_search);
+                    FriendListActivity.this.friend_adapter_search.getFilter().filter(cs);
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,int arg3) { }
+            @Override
+            public void afterTextChanged(Editable arg0) {     }
         });
     }
 

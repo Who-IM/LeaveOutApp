@@ -155,14 +155,16 @@
             <LinearLayout
                 android:id="@+id/main_search_layout"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/toolbar"
+                android:layout_above="@id/main_line"
                 android:layout_alignParentStart="true"
                 android:orientation="horizontal">
 
                 <ListView
                     android:id="@+id/main_search_list"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:background="#FFFFFFFF" />
             </LinearLayout>
 

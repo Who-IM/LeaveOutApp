@@ -59,11 +59,34 @@
 
         <!--환경설정 화면-->
         <activity
-            android:name=".PreferenceActivity"
+            android:name=".PreferencesActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait">
         </activity>
-
+        <!--카테고리-->
+        <activity
+            android:name=".PreferencesCategoryActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+        <!--체크 삭제-->
+        <activity
+            android:name=".PreferencesCheckDeleteActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+        <!--아이디 삭제-->
+        <activity
+            android:name=".PreferencesIdDeleteActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+        <!--알림 설정-->
+        <activity
+            android:name=".PreferencesNoticeActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
         <!--글 보기 화면-->
         <activity
             android:name=".ViewArticleActivity"

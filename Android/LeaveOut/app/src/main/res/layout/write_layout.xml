@@ -41,7 +41,7 @@
             android:textSize="33dp" />
 
         <!--게시-->
-        <Button
+        zz<Button
             android:id="@+id/write_commit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

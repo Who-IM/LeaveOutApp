@@ -2,18 +2,16 @@ package whoim.leaveout;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
@@ -23,14 +21,13 @@ import java.util.ArrayList;
 // 환경설정
 public class ProfileActivity extends AppCompatActivity {
 
-    // 메뉴 관련 인스턴스
-    private ListView list;
-    private DrawerLayout Drawer;
-    private ImageButton menu_btn;
+    // list
+    private ListView list = null;
+    private profile_Adapter adapter = null;
 
-    profile_Adapter adapter; // 데이터를 연결할 Adapter
-    ArrayList<profileData> alist; // 데이터를 담을 자료구조
-    ScrollView scroll;
+    // comment list
+    private ListView profile_list = null;
+    private profile_Comment_Adapter profile_adapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,129 +37,259 @@ public class ProfileActivity extends AppCompatActivity {
         // 초기설정 (db필요)
         init(R.drawable.basepicture, "허성문", "gjtjdans123@naver.com");
 
-        // 매뉴 구성
-        list = (ListView) findViewById(R.id.proflie_listview);
-        scroll = (ScrollView) findViewById(R.id.profile_scroll);
-
-        setMenuCustom();
+        // 모아보기 listview 셋팅
+        setCollect();
     }
 
-    public void setItem(int image, String name, String location, String time, String recom_num, String views_num, String contents) {
-        adapter.add(new profileData(image, name, location, time, recom_num, views_num, contents));
-    }
+    // 모아보기 listview 셋팅
+    private void setCollect() {
+        // 메뉴
+        list = (ListView) findViewById(R.id.proflie_list);
 
-    // 메뉴 커스텀 (나중에 DB받아서 수정)
-    private void setMenuCustom() {
-
-        // ArrayList객체를 생성합니다
-        alist = new ArrayList<profileData>();
-        // 데이터를 받기위해 데이터어댑터 객체 선언
-        adapter = new profile_Adapter(this, alist);
-
-        setItem(R.drawable.basepicture, "허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
-        setItem(R.drawable.basepicture, "김창석", "대구 복현동 뚝불", "2017.05.08 19:22","1230","2325","값싸다");
-
-        // 리스트뷰에 어댑터 연결
+        // 어뎁터 생성민 등록
+        adapter = new profile_Adapter(this);
         list.setAdapter(adapter);
 
-        list.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                scroll.requestDisallowInterceptTouchEvent(true);
-                return false;
-            }
-        });
+        // 여기서 db데이터 넣기
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
+        setListViewHeightBasedOnChildren(list);
     }
 
-    // 메뉴 커스텀
-    private class profile_Adapter extends ArrayAdapter<profileData> {
-        // 레이아웃 XML을 읽어들이기 위한 객체
-        private LayoutInflater mInflater;
+    // 댓글 listview 셋팅
+    private void setComment(int image, String name, String comment) {
 
-        public profile_Adapter(Context context, ArrayList<profileData> object) {
-            // 상위 클래스의 초기화 과정
-            // context, 0, 자료구조
-            super(context, 0, object);
-            mInflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        // 실제 데이터 삽입
+        profile_adapter.addItem(getResources().getDrawable(image, null), name, comment);
+        // 리스트뷰 펼처보기(한화면에)
+        setListViewHeightBasedOnChildren(profile_list);
+    }
+
+    // 리스트뷰 펼처보기(한화면에)
+    public void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            return;
         }
-        // 보여지는 스타일을 자신이 만든 xml로 보이기 위한 구문
+
+        int totalHeight = 0;
+
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+
+        params.height = totalHeight;
+        listView.setLayoutParams(params);
+
+        listView.requestLayout();
+    }
+
+    // ------------ collect listview -------------
+    private class profile_ViewHolder {
+        public ImageView Image;
+        public TextView name;
+        public TextView location;
+        public TextView time;
+        public TextView recom_num;
+        public TextView views_num;
+        public TextView contents;
+    }
+
+    // 리스트뷰 어뎁터
+    private class profile_Adapter extends BaseAdapter {
+        private Context mContext = null;
+        private ArrayList<profile_ListData> mListData = new ArrayList<profile_ListData>();
+
+        public profile_Adapter(Context mContext) {
+            super();
+            this.mContext = mContext;
+        }
+
         @Override
-        public View getView(int position, View v, ViewGroup parent) {
-            View view = null;
-            // 현재 리스트의 하나의 항목에 보일 컨트롤 얻기
-
-            // view 구성하기 (0 : 자기 프로필 화면, 1 : 프로필 아이콘 & text, 2 : 친구아이콘 & text)
-            if (v == null) {
-                view = mInflater.inflate(R.layout.profile, null);
-            } else  {
-                view = v;
-            }
-
-            // 자료를 받는다.
-            final profileData data = this.getItem(position);
-
-            // 자기 프로필
-            if (data != null) {
-                // 사진
-                ImageView iv = (ImageView) view.findViewById(R.id.profile_Image);
-                iv.setImageResource(data.getImage());
-
-                // 장소
-                TextView tv = (TextView) view.findViewById(R.id.profile_location);
-                tv.setText(data.getLocation());
-
-                // 시간
-                TextView tv2 = (TextView) view.findViewById(R.id.profile_time);
-                tv2.setText(data.getTime());
-
-                // 추천수
-                TextView tv3 = (TextView) view.findViewById(R.id.profile_recom_num);
-                tv3.setText(data.getRecom_num());
-
-                // 조회수
-                TextView tv4 = (TextView) view.findViewById(R.id.profile_views_num);
-                tv4.setText(data.getViews_num());
-
-                // 글
-                TextView tv5 = (TextView) view.findViewById(R.id.profile_contents);
-                tv5.setText(data.getContents());
-            }
-
-            return view;
+        public int getCount() {
+            return mListData.size();
         }
-    }       // DataAdapter class -- END --
 
-    // menuData안에 받은 값을 직접 할당
-    private class profileData {
-        public int Image;
+        @Override
+        public Object getItem(int position) {
+            return mListData.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        // 생성자로 값을 받아 셋팅
+        public void addItem(Drawable image, String name, String location, String time, String recom_num, String views_num, String contents) {
+            profile_ListData addInfo = null;
+            addInfo = new profile_ListData();
+            addInfo.Image = image;
+            addInfo.name = name;
+            addInfo.location = location;
+            addInfo.time = time;
+            addInfo.recom_num = recom_num;
+            addInfo.views_num = views_num;
+            addInfo.contents = contents;
+
+            mListData.add(addInfo);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            profile_ViewHolder holder;
+            if (convertView == null) {
+                holder = new profile_ViewHolder();
+
+                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.profile, null);
+
+                holder.Image = (ImageView) convertView.findViewById(R.id.profile_Image);
+                holder.name = (TextView) convertView.findViewById(R.id.profile_name);
+                holder.location = (TextView) convertView.findViewById(R.id.profile_location);
+                holder.time = (TextView) convertView.findViewById(R.id.profile_time);
+                holder.recom_num = (TextView) convertView.findViewById(R.id.profile_recom_num);
+                holder.views_num = (TextView) convertView.findViewById(R.id.profile_views_num);
+                holder.contents = (TextView) convertView.findViewById(R.id.profile_contents);
+
+                convertView.setTag(holder);
+            }else{
+                holder = (profile_ViewHolder) convertView.getTag();
+            }
+
+            profile_ListData mData = mListData.get(position);
+
+            // 이미지 처리
+            if (mData.Image != null) {
+                holder.Image.setVisibility(View.VISIBLE);
+                holder.Image.setImageDrawable(mData.Image);
+            }else{
+                holder.Image.setVisibility(View.GONE);
+            }
+
+            // textView 처리
+            holder.name.setText(mData.name);
+            holder.location.setText(mData.location);
+            holder.time.setText(mData.time);
+            holder.recom_num.setText(mData.recom_num);
+            holder.views_num.setText(mData.views_num);
+            holder.contents.setText(mData.contents);
+
+            // 댓글
+            profile_list = (ListView) convertView.findViewById(R.id.profile_comment_list);
+            // 어뎁터 생성민 등록
+            profile_adapter = new profile_Comment_Adapter(ProfileActivity.this);
+            profile_list.setAdapter(profile_adapter);
+            // 댓글 셋팅(db받아서)
+            setComment(R.drawable.basepicture, "김창석", "값싸다");
+            setComment(R.drawable.basepicture, "김창석", "값싸다");
+            setComment(R.drawable.basepicture, "김창석", "값싸다");
+            setComment(R.drawable.basepicture, "김창석", "값싸다");
+
+            return convertView;
+        }
+    }
+
+    // 메뉴의 실제 데이터를 저장할 class
+    class profile_ListData {
+        public Drawable Image;
         public String name;
         public String location;
         public String time;
         public String recom_num;
         public String views_num;
         public String contents;
+    }
+    // -------------------------------------- End collect listview -----------------------
 
-        public profileData(int image, String name, String location, String time, String recom_num, String views_num, String contents) {
-            this.Image = image;
-            this.name = name;
-            this.location = location;
-            this.time = time;
-            this.recom_num = recom_num;
-            this.views_num = views_num;
-            this.contents = contents;
+    // 여기부터 collect_comment 부분
+    private class profile_Comment_ViewHolder {
+        public ImageView Image;
+        public TextView name;
+        public TextView comment;
+    }
+
+    // 리스트뷰 어뎁터
+    private class profile_Comment_Adapter extends BaseAdapter {
+        private Context mContext = null;
+        private ArrayList<profile_Comment_ListData> ListData = new ArrayList<profile_Comment_ListData>();
+
+        public profile_Comment_Adapter(Context mContext) {
+            super();
+            this.mContext = mContext;
         }
 
-        public int getImage() { return Image; }
-        public String getName() { return name; }
-        public String getLocation() { return location; }
-        public String getTime() { return time; }
-        public String getRecom_num() { return recom_num; }
-        public String getViews_num() { return views_num; }
-        public String getContents() { return contents; }
+        @Override
+        public int getCount() {
+            return ListData.size();
+        }
 
+        @Override
+        public Object getItem(int position) {
+            return ListData.get(position);
+        }
 
-    }    // profileData class -- END --
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        // 생성자로 값을 받아 셋팅
+        public void addItem(Drawable image, String name, String comment) {
+            profile_Comment_ListData addInfo = null;
+            addInfo = new profile_Comment_ListData();
+            addInfo.Image = image;
+            addInfo.name = name;
+            addInfo.comment = comment;
+
+            ListData.add(addInfo);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            profile_Comment_ViewHolder holder;
+            if (convertView == null) {
+                holder = new profile_Comment_ViewHolder();
+
+                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.profile_comment, null);
+
+                holder.Image = (ImageView) convertView.findViewById(R.id.profile_comment_image);
+                holder.name = (TextView) convertView.findViewById(R.id.profile_comment_name);
+                holder.comment = (TextView) convertView.findViewById(R.id.profile_comment_text);
+
+                convertView.setTag(holder);
+            }else{
+                holder = (profile_Comment_ViewHolder) convertView.getTag();
+            }
+
+            profile_Comment_ListData Data = ListData.get(position);
+
+            // 이미지 처리
+            if (Data.Image != null) {
+                holder.Image.setVisibility(View.VISIBLE);
+                holder.Image.setImageDrawable(Data.Image);
+            }else{
+                holder.Image.setVisibility(View.GONE);
+            }
+
+            // textView 처리
+            holder.name.setText(Data.name);
+            holder.comment.setText(Data.comment);
+
+            return convertView;
+        }
+    }
+
+    // 메뉴의 실제 데이터를 저장할 class
+    class profile_Comment_ListData {
+        public Drawable Image;
+        public String name;
+        public String comment;
+    }
 
     /* 초기설정 첫번째는 사진 : db에서
                 두번째는 이름 : db에서

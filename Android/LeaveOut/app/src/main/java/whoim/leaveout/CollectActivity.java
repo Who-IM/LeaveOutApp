@@ -12,15 +12,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import com.tsengvn.typekit.TypekitContextWrapper;
+
 import java.util.ArrayList;
 
 //모아보기
 public class CollectActivity extends AppCompatActivity {
+    // list
     private ListView list = null;
     private collect_Adapter adapter = null;
+
+    // comment list
+    private ListView comment_list = null;
+    private collect_Comment_Adapter comment_adapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +40,12 @@ public class CollectActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
         getSupportActionBar().setDisplayShowTitleEnabled(false);        //액션바에 표시되는 제목의 표시유무를 설정합니다.
 
+        // 모아보기 listview 셋팅
+        setCollect();
+    }
+
+    // 모아보기 listview 셋팅
+    private void setCollect() {
         // 메뉴
         list = (ListView) findViewById(R.id.collect_listview);
 
@@ -39,13 +53,44 @@ public class CollectActivity extends AppCompatActivity {
         adapter = new collect_Adapter(this);
         list.setAdapter(adapter);
 
-        // 실제 데이터 삽입
-        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),
-                "허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
-        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),
-                "김창석", "대구 복현동 뚝불", "2017.05.08 19:22","1230","2325","값싸다");
+        // 여기서 db데이터 넣기
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
     }
 
+    // 댓글 listview 셋팅
+    private void setComment(int image, String name, String comment) {
+
+        // 실제 데이터 삽입
+        comment_adapter.addItem(getResources().getDrawable(image, null), name, comment);
+        // 리스트뷰 펼처보기(한화면에)
+        setListViewHeightBasedOnChildren(comment_list);
+    }
+
+    // 리스트뷰 펼처보기(한화면에)
+    public void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            return;
+        }
+
+        int totalHeight = 0;
+
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+
+        params.height = totalHeight;
+        listView.setLayoutParams(params);
+
+        listView.requestLayout();
+    }
+
+
+    // ------------ collect listview -------------
     private class collect_ViewHolder {
         public ImageView Image;
         public TextView name;
@@ -136,6 +181,17 @@ public class CollectActivity extends AppCompatActivity {
             holder.views_num.setText(mData.views_num);
             holder.contents.setText(mData.contents);
 
+            // 댓글
+            comment_list = (ListView) convertView.findViewById(R.id.collect_comment_list);
+            // 어뎁터 생성민 등록
+            comment_adapter = new collect_Comment_Adapter(CollectActivity.this);
+            comment_list.setAdapter(comment_adapter);
+            // 댓글 셋팅(db받아서)
+            setComment(R.drawable.basepicture, "김창석", "값싸다");
+            setComment(R.drawable.basepicture, "김창석", "값싸다");
+            setComment(R.drawable.basepicture, "김창석", "값싸다");
+            setComment(R.drawable.basepicture, "김창석", "값싸다");
+
             return convertView;
         }
     }
@@ -149,6 +205,93 @@ public class CollectActivity extends AppCompatActivity {
         public String recom_num;
         public String views_num;
         public String contents;
+    }
+    // -------------------------------------- End collect listview -----------------------
+
+    // 여기부터 collect_comment 부분
+    private class collect_Comment_ViewHolder {
+        public ImageView Image;
+        public TextView name;
+        public TextView comment;
+    }
+
+    // 리스트뷰 어뎁터
+    private class collect_Comment_Adapter extends BaseAdapter {
+        private Context mContext = null;
+        private ArrayList<collect_Comment_ListData> ListData = new ArrayList<collect_Comment_ListData>();
+
+        public collect_Comment_Adapter(Context mContext) {
+            super();
+            this.mContext = mContext;
+        }
+
+        @Override
+        public int getCount() {
+            return ListData.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return ListData.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        // 생성자로 값을 받아 셋팅
+        public void addItem(Drawable image, String name, String comment) {
+            collect_Comment_ListData addInfo = null;
+            addInfo = new collect_Comment_ListData();
+            addInfo.Image = image;
+            addInfo.name = name;
+            addInfo.comment = comment;
+
+            ListData.add(addInfo);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            collect_Comment_ViewHolder holder;
+            if (convertView == null) {
+                holder = new collect_Comment_ViewHolder();
+
+                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.collect_comment, null);
+
+                holder.Image = (ImageView) convertView.findViewById(R.id.collect_comment_image);
+                holder.name = (TextView) convertView.findViewById(R.id.collect_comment_name);
+                holder.comment = (TextView) convertView.findViewById(R.id.collect_comment_text);
+
+                convertView.setTag(holder);
+            }else{
+                holder = (collect_Comment_ViewHolder) convertView.getTag();
+            }
+
+            collect_Comment_ListData Data = ListData.get(position);
+
+            // 이미지 처리
+            if (Data.Image != null) {
+                holder.Image.setVisibility(View.VISIBLE);
+                holder.Image.setImageDrawable(Data.Image);
+            }else{
+                holder.Image.setVisibility(View.GONE);
+            }
+
+            // textView 처리
+            holder.name.setText(Data.name);
+            holder.comment.setText(Data.comment);
+
+            return convertView;
+        }
+    }
+
+    // 메뉴의 실제 데이터를 저장할 class
+    class collect_Comment_ListData {
+        public Drawable Image;
+        public String name;
+        public String comment;
     }
 
     // 뒤로가기

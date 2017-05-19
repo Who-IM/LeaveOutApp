@@ -233,6 +233,9 @@ public class MainActivity extends MapAPIActivity {
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
             switch (position) {
                 case 0:
+                    // 임시
+                    button = new Intent(getApplicationContext(), ViewArticleActivity.class);
+                    startActivity(button);
                     break;
                 case 1:
                     button = new Intent(getApplicationContext(), ProfileActivity.class);

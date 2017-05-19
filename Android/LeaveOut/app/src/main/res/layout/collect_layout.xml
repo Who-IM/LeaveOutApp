@@ -87,6 +87,6 @@ z
         android:layout_height="match_parent"
         android:choiceMode="singleChoice"
         android:layout_below="@+id/horizontalScrollView"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>

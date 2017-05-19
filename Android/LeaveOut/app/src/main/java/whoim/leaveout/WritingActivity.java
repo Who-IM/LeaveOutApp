@@ -49,6 +49,7 @@ public class WritingActivity extends AppCompatActivity {
     Toolbar toolbar;
     TextView mAddressText;
 
+    // spinner로 나중에 시간나면 바꿀예정
     // checkList
     LinearLayout writing_search_layout;
     private ListView writing_searchList;

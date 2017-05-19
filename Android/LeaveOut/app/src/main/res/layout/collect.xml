@@ -93,14 +93,15 @@
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/collect_contents"
-        android:layout_marginTop="13dp"
+        android:layout_marginTop="11dp"
         android:background="#FFabdeff"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_below="@+id/collect_contents"
+        android:layout_alignParentStart="true">
 
         <RelativeLayout
             android:layout_width="0dp"
+            android:id="@+id/comment_btn"
             android:layout_height="match_parent"
             android:layout_weight="1">
 
@@ -117,12 +118,12 @@
                 android:id="@+id/collect_comment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
                 android:layout_marginRight="15dp"
                 android:gravity="end|center_vertical"
                 android:onClick="comment"
-                android:text="댓글달기" />
+                android:text="댓글달기"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true" />
         </RelativeLayout>
 
         <View
@@ -196,4 +197,49 @@
                 android:text="추천하기" />
         </RelativeLayout>
     </LinearLayout>
+
+    <ListView
+        android:id="@+id/collect_comment_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alwaysDrawnWithCache="true"
+        android:layout_below="@+id/linearLayout2"
+        android:background="@drawable/public_open_list" />
+
+
+    <RelativeLayout
+        android:id="@+id/collect_mycomment_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/public_bar"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_below="@+id/collect_comment_list">
+
+        <ImageView
+            android:id="@+id/collect_mycomment_image"
+            android:layout_width="35dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/public_search"
+            android:inputType="text"
+            android:text="댓글을 입력하시오.."
+            android:padding="5dp"
+            android:layout_alignBottom="@+id/collect_mycomment_image"
+            android:layout_toEndOf="@+id/collect_mycomment_image"
+            android:layout_alignTop="@+id/collect_mycomment_image" />
+
+    </RelativeLayout>
+
 </RelativeLayout>

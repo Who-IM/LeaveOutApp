@@ -36,4 +36,12 @@
             app:font="custom1"
             android:textSize="35dp" />
     </android.support.v7.widget.Toolbar>
+    <ListView
+        android:id="@+id/check_delete_listview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:choiceMode="singleChoice"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/toolbar" />
+
 </RelativeLayout>

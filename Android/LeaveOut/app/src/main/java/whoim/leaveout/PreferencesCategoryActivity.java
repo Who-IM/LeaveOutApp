@@ -27,7 +27,6 @@ public class PreferencesCategoryActivity extends AppCompatActivity
     private Preferences_Adapter adapter = null;
     String inputValue = null;
     Button plus_button = null;
-    boolean flag = true;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.preferences_category_layout);

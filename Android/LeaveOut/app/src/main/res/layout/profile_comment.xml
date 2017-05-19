@@ -23,7 +23,7 @@
 
         <TextView
             android:id="@+id/profile_comment_name"
-            android:layout_width="50dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="text"
             android:padding="5dp"
@@ -47,7 +47,7 @@
             android:layout_alignStart="@+id/profile_comment_name" />
 
         <Button
-            android:layout_width="70dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"

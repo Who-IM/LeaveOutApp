@@ -94,7 +94,6 @@
         android:layout_alignEnd="@+id/write_textarea"
         android:layout_alignTop="@+id/write_loc_text"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
         android:background="#00000000"
         app:srcCompat="@drawable/public_addlist" />
 

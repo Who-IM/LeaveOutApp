@@ -54,11 +54,20 @@ public class PreferencesCategoryActivity extends AppCompatActivity
                 // OK 버튼 이벤트
                 dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        inputValue = etEdit.getText().toString();
-                        Toast.makeText(PreferencesCategoryActivity.this, inputValue, Toast.LENGTH_SHORT).show();
+                        try {
+                            inputValue = etEdit.getText().toString();
+                            if (inputValue.equals("")) {    //아무것도 입력하지 않았을 경우 예외 발생
+                                Exception ex = new Exception();
+                                throw ex;
+                            }
+                            Toast.makeText(PreferencesCategoryActivity.this, inputValue, Toast.LENGTH_SHORT).show();
 
-                        setItem(inputValue);
-                        check_lv.setAdapter(adapter);
+                            setItem(inputValue);
+                            check_lv.setAdapter(adapter);
+                        } catch (Exception e) {
+                            Toast.makeText(PreferencesCategoryActivity.this, "아무것도 입력하지 않았습니다.", Toast.LENGTH_SHORT).show();
+
+                        }
                     }
                 });
                 // Cancel 버튼 이벤트

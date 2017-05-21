@@ -4,7 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +32,10 @@ public class ProfileActivity extends AppCompatActivity {
     private ListView profile_list = null;
     private profile_Comment_Adapter profile_adapter = null;
 
+    //tab
+    private TabLayout tabLayout = null;
+    private ViewPager viewPager = null;
+    profile_tab tab;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +46,57 @@ public class ProfileActivity extends AppCompatActivity {
 
         // 모아보기 listview 셋팅
         setCollect();
+
+        // Initializing the TabLayout
+        tabLayout = (TabLayout) findViewById(R.id.profile_tab);
+        tab = new profile_tab("전체");
+        tab = new profile_tab("맛집");
+        tab = new profile_tab("여행지");
+        tab = new profile_tab("서울");
+        tab = new profile_tab("대구");
+        tab = new profile_tab("전체");
+        tab = new profile_tab("맛집");
+        tab = new profile_tab("여행지");
+        tab = new profile_tab("서울");
+        tab = new profile_tab("대구");
+        tab = new profile_tab("전체");
+        tab = new profile_tab("맛집");
+        tab = new profile_tab("여행지");
+        tab = new profile_tab("서울");
+        tab = new profile_tab("대구");
+
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        // Initializing ViewPager
+        viewPager = (ViewPager) findViewById(R.id.profile_pager);
+
+
+        // Set TabSelectedListener
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+    }
+
+    protected class profile_tab
+    {
+        protected profile_tab(String text)
+        {
+            tabLayout.addTab(tabLayout.newTab().setText(text));
+        }
     }
 
     // 모아보기 listview 셋팅

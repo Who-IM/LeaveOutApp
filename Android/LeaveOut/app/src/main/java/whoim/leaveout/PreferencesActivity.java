@@ -28,7 +28,6 @@ public class PreferencesActivity extends AppCompatActivity {
                 if (isChecked == true)
                 {
                     Toast.makeText(PreferencesActivity.this, "스위치 ON", Toast.LENGTH_SHORT).show();
-
                 }
                 else
                 {

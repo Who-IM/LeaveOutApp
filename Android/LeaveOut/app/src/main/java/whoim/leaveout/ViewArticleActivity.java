@@ -163,6 +163,12 @@ public class ViewArticleActivity extends AppCompatActivity
                 holder.Image.setVisibility(View.GONE);
             }
 
+            // 한번만 처리
+            if(position == 0) {
+                ImageView iv = (ImageView) convertView.findViewById(R.id.view_mycomment_image);
+                iv.setImageResource(R.drawable.basepicture);
+            }
+
             // textView 처리
             holder.name.setText(mData.name);
             holder.location.setText(mData.location);

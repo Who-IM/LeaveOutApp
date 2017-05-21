@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -27,13 +28,21 @@ public class CollectActivity extends AppCompatActivity {
     private collect_Adapter adapter = null;
 
     // comment list
-    private ListView comment_list = null;
+    private ArrayList<ListView> comment_list = null;
     private collect_Comment_Adapter comment_adapter = null;
+
+    // comment 버튼
+    private Button btn = null;
+    private ArrayList<Button> btnlistner = null;
+    private boolean comment_flag = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.collect_layout);
+
+        comment_list = new ArrayList<ListView>();
+        btnlistner = new ArrayList<Button>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
@@ -55,15 +64,17 @@ public class CollectActivity extends AppCompatActivity {
 
         // 여기서 db데이터 넣기
         adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석", "대구 수성구 만촌역", "2017.05.21 20:00","500","1000","ddd");
+        adapter.notifyDataSetChanged();
     }
 
     // 댓글 listview 셋팅
-    private void setComment(int image, String name, String comment) {
+    private void setComment(int image, String name, String comment, int position) {
 
         // 실제 데이터 삽입
         comment_adapter.addItem(getResources().getDrawable(image, null), name, comment);
         // 리스트뷰 펼처보기(한화면에)
-        setListViewHeightBasedOnChildren(comment_list);
+        setListViewHeightBasedOnChildren(comment_list.get(position));
     }
 
     // 리스트뷰 펼처보기(한화면에)
@@ -144,6 +155,8 @@ public class CollectActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             collect_ViewHolder holder;
+
+            int temp;
             if (convertView == null) {
                 holder = new collect_ViewHolder();
 
@@ -163,7 +176,7 @@ public class CollectActivity extends AppCompatActivity {
                 holder = (collect_ViewHolder) convertView.getTag();
             }
 
-            collect_ListData mData = mListData.get(position);
+            final collect_ListData mData = mListData.get(position);
 
             // 이미지 처리
             if (mData.Image != null) {
@@ -171,6 +184,25 @@ public class CollectActivity extends AppCompatActivity {
                 holder.Image.setImageDrawable(mData.Image);
             }else{
                 holder.Image.setVisibility(View.GONE);
+            }
+
+            ImageView iv = (ImageView) convertView.findViewById(R.id.collect_mycomment_image);
+            iv.setImageResource(R.drawable.basepicture);
+
+            // 댓글
+            comment_list.add((ListView) convertView.findViewById(R.id.collect_comment_list));
+            // 어뎁터 생성민 등록
+            comment_adapter = new collect_Comment_Adapter(CollectActivity.this);
+            comment_list.get(position).setAdapter(comment_adapter);
+            // 댓글 셋팅(db받아서)
+            setComment(R.drawable.basepicture, "김창석", "값싸다", position);
+            setComment(R.drawable.basepicture, "김창석", "값싸다", position);
+            setComment(R.drawable.basepicture, "김창석", "값싸다", position);
+            setComment(R.drawable.basepicture, "김창석", "값싸다", position);
+            comment_adapter.notifyDataSetChanged();
+
+            if(comment_flag) {
+                comment_list.get(position).setVisibility(View.GONE);
             }
 
             // textView 처리
@@ -181,16 +213,21 @@ public class CollectActivity extends AppCompatActivity {
             holder.views_num.setText(mData.views_num);
             holder.contents.setText(mData.contents);
 
-            // 댓글
-            comment_list = (ListView) convertView.findViewById(R.id.collect_comment_list);
-            // 어뎁터 생성민 등록
-            comment_adapter = new collect_Comment_Adapter(CollectActivity.this);
-            comment_list.setAdapter(comment_adapter);
-            // 댓글 셋팅(db받아서)
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
+            btnlistner.add((Button) convertView.findViewById(R.id.comment_btn));
+            btnlistner.get(position).setTag(position);
+            btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = (int) v.getTag();
+                    comment_flag = false;
+                    if(comment_list.get(pos).getVisibility() == View.GONE) {
+                        comment_list.get(pos).setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        comment_list.get(pos).setVisibility(View.GONE);
+                    }
+                }
+            });
 
             return convertView;
         }
@@ -254,6 +291,7 @@ public class CollectActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             collect_Comment_ViewHolder holder;
+
             if (convertView == null) {
                 holder = new collect_Comment_ViewHolder();
 

@@ -48,11 +48,11 @@ public class PreferencesCategoryActivity extends AppCompatActivity
             public void onClick(View v) {
                 final EditText etEdit = new EditText(PreferencesCategoryActivity.this);
                 AlertDialog.Builder dialog = new AlertDialog.Builder(PreferencesCategoryActivity.this);
-                dialog.setTitle("입력");
+                dialog.setTitle("카테고리 추가");
                 dialog.setView(etEdit);
 
                 // OK 버튼 이벤트
-                dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         inputValue = etEdit.getText().toString();
                         Toast.makeText(PreferencesCategoryActivity.this, inputValue, Toast.LENGTH_SHORT).show();
@@ -62,7 +62,7 @@ public class PreferencesCategoryActivity extends AppCompatActivity
                     }
                 });
                 // Cancel 버튼 이벤트
-                dialog.setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
+                dialog.setNegativeButton("취소",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }

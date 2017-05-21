@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -20,14 +20,14 @@ import java.util.ArrayList;
 public class PreferencesCheckDeleteActivity extends AppCompatActivity {
     private ListView check_delete_lv = null;
     private Preferences_Adapter adapter = null;
-    Button delete_button = null;
+    ImageButton delete_button = null;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.preferences_check_delete_layout);
 
         check_delete_lv = (ListView) findViewById(R.id.check_delete_listview);
-        delete_button = (Button) findViewById(R.id.check_delete_button);
+        delete_button = (ImageButton) findViewById(R.id.check_delete_button);
         adapter = new Preferences_Adapter(this);
         check_delete_lv.setAdapter(adapter);
         setItem("1");
@@ -101,7 +101,7 @@ public class PreferencesCheckDeleteActivity extends AppCompatActivity {
             // textView 처리
             holder.name.setText(mData.name);
 
-            Button btn = (Button) convertView.findViewById(R.id.check_delete_button);
+            ImageButton btn = (ImageButton) convertView.findViewById(R.id.check_delete_button);
 
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override

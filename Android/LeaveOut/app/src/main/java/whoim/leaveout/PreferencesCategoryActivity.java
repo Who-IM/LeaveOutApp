@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,15 +24,23 @@ import java.util.ArrayList;
 //카테고리
 public class PreferencesCategoryActivity extends AppCompatActivity
 {
-    private ListView category_lv = null;
+    private ListView check_lv = null;
     private Preferences_Adapter adapter = null;
     String inputValue = null;
     Button plus_button = null;
+    Button delete_all_button = null;    //삭제 버튼
+    ImageButton X_button = null;
+    ArrayList<ImageButton> delete_button = null;
+    boolean delete_flag = true;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.preferences_category_layout);
-        category_lv = (ListView)findViewById(R.id.category_listview);
+        check_lv = (ListView)findViewById(R.id.category_listview);
         plus_button = (Button)findViewById(R.id.category_plus_button);
+        delete_all_button = (Button) findViewById(R.id.category_delete_button);
+
+        delete_button = new ArrayList<ImageButton>();
         adapter = new Preferences_Adapter(PreferencesCategoryActivity.this);
 
         plus_button.setOnClickListener(new View.OnClickListener() {
@@ -39,21 +48,21 @@ public class PreferencesCategoryActivity extends AppCompatActivity
             public void onClick(View v) {
                 final EditText etEdit = new EditText(PreferencesCategoryActivity.this);
                 AlertDialog.Builder dialog = new AlertDialog.Builder(PreferencesCategoryActivity.this);
-                dialog.setTitle("입력");
+                dialog.setTitle("카테고리 추가");
                 dialog.setView(etEdit);
 
                 // OK 버튼 이벤트
-                dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         inputValue = etEdit.getText().toString();
                         Toast.makeText(PreferencesCategoryActivity.this, inputValue, Toast.LENGTH_SHORT).show();
 
                         setItem(inputValue);
-                        category_lv.setAdapter(adapter);
+                        check_lv.setAdapter(adapter);
                     }
                 });
                 // Cancel 버튼 이벤트
-                dialog.setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
+                dialog.setNegativeButton("취소",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
@@ -61,7 +70,35 @@ public class PreferencesCategoryActivity extends AppCompatActivity
                 dialog.show();
             }
         });
+
+        delete_all_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int count = adapter.getCount();
+
+                try {
+                    if (delete_flag) {
+                        for(int i = 0; i <= count; i++) {
+                            delete_button.get(i).setVisibility(View.VISIBLE);
+                        }
+                        delete_flag = false;
+                    } else {
+                        for(int i = 0; i <= count; i++) {
+                            delete_button.get(i).setVisibility(View.INVISIBLE);
+                        }
+                        delete_flag = true;
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Toast.makeText(PreferencesCategoryActivity.this, "카테고리 아무것도 없음", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+            }
+        });
     }
+
 
     public void setItem(String text) {
         adapter.addItem(text);
@@ -107,7 +144,7 @@ public class PreferencesCategoryActivity extends AppCompatActivity
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             Preferences_ViewHolder holder;
             if (convertView == null) {
                 holder = new Preferences_ViewHolder();
@@ -117,6 +154,9 @@ public class PreferencesCategoryActivity extends AppCompatActivity
 
                 holder.name = (TextView) convertView.findViewById(R.id.category_plus);
                 convertView.setTag(holder);
+
+                delete_button.add(position, (ImageButton) convertView.findViewById(R.id.category_delete));
+
             }else{
                 holder = (Preferences_ViewHolder) convertView.getTag();
             }
@@ -126,6 +166,28 @@ public class PreferencesCategoryActivity extends AppCompatActivity
             // textView 처리
             holder.name.setText(mData.name);
 
+            //X버튼 눌렀을 경우 체크 삭제
+            X_button = (ImageButton) convertView.findViewById(R.id.category_delete) ;
+            X_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int count;
+                    count = adapter.getCount();
+
+                    if (count > 0) {
+
+                        // 아이템 삭제
+                        mListData.remove(position);
+
+                        // listview 선택 초기화.
+                        check_lv.clearChoices();
+
+                        // listview 갱신.
+                        adapter.notifyDataSetChanged();
+
+                    }
+                }
+            });
             return convertView;
         }
     }
@@ -134,6 +196,7 @@ public class PreferencesCategoryActivity extends AppCompatActivity
     class Preferences_ListData {
         public String name;
     }
+
     // 뒤로가기
     public void Back(View v) {
         Intent intent = new Intent(getApplicationContext(), PreferencesActivity.class);

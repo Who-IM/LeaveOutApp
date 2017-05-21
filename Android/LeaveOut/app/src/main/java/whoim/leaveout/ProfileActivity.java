@@ -218,6 +218,12 @@ public class ProfileActivity extends AppCompatActivity {
                 holder = (profile_ViewHolder) convertView.getTag();
             }
 
+            // 한번만 처리
+            if(position == 0) {
+                ImageView iv = (ImageView) convertView.findViewById(R.id.profile_mycomment_image);
+                iv.setImageResource(R.drawable.basepicture);
+            }
+
             profile_ListData mData = mListData.get(position);
 
             // 이미지 처리

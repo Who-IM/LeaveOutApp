@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,7 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
         // 모아보기 listview 셋팅
         setCollect();
 
-        // Initializing the TabLayout
+        // tab layout 설정
         tabLayout = (TabLayout) findViewById(R.id.profile_tab);
         tab = new profile_tab("전체");
         tab = new profile_tab("맛집");
@@ -67,11 +66,10 @@ public class ProfileActivity extends AppCompatActivity {
 
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        // Initializing ViewPager
+        // ViewPager 설정
         viewPager = (ViewPager) findViewById(R.id.profile_pager);
 
-
-        // Set TabSelectedListener
+        //tab layout 리스너 등록
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {

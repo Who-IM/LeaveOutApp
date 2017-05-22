@@ -40,53 +40,33 @@
     </android.support.v7.widget.Toolbar>
 
     <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentStart="true"
+        android:id="@+id/collect_tab_scroll"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar"
-        android:id="@+id/horizontalScrollView">
+        android:scrollbars="none"
+        android:fillViewport = "true">
 
-        <LinearLayout
+        <android.support.design.widget.TabLayout
+            android:id="@+id/collect_tab"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@drawable/public_bar">
-
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="전체" />
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="경대" />
-
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="영진전문대" />
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="대구대학교" />
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="영진전문대" />
-        </LinearLayout>
-
+            android:layout_height="wrap_content"
+            app:tabTextColor="#FF000000"
+            app:tabMinWidth="100dp"
+            android:background="#cccccc" />
     </HorizontalScrollView>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/collect_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <ListView
         android:id="@+id/collect_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:choiceMode="singleChoice"
-        android:layout_below="@+id/horizontalScrollView"
+        android:layout_below="@+id/collect_tab_scroll"
         android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>

@@ -64,7 +64,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="21dp"
+        android:layout_marginTop="19dp"
         android:gravity="center_vertical"
         android:text="위치정보 : "
         app:font="custom1"
@@ -79,7 +79,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar"
-        android:layout_marginTop="23dp"
+        android:layout_marginTop="21dp"
         android:layout_toRightOf="@+id/write_loc_text"
         android:layout_toLeftOf="@+id/open_list"
         tools:text="주소 입력창"
@@ -92,7 +92,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@+id/write_textarea"
-        android:layout_alignTop="@+id/write_loc_text"
+        android:layout_below="@id/toolbar"
+        android:layout_marginTop="17dp"
         android:layout_marginRight="5dp"
         android:background="#00000000"
         app:srcCompat="@drawable/public_addlist" />
@@ -143,7 +144,6 @@
         </LinearLayout>
 
     </RelativeLayout>
-
 
     <!--사진 띄울울 공간-->
     <ScrollView

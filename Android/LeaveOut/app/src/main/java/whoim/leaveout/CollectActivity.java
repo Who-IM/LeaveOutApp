@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -36,6 +38,11 @@ public class CollectActivity extends AppCompatActivity {
     private ArrayList<Button> btnlistner = null;
     private boolean comment_flag = true;
 
+    //tab
+    private TabLayout tabLayout = null;
+    private ViewPager viewPager = null;
+    profile_tab tab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +58,51 @@ public class CollectActivity extends AppCompatActivity {
 
         // 모아보기 listview 셋팅
         setCollect();
+
+        //tab layout 등록
+        tabLayout = (TabLayout) findViewById(R.id.collect_tab);
+        tab = new profile_tab("전체");
+        tab = new profile_tab("맛집");
+        tab = new profile_tab("여행지");
+        tab = new profile_tab("서울");
+        tab = new profile_tab("대구");
+        tab = new profile_tab("전체");
+        tab = new profile_tab("맛집");
+        tab = new profile_tab("여행지");
+        tab = new profile_tab("서울");
+        tab = new profile_tab("대구");
+
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        //viewpager 등록
+        viewPager = (ViewPager) findViewById(R.id.collect_pager);
+
+        //tab layout 리스너 등록
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+    }
+
+    protected class profile_tab
+    {
+        protected profile_tab(String text)
+        {
+            tabLayout.addTab(tabLayout.newTab().setText(text));
+        }
     }
 
     // 모아보기 listview 셋팅
@@ -99,7 +151,6 @@ public class CollectActivity extends AppCompatActivity {
 
         listView.requestLayout();
     }
-
 
     // ------------ collect listview -------------
     private class collect_ViewHolder {
@@ -345,5 +396,3 @@ public class CollectActivity extends AppCompatActivity {
     }
 
 }
-
-

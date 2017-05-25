@@ -81,84 +81,11 @@
             android:layout_alignStart="@+id/profile_title_name" />
     </RelativeLayout>
 
-    <ScrollView
-        android:id="@+id/profile_scroll"
+    <ListView
+        android:id="@+id/proflie_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/profile_title_layout"
-        android:layout_centerHorizontal="true">
+        android:choiceMode="singleChoice" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/profile_map_layout"
-            android:layout_below="@+id/profile_title_layout">
-
-            <fragment
-                android:id="@+id/profile_google_map"
-                class="com.google.android.gms.maps.MapFragment"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_margin="8dp"/>
-
-            <TextView
-                android:id="@+id/profile_map_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="10dp"
-                android:textSize="20dp"
-                app:font="custom2"
-                android:layout_below="@+id/profile_google_map"
-                android:layout_centerHorizontal="true" />
-
-            <RadioGroup
-                android:id="@+id/profile_radio_group"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignStart="@+id/profile_google_map"
-                android:layout_below="@+id/profile_google_map" >
-
-                <RadioButton
-                    android:id="@+id/profile_check"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:checked="true"
-                    android:text="체크" />
-
-                <RadioButton
-                    android:id="@+id/profile_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="글" />
-            </RadioGroup>
-
-            <android.support.design.widget.TabLayout
-                android:id="@+id/profile_tab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/profile_radio_group"
-                android:background="#0089b3"
-                app:tabTextColor="#FFFFFFFF"
-                app:tabSelectedTextColor="#FF000000"
-                android:elevation="10dp"
-                app:tabMode="scrollable" />
-
-            <android.support.v4.view.ViewPager
-                android:id="@+id/profile_pager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <ListView
-                android:id="@+id/proflie_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:choiceMode="singleChoice"
-                android:layout_below="@+id/profile_tab" />
-
-        </RelativeLayout>
-    </ScrollView>
 </RelativeLayout>

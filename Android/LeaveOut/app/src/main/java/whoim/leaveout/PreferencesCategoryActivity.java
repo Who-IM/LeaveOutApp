@@ -83,8 +83,7 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
                     Toast.makeText(PreferencesCategoryActivity.this, "카테고리 아무것도 없음", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-                if (delete_flag) {
+                else if (delete_flag) {
                     for (int i = 0; i <= count; i++) {
                         delete_button.get(i).setVisibility(View.VISIBLE);
                     }

@@ -79,7 +79,7 @@
         </activity>
         <!--체크 삭제-->
         <activity
-            android:name=".PreferencesCheckDeleteActivity"
+            android:name=".PreferencesCheckViewActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait">
         </activity>

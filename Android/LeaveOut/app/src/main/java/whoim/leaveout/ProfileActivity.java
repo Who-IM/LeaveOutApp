@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -28,13 +29,18 @@ public class ProfileActivity extends AppCompatActivity {
     private profile_Adapter adapter = null;
 
     // comment list
-    private ListView profile_list = null;
+    private ArrayList<ListView> profile_list = null;
     private profile_Comment_Adapter profile_adapter = null;
+
+    // comment 버튼
+    private ArrayList<Button> btnlistner = null;
+    private boolean profile_flag = true;
 
     //tab
     private TabLayout tabLayout = null;
     private ViewPager viewPager = null;
     profile_tab tab;
+    View header = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +49,12 @@ public class ProfileActivity extends AppCompatActivity {
         // 초기설정 (db필요)
         init(R.drawable.basepicture, "허성문", "gjtjdans123@naver.com");
 
+        profile_list = new ArrayList<ListView>();
+        btnlistner = new ArrayList<Button>();
+        header = getLayoutInflater().inflate(R.layout.profile_header, null);
+
         // 모아보기 listview 셋팅
-        setCollect();
+        setProfile();
 
         // tab layout 설정
         tabLayout = (TabLayout) findViewById(R.id.profile_tab);
@@ -86,7 +96,6 @@ public class ProfileActivity extends AppCompatActivity {
 
             }
         });
-
     }
 
     protected class profile_tab
@@ -98,48 +107,43 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     // 모아보기 listview 셋팅
-    private void setCollect() {
+    private void setProfile() {
         // 메뉴
         list = (ListView) findViewById(R.id.proflie_list);
+        list.addHeaderView(header);
 
         // 어뎁터 생성민 등록
-        adapter = new profile_Adapter(this);
+        adapter = new profile_Adapter(ProfileActivity.this);
         list.setAdapter(adapter);
 
         // 여기서 db데이터 넣기
         adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
-        setListViewHeightBasedOnChildren(list);
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석", "대구 수성구 만촌역", "2017.05.21 20:00","500","1000","ddd");
     }
 
     // 댓글 listview 셋팅
     private void setComment(int image, String name, String comment) {
-
         // 실제 데이터 삽입
         profile_adapter.addItem(getResources().getDrawable(image, null), name, comment);
-        // 리스트뷰 펼처보기(한화면에)
-        setListViewHeightBasedOnChildren(profile_list);
     }
 
     // 리스트뷰 펼처보기(한화면에)
-    public void setListViewHeightBasedOnChildren(ListView listView) {
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {
             return;
         }
 
         int totalHeight = 0;
-
-        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
         for (int i = 0; i < listAdapter.getCount(); i++) {
             View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            listItem.measure(0, 0);
             totalHeight += listItem.getMeasuredHeight();
         }
+
         ViewGroup.LayoutParams params = listView.getLayoutParams();
-
-        params.height = totalHeight;
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
         listView.setLayoutParams(params);
-
         listView.requestLayout();
     }
 
@@ -216,11 +220,9 @@ public class ProfileActivity extends AppCompatActivity {
                 holder = (profile_ViewHolder) convertView.getTag();
             }
 
-            // 한번만 처리
-            if(position == 0) {
-                ImageView iv = (ImageView) convertView.findViewById(R.id.profile_mycomment_image);
-                iv.setImageResource(R.drawable.basepicture);
-            }
+            // 글쓰기 이미지
+            ImageView iv = (ImageView) convertView.findViewById(R.id.profile_mycomment_image);
+            iv.setImageResource(R.drawable.basepicture);
 
             profile_ListData mData = mListData.get(position);
 
@@ -241,15 +243,38 @@ public class ProfileActivity extends AppCompatActivity {
             holder.contents.setText(mData.contents);
 
             // 댓글
-            profile_list = (ListView) convertView.findViewById(R.id.profile_comment_list);
-            // 어뎁터 생성민 등록
+            profile_list.add((ListView) convertView.findViewById(R.id.profile_comment_list));
+            // 어뎁터 생성 등록
             profile_adapter = new profile_Comment_Adapter(ProfileActivity.this);
-            profile_list.setAdapter(profile_adapter);
             // 댓글 셋팅(db받아서)
             setComment(R.drawable.basepicture, "김창석", "값싸다");
             setComment(R.drawable.basepicture, "김창석", "값싸다");
             setComment(R.drawable.basepicture, "김창석", "값싸다");
             setComment(R.drawable.basepicture, "김창석", "값싸다");
+            profile_list.get(position).setAdapter(profile_adapter);
+            setListViewHeightBasedOnChildren(profile_list.get(position)); // 리스트뷰 펼처보기(한화면에)
+
+            // 처음에만 댓글 지우기
+            if(profile_flag) {
+                profile_list.get(position).setVisibility(View.GONE);
+            }
+
+            // 커멘드 버튼 클릭시 처리
+            btnlistner.add((Button) convertView.findViewById(R.id.profile_comment_btn));
+            btnlistner.get(position).setTag(position);
+            btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = (int) v.getTag();
+                    profile_flag = false;
+                    if(profile_list.get(pos).getVisibility() == View.GONE) {
+                        profile_list.get(pos).setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        profile_list.get(pos).setVisibility(View.GONE);
+                    }
+                }
+            });
 
             return convertView;
         }

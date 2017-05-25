@@ -21,7 +21,6 @@ public class Controller extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
 		response.setContentType("text/html; charset=euc-kr");
 		PrintWriter out = response.getWriter();
 		Connection conn = null;

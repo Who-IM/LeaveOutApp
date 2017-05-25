@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -17,19 +18,22 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 import java.util.ArrayList;
 
 //체크 삭제
-public class PreferencesCheckDeleteActivity extends AppCompatActivity {
+public class PreferencesCheckViewActivity extends AppCompatActivity {
     private ListView check_delete_lv = null;
     private Preferences_Adapter adapter = null;
-    ImageButton delete_button = null;
+    Button delete_button = null;
+    ArrayList<ImageButton> btn = null;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.preferences_check_delete_layout);
+        setContentView(R.layout.preferences_check_view_layout);
 
-        check_delete_lv = (ListView) findViewById(R.id.check_delete_listview);
-        delete_button = (ImageButton) findViewById(R.id.check_delete_button);
+        check_delete_lv = (ListView) findViewById(R.id.check_view_listview);
+        delete_button = (Button) findViewById(R.id.check_delete);
+        btn = new ArrayList<ImageButton>();
         adapter = new Preferences_Adapter(this);
         check_delete_lv.setAdapter(adapter);
+
         setItem("1");
         setItem("2");
         setItem("3");
@@ -87,10 +91,12 @@ public class PreferencesCheckDeleteActivity extends AppCompatActivity {
                 holder = new Preferences_ViewHolder();
 
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.preferences_check_delete, null);
+                convertView = inflater.inflate(R.layout.preferences_check_view, null);
 
                 holder.name = (TextView) convertView.findViewById(R.id.check_text);
+
                 convertView.setTag(holder);
+
             } else {
                 holder = (Preferences_ViewHolder) convertView.getTag();
             }
@@ -101,29 +107,44 @@ public class PreferencesCheckDeleteActivity extends AppCompatActivity {
             // textView 처리
             holder.name.setText(mData.name);
 
-            ImageButton btn = (ImageButton) convertView.findViewById(R.id.check_delete_button);
+            btn.add(position, (ImageButton) convertView.findViewById(R.id.check_delete_button));
+            btn.get(position).setTag(position);
+            btn.get(position).setImageResource(R.drawable.public_delete);
 
-            btn.setOnClickListener(new View.OnClickListener() {
+            btn.get(position).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int count, checked;
-                    count = adapter.getCount();
+                    int pos = (int) v.getTag();
 
-                    if (count > 0) {
+                    // 아이템 삭제
+                    mListData.remove(pos);
 
-                        // 아이템 삭제
-                        mListData.remove(position);
+                    // listview 선택 초기화.
+                    check_delete_lv.clearChoices();
 
-                        // listview 선택 초기화.
-                        check_delete_lv.clearChoices();
-
-                        // listview 갱신.
-                        adapter.notifyDataSetChanged();
-
-                    }
+                    // listview 갱신.
+                    adapter.notifyDataSetChanged();
                 }
             });
 
+            // 삭제 버튼 눌렀을시 나타남
+            delete_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    for(int i = 0; i < btn.size(); i++) {
+                        int pos = (int) btn.get(i).getTag();
+
+                        if(pos >= btn.size())
+
+                        if(btn.get(i).getVisibility() == View.INVISIBLE) {
+                            btn.get(i).setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            btn.get(i).setVisibility(View.INVISIBLE);
+                        }
+                    }
+                }
+            });
 
             return convertView;
         }

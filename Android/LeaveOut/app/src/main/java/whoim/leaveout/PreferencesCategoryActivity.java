@@ -22,8 +22,7 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 import java.util.ArrayList;
 
 //카테고리
-public class PreferencesCategoryActivity extends AppCompatActivity
-{
+public class PreferencesCategoryActivity extends AppCompatActivity {
     private ListView check_lv = null;
     private Preferences_Adapter adapter = null;
     String inputValue = null;
@@ -36,8 +35,8 @@ public class PreferencesCategoryActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.preferences_category_layout);
-        check_lv = (ListView)findViewById(R.id.category_listview);
-        plus_button = (Button)findViewById(R.id.category_plus_button);
+        check_lv = (ListView) findViewById(R.id.category_listview);
+        plus_button = (Button) findViewById(R.id.category_plus_button);
         delete_all_button = (Button) findViewById(R.id.category_delete_button);
 
         delete_button = new ArrayList<ImageButton>();
@@ -54,24 +53,19 @@ public class PreferencesCategoryActivity extends AppCompatActivity
                 // OK 버튼 이벤트
                 dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            inputValue = etEdit.getText().toString();
-                            if (inputValue.equals("")) {    //아무것도 입력하지 않았을 경우 예외 발생
-                                Exception ex = new Exception();
-                                throw ex;
-                            }
-                            Toast.makeText(PreferencesCategoryActivity.this, inputValue, Toast.LENGTH_SHORT).show();
-
-                            setItem(inputValue);
-                            check_lv.setAdapter(adapter);
-                        } catch (Exception e) {
+                        inputValue = etEdit.getText().toString();
+                        if (inputValue.equals("")) {    //다이얼로그에 아무것도 입력하지 않았을 경우
                             Toast.makeText(PreferencesCategoryActivity.this, "아무것도 입력하지 않았습니다.", Toast.LENGTH_SHORT).show();
-
+                            return;
                         }
+                        Toast.makeText(PreferencesCategoryActivity.this, inputValue, Toast.LENGTH_SHORT).show();
+
+                        setItem(inputValue);
+                        check_lv.setAdapter(adapter);
                     }
                 });
                 // Cancel 버튼 이벤트
-                dialog.setNegativeButton("취소",new DialogInterface.OnClickListener() {
+                dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
@@ -84,26 +78,23 @@ public class PreferencesCategoryActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 int count = adapter.getCount();
-
-                try {
-                    if (delete_flag) {
-                        for(int i = 0; i <= count; i++) {
-                            delete_button.get(i).setVisibility(View.VISIBLE);
-                        }
-                        delete_flag = false;
-                    } else {
-                        for(int i = 0; i <= count; i++) {
-                            delete_button.get(i).setVisibility(View.INVISIBLE);
-                        }
-                        delete_flag = true;
-                    }
-
-                }
-                catch (Exception e)
+                if (count == 0)     //체크에 아무 내용이 없을시 실행
                 {
                     Toast.makeText(PreferencesCategoryActivity.this, "카테고리 아무것도 없음", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
+                    return;
                 }
+                else if (delete_flag) {
+                    for (int i = 0; i <= count; i++) {
+                        delete_button.get(i).setVisibility(View.VISIBLE);
+                    }
+                    delete_flag = false;
+                } else {
+                    for (int i = 0; i <= count; i++) {
+                        delete_button.get(i).setVisibility(View.INVISIBLE);
+                    }
+                    delete_flag = true;
+                }
+
             }
         });
     }
@@ -113,8 +104,7 @@ public class PreferencesCategoryActivity extends AppCompatActivity
         adapter.addItem(text);
     }
 
-    private class Preferences_ViewHolder
-    {
+    private class Preferences_ViewHolder {
         public TextView name;
     }
 
@@ -166,7 +156,7 @@ public class PreferencesCategoryActivity extends AppCompatActivity
 
                 delete_button.add(position, (ImageButton) convertView.findViewById(R.id.category_delete));
 
-            }else{
+            } else {
                 holder = (Preferences_ViewHolder) convertView.getTag();
             }
 
@@ -176,7 +166,7 @@ public class PreferencesCategoryActivity extends AppCompatActivity
             holder.name.setText(mData.name);
 
             //X버튼 눌렀을 경우 체크 삭제
-            X_button = (ImageButton) convertView.findViewById(R.id.category_delete) ;
+            X_button = (ImageButton) convertView.findViewById(R.id.category_delete);
             X_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

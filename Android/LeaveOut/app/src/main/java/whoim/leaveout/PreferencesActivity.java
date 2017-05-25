@@ -47,7 +47,7 @@ public class PreferencesActivity extends AppCompatActivity {
 
         else if (v.getId() == R.id.preferences_check_delete) {      //체크 삭제
             Toast.makeText(this, "체크 삭제 실행.", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(getApplicationContext(), PreferencesCheckDeleteActivity.class);
+            Intent intent = new Intent(getApplicationContext(), PreferencesCheckViewActivity.class);
             startActivity(intent);
 
         }

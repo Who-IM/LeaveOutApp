@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:ignore="missingPrefix" >
+    android:orientation="vertical"
+    tools:ignore="missingPrefix">
 
     <!-- 툴바 -->
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
         android:background="@drawable/public_toobar">
 
         <!--뒤로가기-->
         <ImageButton
-            android:id="@+id/back_icon"
+            android:id="@+id/preferences_back_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/toolbar"
-            android:layout_alignParentTop="true"
             android:layout_margin="9dp"
             android:background="#00000000"
             android:onClick="Back"
@@ -29,110 +26,147 @@
 
         <!--환경설정-->
         <TextView
-            android:id="@+id/pre_preferences"
+            android:id="@+id/preferences"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/back_icon"
-            android:layout_alignTop="@id/back_icon"
             android:text="환경설정"
-            app:font="custom1"
             android:textColor="#FF000000"
-            android:textSize="35dp" />
-
+            android:textSize="35dp"
+            app:font="custom1" />
     </android.support.v7.widget.Toolbar>
 
 
-    <!-- 기본설정 -->
+    <!-- 프로필 -->
     <TextView
-        android:id="@+id/pre_setting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="30dp"
-        android:text="기본설정"
-        app:font="custom2"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:text="프로필"
         android:textColor="#FFBBBBBB"
-        android:textSize="30dp" />
+        android:textSize="30dp"
+        app:font="custom2" />
 
-    <!-- 기본범위 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="#44000000"/>
+
+    <!--카테 고리-->
+    <Button
+        android:id="@+id/preferences_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:background="#00000000"
+        android:gravity="left|center"
+        android:onClick="preferencesOnclick"
+        android:text="카테 고리"
+        android:layout_marginLeft="20dp"
+        android:textSize="30dp"
+        app:font="custom2" />
+
+    <!--체크 지우기-->
+    <Button
+        android:id="@+id/preferences_check_delete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:textSize="30dp"
+        android:onClick="preferencesOnclick"
+        android:text="체크 삭제"
+        android:layout_marginLeft="20dp"
+        android:background="#00000000"
+        android:gravity="left|center"
+        app:font="custom2"/>
+
+    <!--설정-->
     <TextView
-        android:id="@+id/pre_range"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/pre_setting"
-        android:layout_below="@+id/pre_setting"
-        android:layout_marginLeft="15dp"
         android:layout_marginTop="30dp"
-        android:text="기본범위"
-        app:font="custom2"
-        android:textColor="#FF000000"
-        android:textSize="25dp" />
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:text="설정"
+        android:textColor="#FFBBBBBB"
+        android:textSize="30dp"
+        app:font="custom2" />
 
-    <!-- 공개여부 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="#44000000"/>
+
+    <!--알림 -->
+    <Button
+        android:id="@+id/preferences_notice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:text="알림"
+        android:textSize="30dp"
+        android:onClick="preferencesOnclick"
+        android:layout_marginLeft="20dp"
+        android:gravity="left|center"
+        android:background="#00000000"
+        app:font="custom2" />
+
     <TextView
-        android:id="@+id/pre_open"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/pre_range"
-        android:layout_below="@+id/pre_range"
-        android:layout_marginTop="40dp"
-        android:text="공개여부"
-        app:font="custom2"
-        android:textColor="#FF000000"
-        android:textSize="25dp" />
+        android:layout_marginTop="30dp"
+        android:text="계정"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:textColor="#FFBBBBBB"
+        android:textSize="30dp"
+        app:font="custom2" />
 
-    <!-- 푸쉬알림 -->
-    <TextView
-        android:id="@+id/pre_push"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/pre_open"
-        android:layout_below="@+id/pre_open"
-        android:layout_marginTop="40dp"
-        android:text="푸쉬알림"
-        app:font="custom2"
-        android:textColor="#FF000000"
-        android:textSize="25dp" />
-
-    <!-- GPS -->
-    <TextView
-        android:id="@+id/pre_gps_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/pre_push"
-        android:layout_below="@+id/pre_push"
-        android:layout_marginTop="40dp"
-        android:text="GPS"
-        app:font="custom2"
-        android:textColor="#FF000000"
-        android:textSize="25dp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="#44000000"/>
 
     <!-- 자동 로그인 -->
-    <TextView
-        android:id="@+id/pre_autologin"
-        android:layout_width="wrap_content"
+    <Switch
+        android:id="@+id/preferences_autologin"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/pre_gps_text"
-        android:layout_below="@+id/pre_gps_text"
-        android:layout_marginTop="40dp"
-        android:text="자동로그인"
-        app:font="custom2"
-        android:textColor="#FF000000"
-        android:textSize="25dp" />
+        android:layout_weight="0.1"
+        android:text="자동 로그인"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:textSize="30dp"
+        android:thumb="@drawable/preferences_switch_selector"
+        android:track="@drawable/preferences_switch_track"
+        app:font="custom2" />
 
     <!-- 로그아웃 -->
     <Button
-        android:id="@+id/pre_logout"
-        android:layout_width="wrap_content"
+        android:id="@+id/preferences_logout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="30dp"
-        android:onClick="logout"
+        android:layout_weight="0.1"
+        android:gravity="left|center"
+        android:layout_marginLeft="20dp"
+        android:onClick="preferencesOnclick"
         android:text="로그아웃"
-        app:font="custom2"
-        android:textSize="40dp" />
+        android:textSize="30dp"
+        android:background="#00000000"
+        app:font="custom2" />
 
-
-</RelativeLayout>
+    <!-- 회원 삭제 -->
+    <Button
+        android:id="@+id/preferences_id_delete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:onClick="preferencesOnclick"
+        android:gravity="left|center"
+        android:layout_marginLeft="20dp"
+        android:text="회원 탈퇴"
+        android:textSize="30dp"
+        android:background="#00000000"
+        app:font="custom2" />
+</LinearLayout>

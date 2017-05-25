@@ -8,24 +8,17 @@ import android.view.View;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
-public class Join extends AppCompatActivity
+//계정 삭제
+public class PreferencesIdDeleteActivity extends AppCompatActivity
 {
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.join_layout);
+        setContentView(R.layout.preferences_id_delete_layout);
     }
 
-    public void joinButton(View v)
-    {
-        Intent intent = new Intent(getApplicationContext(), login.class);
-        startActivity(intent);
-    }
-
-    public void Join_cancel_Button(View v)
-    {
-        Intent intent = new Intent(getApplicationContext(), login.class);
+    // 뒤로가기
+    public void Back(View v) {
+        Intent intent = new Intent(getApplicationContext(), PreferencesActivity.class);
         startActivity(intent);
     }
 
@@ -34,5 +27,4 @@ public class Join extends AppCompatActivity
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
-
 }

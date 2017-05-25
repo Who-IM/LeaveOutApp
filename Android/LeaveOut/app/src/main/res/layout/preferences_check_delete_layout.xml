@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- 툴바 -->
     <android.support.v7.widget.Toolbar
@@ -26,26 +25,23 @@
             android:onClick="Back"
             app:srcCompat="@drawable/public_back" />
 
-        <!--모아보기-->
+        <!--체크 삭제-->
         <TextView
-            android:id="@+id/view_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@id/preferences_back_icon"
             android:layout_alignTop="@id/preferences_back_icon"
-            android:text="글 보기"
-            app:font="custom1"
+            android:text="체크 삭제"
             android:textColor="#FF000000"
+            app:font="custom1"
             android:textSize="35dp" />
     </android.support.v7.widget.Toolbar>
-
-
     <ListView
-        android:id="@+id/view_listview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:id="@+id/check_delete_listview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:choiceMode="singleChoice"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/toolbar"
-        android:choiceMode="singleChoice" />
+        android:layout_below="@+id/toolbar" />
 
 </RelativeLayout>

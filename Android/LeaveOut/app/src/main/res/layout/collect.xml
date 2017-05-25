@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/collect_Image"
         android:layout_width="80dp"
         android:layout_height="90dp"
         android:layout_alignParentStart="true"
@@ -17,9 +17,9 @@
         android:id="@+id/collect_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/imageView"
+        android:layout_alignTop="@+id/collect_Image"
         android:layout_marginStart="20dp"
-        android:layout_toEndOf="@+id/imageView"
+        android:layout_toEndOf="@+id/collect_Image"
         android:text="장소"
         android:textSize="23dp" />
 
@@ -72,9 +72,9 @@
         android:id="@+id/collect_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/imageView"
-        android:layout_alignStart="@+id/imageView"
-        android:layout_below="@+id/imageView"
+        android:layout_alignEnd="@+id/collect_Image"
+        android:layout_alignStart="@+id/collect_Image"
+        android:layout_below="@+id/collect_Image"
         android:layout_centerHorizontal="true"
         android:gravity="center_horizontal"
         android:text="이름" />
@@ -93,11 +93,11 @@
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/collect_contents"
-        android:layout_marginTop="13dp"
+        android:layout_marginTop="11dp"
         android:background="#FFabdeff"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_below="@+id/collect_contents"
+        android:layout_alignParentStart="true">
 
         <RelativeLayout
             android:layout_width="0dp"
@@ -117,12 +117,19 @@
                 android:id="@+id/collect_comment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
                 android:layout_marginRight="15dp"
                 android:gravity="end|center_vertical"
                 android:onClick="comment"
-                android:text="댓글달기" />
+                android:text="댓글보기"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true" />
+
+            <Button
+                android:id="@+id/comment_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#00000000"
+                />
         </RelativeLayout>
 
         <View
@@ -196,4 +203,49 @@
                 android:text="추천하기" />
         </RelativeLayout>
     </LinearLayout>
+
+    <ListView
+        android:id="@+id/collect_comment_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alwaysDrawnWithCache="true"
+        android:layout_below="@+id/linearLayout2"
+        android:background="@drawable/public_open_list" />
+
+
+    <RelativeLayout
+        android:id="@+id/collect_mycomment_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/public_bar"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_below="@+id/collect_comment_list">
+
+        <ImageView
+            android:id="@+id/collect_mycomment_image"
+            android:layout_width="35dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/public_search"
+            android:inputType="text"
+            android:text="댓글을 입력하시오.."
+            android:padding="5dp"
+            android:layout_alignBottom="@+id/collect_mycomment_image"
+            android:layout_toEndOf="@+id/collect_mycomment_image"
+            android:layout_alignTop="@+id/collect_mycomment_image" />
+
+    </RelativeLayout>
+
 </RelativeLayout>

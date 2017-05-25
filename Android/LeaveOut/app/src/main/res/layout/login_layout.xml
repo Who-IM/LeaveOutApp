@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:weightSum="1"
     tools:ignore="missingPrefix"
-    tools:context="whoim.leaveout.login">
+    tools:context="whoim.leaveout.loginActivity">
 
     <!-- Leave Out text-->
     <TextView
@@ -16,16 +16,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="35dp"
         android:text="Leave Out"
         app:font="custom1"
         android:textColor="#ffffffff"
-        android:textSize="80dp" />
+        android:textSize="90dp" />
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="249dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:layout_weight="0.16">
 
         <!-- 아이디 -->
@@ -113,7 +113,7 @@
 
         <!-- ID/PW찾기 -->
         <Button
-            android:id="@+id/id_pwSelect"
+            android:id="@+id/find_id_pw"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/loginBtn"

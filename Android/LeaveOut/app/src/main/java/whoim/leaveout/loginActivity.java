@@ -30,7 +30,7 @@ import whoim.leaveout.StartSetting.SharedName;
 import whoim.leaveout.User.UserInfo;
 
 // 로그인
-public class login extends AppCompatActivity {
+public class loginActivity extends AppCompatActivity {
 
     private SharedPreferences mLoginShared;       // 상태 저장(로그인 정보)
     private UserInfo mUserInfo;                 // 유저 정보
@@ -131,7 +131,7 @@ public class login extends AppCompatActivity {
 
     //회원가입 화면
     public void joinButton(View v) {
-        Intent intent = new Intent(getApplicationContext(), Join.class);
+        Intent intent = new Intent(getApplicationContext(), JoinActivity.class);
         startActivity(intent);
     }
 
@@ -164,12 +164,14 @@ public class login extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
     }
+    public void findButton(View v) {
+        Intent intent = new Intent(getApplicationContext(), FindActivity.class);
+        startActivity(intent);
+    }
 
     // 폰트 바꾸기
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
-
-
 }

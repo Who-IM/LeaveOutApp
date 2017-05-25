@@ -5,36 +5,51 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tsengvn.typekit.TypekitContextWrapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Friend_list extends AppCompatActivity {
+public class FriendListActivity extends AppCompatActivity {
 
     ExpandableListAdapter listAdapter;
-    ExpandableListView expListView;
-    List<String> listDataHeader;
+    ExpandableListView expListView; // 확장 리스트 뷰
+    List<String> listDataHeader;    // 리스트 뷰(하위항목 )
     HashMap<String, List<String>> listDataChild;
+    String[] friends_list_title = {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"};
+    ArrayList<List> dataControl; // child에 데이터 셋팅
+
+    // 검색
+    LinearLayout friend_search_layout;
+    private ListView friend_searchList;
+    ArrayAdapter<String> friend_adapter_search;
+    EditText friend_inputSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.friend_list_layout);
 
-
         // 확장 listview 생성
         expListView = (ExpandableListView) findViewById(R.id.friend_list);
-        prepareListData();
+        prepareListData(); // 확장 listview에 데이터 셋팅
 
-        // 어뎁터 생성
+        // 어뎁터 생성(header와 child)
         listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
 
         // 어뎁터 등록
@@ -52,31 +67,74 @@ public class Friend_list extends AppCompatActivity {
                 return false;
             }
         });
+
+        // 인스턴스 셋팅
+        setInstance();
+
+        // 검색 셋팅
+        setSerach();
+        friend_search_layout.setVisibility(View.GONE);
+    }
+
+    private void setInstance() {
+
+        // 검색 관련 인스턴스
+        friend_searchList = (ListView) findViewById(R.id.friend_search_list);
+        friend_inputSearch = (EditText) findViewById(R.id.friend_search);
+        friend_search_layout = (LinearLayout) findViewById(R.id.friend_search_layout);
+        String products[] = {"홍길동", "홍길", "길동", "허성문", "성문", "김창석", "창석", "미정" };
+
+        // 검색 리스트 뷰
+        friend_adapter_search = new ArrayAdapter<String>(this, R.layout.main_search_item, R.id.product_name, products);
+    }
+
+    // 검색관련 셋팅
+    private void setSerach() {
+
+        // editText 글자 쳤을 시
+        friend_inputSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+                if(cs.toString().equals("")) {
+                    friend_search_layout.setVisibility(View.GONE);
+                    friend_searchList.setAdapter(null);
+                } else {
+                    friend_search_layout.setVisibility(View.VISIBLE);
+                    friend_searchList.setAdapter(friend_adapter_search);
+                    FriendListActivity.this.friend_adapter_search.getFilter().filter(cs);
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,int arg3) { }
+            @Override
+            public void afterTextChanged(Editable arg0) {     }
+        });
     }
 
     // 확장 리스트뷰 데이터 설정
     private void prepareListData() {
+        dataControl = new ArrayList<>();
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
 
-        // 큰 목록
-        listDataHeader.add("ㄱ");
-        listDataHeader.add("ㄴ");
-        listDataHeader.add("ㄷ");
-
+        // 여기부터 데이터 삽입인데 데이터베이스 추가시 수정
         // 작은 목록들 추가
-        List<String> friend_list1 = new ArrayList<String>();
-        friend_list1.add("미정");
+        List<String> friend_list = new ArrayList<String>();
+        friend_list.add("미정");
 
-        List<String> friend_list2 = new ArrayList<String>();
-        friend_list2.add("미정");
+        // 큰 목록
+        for(int i = 0; i < friends_list_title.length; i++) {
+            listDataHeader.add(friends_list_title[i]);
+            setListData(i,friend_list);
+        }
+        //-------------------------------------------------------
+    }
 
-        List<String> friend_list3 = new ArrayList<String>();
-        friend_list3.add("미정");
-
-        listDataChild.put(listDataHeader.get(0), friend_list1);
-        listDataChild.put(listDataHeader.get(1), friend_list2);
-        listDataChild.put(listDataHeader.get(2), friend_list3);
+    // child data 셋팅
+    private void setListData(int index, List data) {
+        dataControl.add(index, data);
+        listDataChild.put(listDataHeader.get(index), dataControl.get(index));
     }
 
 
@@ -117,9 +175,7 @@ public class Friend_list extends AppCompatActivity {
                 convertView = infalInflater.inflate(R.layout.friend_list_item, null);
             }
 
-            TextView txtListChild = (TextView) convertView
-                    .findViewById(R.id.friend_list_item);
-
+            TextView txtListChild = (TextView) convertView.findViewById(R.id.friend_list_item);
             txtListChild.setText(childText);
 
             return convertView;
@@ -148,9 +204,11 @@ public class Friend_list extends AppCompatActivity {
             return groupPosition;
         }
 
+        // header(ㄱ ~ ㅎ)
         @Override
         public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
             String headerTitle = (String) getGroup(groupPosition);
+            Typeface ty = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
             if (convertView == null) {
                 LayoutInflater infalInflater = (LayoutInflater) this._context
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -158,7 +216,7 @@ public class Friend_list extends AppCompatActivity {
             }
 
             TextView lblListHeader = (TextView) convertView.findViewById(R.id.friend_list_header);
-            lblListHeader.setTypeface(null, Typeface.BOLD);
+            lblListHeader.setTypeface(ty);
             lblListHeader.setText(headerTitle);
 
             return convertView;
@@ -175,19 +233,15 @@ public class Friend_list extends AppCompatActivity {
         }
     }
 
-/*    // 폰트 셋팅
-    public void setFont() {
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "HMKMMAG.TTF");
-        TextView friend_list_header = (TextView) findViewById(R.id.friend_list_header); // 그룹 폰트 설정
-        TextView friend_list_name= (TextView) findViewById(R.id.friend_list_name);      // 툴바 이름 폰트 설정
-
-        friend_list_header.setTypeface(typeface);
-        friend_list_name.setTypeface(typeface);
-    }*/
-
     // 뒤로가기
     public void Back(View v) {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
+    }
+
+    // 폰트 바꾸기
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
 }

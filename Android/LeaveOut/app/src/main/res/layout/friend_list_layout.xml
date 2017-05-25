@@ -16,7 +16,7 @@
 
         <!--뒤로가기-->
         <ImageButton
-            android:id="@+id/back_icon"
+            android:id="@+id/preferences_back_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/toolbar"
@@ -31,46 +31,50 @@
             android:id="@+id/friend_list_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/back_icon"
-            android:layout_alignTop="@id/back_icon"
+            android:layout_alignLeft="@id/preferences_back_icon"
+            android:layout_alignTop="@id/preferences_back_icon"
             android:text="친구목록"
             android:textColor="#FF000000"
+            app:font="custom1"
             android:textSize="35dp" />
 
     </android.support.v7.widget.Toolbar>
 
     <!--검색 틀-->
     <RelativeLayout
+        android:id="@+id/friend_list_search_layout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_below="@+id/toolbar"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:background="@drawable/public_bar">
 
         <!-- 검색 상자 -->
         <EditText
-            android:id="@+id/main_search"
+            android:id="@+id/friend_search"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:layout_marginTop="5dp"
             android:background="@drawable/public_search"
             android:inputType="text"
             android:paddingLeft="10dp"
             android:paddingRight="50dp"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
 
         <ImageButton
             android:id="@+id/search_icon"
             android:layout_width="50dp"
             android:layout_height="40dp"
-            android:layout_alignBottom="@+id/main_search"
-            android:layout_alignEnd="@+id/main_search"
-            android:layout_alignTop="@+id/main_search"
+            android:layout_alignBottom="@+id/friend_search"
+            android:layout_alignEnd="@+id/friend_search"
+            android:layout_alignTop="@+id/friend_search"
             android:background="#00000000"
             app:srcCompat="@drawable/main_search_menu" />
     </RelativeLayout>
-
 
     <ExpandableListView
         android:id="@+id/friend_list"
@@ -80,6 +84,22 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/toolbar"
         android:layout_marginTop="50dp" />
+
+    <LinearLayout
+        android:id="@+id/friend_search_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_below="@+id/friend_list_search_layout">
+
+        <ListView
+            android:id="@+id/friend_search_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/public_open_list" />
+
+    </LinearLayout>
 
 
 </RelativeLayout>

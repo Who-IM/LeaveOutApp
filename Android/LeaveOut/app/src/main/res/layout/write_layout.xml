@@ -7,6 +7,7 @@
     tools:ignore="missingPrefix">
 
     <!--툴바-->
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -17,7 +18,7 @@
 
         <!--뒤로가기-->
         <ImageButton
-            android:id="@+id/back_icon"
+            android:id="@+id/preferences_back_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/toolbar"
@@ -32,15 +33,15 @@
             android:id="@+id/write_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/back_icon"
-            android:layout_alignTop="@id/back_icon"
+            android:layout_alignLeft="@id/preferences_back_icon"
+            android:layout_alignTop="@id/preferences_back_icon"
             android:text="StampLine에 게시"
             app:font="custom1"
             android:textColor="#FF000000"
             android:textSize="33dp" />
 
         <!--게시-->
-        <Button
+        zz<Button
             android:id="@+id/write_commit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -63,7 +64,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="21dp"
+        android:layout_marginTop="19dp"
         android:gravity="center_vertical"
         android:text="위치정보 : "
         app:font="custom1"
@@ -78,7 +79,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar"
-        android:layout_marginTop="23dp"
+        android:layout_marginTop="21dp"
         android:layout_toRightOf="@+id/write_loc_text"
         android:layout_toLeftOf="@+id/open_list"
         tools:text="주소 입력창"
@@ -91,9 +92,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@+id/write_textarea"
-        android:layout_alignTop="@+id/write_loc_text"
+        android:layout_below="@id/toolbar"
+        android:layout_marginTop="17dp"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
         android:background="#00000000"
         app:srcCompat="@drawable/public_addlist" />
 
@@ -111,17 +112,10 @@
         android:id="@+id/write_textarea"
         android:layout_width="match_parent"
         android:layout_height="150dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/write_line1">
-
-        <!-- 검은색 선(중앙) -->
-        <!--<RelativeLayout-->
-        <!--android:id="@+id/write_line2"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="3dp"-->
-        <!--android:background="#FF000000"-->
-        <!--android:layout_alignParentBottom="true">-->
-        <!--</RelativeLayout>-->
 
         <!-- 글을 입력하세요. -->
         <EditText
@@ -135,6 +129,20 @@
             android:background="#00000000"
             android:hint="글을 입력하세요."
             android:textSize="20dp" />
+
+        <LinearLayout
+            android:id="@+id/write_search_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ListView
+                android:id="@+id/write_search_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/public_open_list" />
+
+        </LinearLayout>
+
     </RelativeLayout>
 
     <!--사진 띄울울 공간-->
@@ -142,9 +150,9 @@
         android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/check_icon"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/write_textarea">
+        android:layout_below="@+id/write_textarea"
+        android:layout_above="@+id/write_line3">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -154,38 +162,12 @@
             <ListView
                 android:id="@+id/write_listview"
                 android:layout_width="match_parent"
-                android:layout_height="500dp"
-                android:layout_alignParentEnd="true"
-                android:layout_below="@+id/horizontalScrollView"
-                android:background="#00ffffff"
+                android:layout_height="match_parent"
                 android:choiceMode="singleChoice"
                 android:divider="#00ffffff"
                 android:dividerHeight="0px" />
         </LinearLayout>
     </ScrollView>
-
-    <!--울타리글-->
-    <TextView
-        android:id="@+id/write_fence"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/write_line3"
-        android:layout_marginBottom="14dp"
-        android:layout_toStartOf="@+id/check_icon"
-        android:text="울타리글"
-        app:font="custom1"
-        android:textSize="25dp" />
-
-    <!--울타리글 체크박스-->
-    <CheckBox
-        android:id="@+id/check_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/write_fence"
-        android:layout_alignParentEnd="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="5dp" />
-
 
     <!-- 검은색 선(밑에) -->
     <View
@@ -222,6 +204,7 @@
             android:layout_height="64dp"
             android:layout_marginTop="5dp"
             android:layout_weight="1"
+            android:onClick="takePhotoButton"
             android:background="#00000000"
             app:srcCompat="@drawable/write_camera" />
 
@@ -232,18 +215,97 @@
             android:layout_height="64dp"
             android:layout_marginTop="5dp"
             android:layout_weight="1"
+            android:onClick="goToAlbumButton"
             android:background="#00000000"
             app:srcCompat="@drawable/write_image" />
 
-        <!-- 이벤트 -->
+        <!-- 공개여부 -->
         <ImageButton
-            android:id="@+id/public_open"
+            android:id="@+id/whether_open"
             android:layout_width="wrap_content"
             android:layout_height="64dp"
             android:layout_marginTop="5dp"
             android:layout_weight="1"
             android:background="#00000000"
+            android:onClick="open_button"
             app:srcCompat="@drawable/write_textopen" />
+
     </LinearLayout>
 
+    <!--공개여부-->
+    <RelativeLayout
+        android:id="@+id/write_whether_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@+id/write_line3"
+        android:visibility="gone"
+        android:layout_below="@+id/write_textarea">
+
+        <RadioGroup
+            android:id="@+id/write_radioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="15dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:text="RadioButton"
+            android:checkedButton="@+id/write_public_button"
+            android:background="@drawable/write_whether"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true">
+
+            <!--울타리 글-->
+            <CheckBox
+                android:id="@+id/check_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="30dp"
+                android:textColor="#FFFF0000"
+                android:paddingRight="30dp"
+                app:font="custom1"
+                android:text="울타리글" />
+            <!--경계선-->
+            <View
+                android:id="@+id/write_boundary"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_alignParentBottom="true"
+                android:background="#FFC8C8C8">
+            </View>
+            <!--전체 공개-->
+            <RadioButton
+                android:id="@+id/write_public_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="30dp"
+                android:textColor="#FF000000"
+                app:font="custom1"
+                android:text="전체 공개" />
+
+            <!--친구 공개-->
+            <RadioButton
+                android:id="@+id/write_friend_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="30dp"
+                android:textColor="#FF000000"
+                app:font="custom1"
+                android:text="친구 공개" />
+
+            <!--비공개-->
+            <RadioButton
+                android:id="@+id/write_private_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="30dp"
+                android:textColor="#FF000000"
+                app:font="custom1"
+                android:text="비공개" />
+
+        </RadioGroup>
+    </RelativeLayout>
 </RelativeLayout>

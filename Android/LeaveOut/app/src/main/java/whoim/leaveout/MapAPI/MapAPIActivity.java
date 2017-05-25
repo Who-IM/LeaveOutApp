@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 import whoim.leaveout.R;
 import whoim.leaveout.StartSetting.Permission;
@@ -137,8 +136,6 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
 
     }
 
-    Random mRandom = new Random(1984);
-
     // 자기 자신 GPS 버튼을 눌렀을경우 콜백 메소드 호출
     @SuppressWarnings("MissingPermission")
     @Override
@@ -147,18 +144,6 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         if (!checkLocationServicesStatus()) showDialogForLocationServiceSetting();
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
         Toast.makeText(this,"버튼 누름",Toast.LENGTH_SHORT).show();
-
-/*        // 테스트 중(마커 생성)
-        mClusterMaker.clerMakerAll();
-        List<SNSInfoMaker> item = new ArrayList<>();
-        for(int i = 0; i< 100; i++) {
-            item.add(new SNSInfoMaker(new LatLng(
-                    mRandom.nextDouble() * (mCurrentLocation.getLatitude() - mCurrentLocation.getLatitude() + 0.5d) + mCurrentLocation.getLatitude() + 0.5d,
-                    mRandom.nextDouble() * (mCurrentLocation.getLongitude() - mCurrentLocation.getLongitude()+1.0d) + mCurrentLocation.getLongitude()+1.0d))
-            );
-        }
-        mClusterMaker.addSNSInfoMakerList(item);
-        mClusterMaker.resetCluster();*/
 
         return false;
     }
@@ -198,7 +183,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);           // 업데이트 되는 주기(ms 단위)
         mLocationRequest.setFastestInterval(5000);  // 위치 획득 후 업데이트 되는 주기(ms 단위)
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY); // 정확도
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY); // 정확도
     }
 
     // 구글 맵에 각 GPS UI 기능 셋팅

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="whoim.leaveout">
+
     <!--지도 퍼미션-->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <!--갤러리 읽기 쓰기 퍼미션-->
@@ -8,6 +10,12 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!--카메라 퍼미션-->
     <uses-permission android:name="android.permission.CAMERA"/>
+
+
+    <uses-permission android:name="android.permission.INTERNET"/>                   // 인터넷 퍼미션
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>       //지도 퍼미션
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />    //카메라 퍼미션
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />     //갤러리 퍼미션
 
     <application
         android:name=".CustomFont.CustomStartApp"
@@ -115,6 +123,21 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <activity android:name=".Join"></activity>
+        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".Writing"></activity>
+        <activity android:name=".Preferences"></activity>
+        <activity android:name=".View_article"></activity>
+        <activity android:name=".Collect"></activity>
+        <activity android:name=".Friend_list"></activity>
+        <activity android:name=".Profile"></activity>
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name"
+            tools:replace="theme"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+			
         <service
             android:name=".MapAPI.LocationBackground"
             android:enabled="true"
@@ -124,6 +147,14 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAs6TKQVaOyF3sclxbqMapgHhEMg_WshJE"/>
+
+        // 페이스북
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+    </application>
+
+</manifest>
 
         <!--7.0버전 이상부터는 URI접근이 되지 않기 때문에 URI에 대해 임시 액세스 권한을 부여-->
         <provider

@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import whoim.leaveout.R;
 import whoim.leaveout.StartSetting.Permission;

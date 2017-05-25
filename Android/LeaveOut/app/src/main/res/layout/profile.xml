@@ -124,6 +124,13 @@
                 android:text="댓글보기"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true" />
+
+            <Button
+                android:id="@+id/profile_comment_btn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#00000000"
+                />
         </RelativeLayout>
 
         <View
@@ -204,7 +211,6 @@
         android:id="@+id/profile_comment_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alwaysDrawnWithCache="true"
         android:layout_below="@+id/linearLayout2"
         android:background="@drawable/public_open_list" />
 

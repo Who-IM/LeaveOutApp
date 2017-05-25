@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -21,16 +22,26 @@ import java.util.ArrayList;
 // 글 보기
 public class ViewArticleActivity extends AppCompatActivity
 {
+    // 글보기 리스트 뷰
     private ListView list = null;
     private article_Adapter adapter = null;
 
-    private ListView view_list = null;
+    // 글보기(댓글) 리스트 뷰
+    private ArrayList<ListView> view_list = null;
     private view_Comment_Adapter view_adapter = null;
+
+    // comment 버튼
+    private ArrayList<Button> btnlistner = null;
+    private boolean views_flag = true;
 
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_article_layout);
+
+        // 댓글
+        view_list = new ArrayList<ListView>();
+        btnlistner = new ArrayList<Button>();
 
         // 모아보기 listview 셋팅
         setCollect();
@@ -47,6 +58,7 @@ public class ViewArticleActivity extends AppCompatActivity
 
         // 여기서 db데이터 넣기
         adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석", "대구 북구 복현동", "2017.05.24 20:58","50","111","test");
     }
 
     // 댓글 listview 셋팅
@@ -54,30 +66,25 @@ public class ViewArticleActivity extends AppCompatActivity
 
         // 실제 데이터 삽입
         view_adapter.addItem(getResources().getDrawable(image, null), name, comment);
-        // 리스트뷰 펼처보기(한화면에)
-        setListViewHeightBasedOnChildren(view_list);
     }
 
     // 리스트뷰 펼처보기(한화면에)
-    public void setListViewHeightBasedOnChildren(ListView listView) {
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {
             return;
         }
 
         int totalHeight = 0;
-
-        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
         for (int i = 0; i < listAdapter.getCount(); i++) {
             View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            listItem.measure(0, 0);
             totalHeight += listItem.getMeasuredHeight();
         }
+
         ViewGroup.LayoutParams params = listView.getLayoutParams();
-
-        params.height = totalHeight;
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
         listView.setLayoutParams(params);
-
         listView.requestLayout();
     }
 
@@ -163,11 +170,9 @@ public class ViewArticleActivity extends AppCompatActivity
                 holder.Image.setVisibility(View.GONE);
             }
 
-            // 한번만 처리
-            if(position == 0) {
-                ImageView iv = (ImageView) convertView.findViewById(R.id.view_mycomment_image);
-                iv.setImageResource(R.drawable.basepicture);
-            }
+            // 글쓰기 이미지
+            ImageView iv = (ImageView) convertView.findViewById(R.id.view_mycomment_image);
+            iv.setImageResource(R.drawable.basepicture);
 
             // textView 처리
             holder.name.setText(mData.name);
@@ -178,15 +183,38 @@ public class ViewArticleActivity extends AppCompatActivity
             holder.contents.setText(mData.contents);
 
             // 댓글
-            view_list = (ListView) convertView.findViewById(R.id.view_comment_list);
+            view_list.add((ListView) convertView.findViewById(R.id.view_comment_list));
             // 어뎁터 생성민 등록
             view_adapter = new view_Comment_Adapter(ViewArticleActivity.this);
-            view_list.setAdapter(view_adapter);
+            view_list.get(position).setAdapter(view_adapter);
             // 댓글 셋팅(db받아서)
             setComment(R.drawable.basepicture, "김창석", "값싸다");
             setComment(R.drawable.basepicture, "김창석", "값싸다");
             setComment(R.drawable.basepicture, "김창석", "값싸다");
             setComment(R.drawable.basepicture, "김창석", "값싸다");
+            setListViewHeightBasedOnChildren(view_list.get(position)); // 리스트뷰 펼처보기(한화면에)
+
+            // 처음에만 댓글 지우기
+            if(views_flag) {
+                view_list.get(position).setVisibility(View.GONE);
+            }
+
+            // 커멘드 버튼 클릭시 처리
+            btnlistner.add((Button) convertView.findViewById(R.id.views_comment_btn));
+            btnlistner.get(position).setTag(position);
+            btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = (int) v.getTag();
+                    views_flag = false;
+                    if(view_list.get(pos).getVisibility() == View.GONE) {
+                        view_list.get(pos).setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        view_list.get(pos).setVisibility(View.GONE);
+                    }
+                }
+            });
 
             return convertView;
         }

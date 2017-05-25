@@ -132,6 +132,10 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     for(int i = 0; i < btn.size(); i++) {
+                        int pos = (int) btn.get(i).getTag();
+
+                        if(pos >= btn.size())
+
                         if(btn.get(i).getVisibility() == View.INVISIBLE) {
                             btn.get(i).setVisibility(View.VISIBLE);
                         }

@@ -26,7 +26,6 @@ import org.json.JSONObject;
 
 import java.util.Arrays;
 
-import whoim.leaveout.SQL.SQLWeb;
 import whoim.leaveout.StartSetting.SharedName;
 import whoim.leaveout.User.UserInfo;
 
@@ -42,16 +41,6 @@ public class loginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
-
-        try {
-            JSONObject dataJSON = new JSONObject();
-            dataJSON.put("data","test중입니다.");
-            JSONObject sqlWeb = new SQLWeb().execute(dataJSON).get();
-            Log.d("sqlWeb",sqlWeb.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
 
         mUserInfo = UserInfo.getInstance();     // 유저 정보 객체 가져오기
         mLoginShared = getSharedPreferences(SharedName.SHARED_LOGIN_INFO, Activity.MODE_PRIVATE);     // 로그인 정보 상태

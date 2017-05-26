@@ -2,6 +2,7 @@ package whoim.leaveout.SQL;
 
 import android.os.AsyncTask;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -22,11 +23,32 @@ public class SQLWeb extends AsyncTask<JSONObject, Void, JSONObject> {
     BufferedWriter mBufferedWriter;
     BufferedReader mBufferedReader;
 
+    /* sql : 쿼리 문, size : 검색할 갯수(-1 : 전체, 0 : 없음), type : select or update */
+    final static public JSONObject getSQLJSONData(String sql, int size , String type) {
+
+        JSONObject requestData = new JSONObject();      // 요청할 데이터
+        try {
+            requestData.put("check","mysql");           // sql 방식
+
+            JSONObject sqlData = new JSONObject();      // sql에 필요한 데이터 (subJSON)
+            sqlData.put("type",type);       // 타입
+            sqlData.put("query",sql);       // 쿼리문
+            if(size != 0) sqlData.put("size",size);       // 검색할 갯수
+
+            requestData.put("sql",sqlData); // 요청할 데이터에 넣기
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return requestData;
+
+    }
+
     @Override
     protected JSONObject doInBackground(JSONObject... params) {
 
         try {
-            URL url = new URL("http://106.249.39.33:8080/controll"); // URL화 한다.
+            URL url = new URL("http://106.249.39.40:8080/controll"); // URL화 한다.
             mCon = (HttpURLConnection) url.openConnection();                 // 접속 객체 생성
 //            mCon.setRequestProperty("Content-Type", "application/json");      // 타입설정(application/json) 형식으로 전송
             mCon.setRequestProperty("Content-Type", "text/html");               // 타입설
@@ -53,9 +75,9 @@ public class SQLWeb extends AsyncTask<JSONObject, Void, JSONObject> {
             e.printStackTrace();
         } finally {
             try {
-                mBufferedReader.close();
-                mBufferedReader.close();
-                mCon.disconnect();
+                if(mBufferedWriter != null) mBufferedWriter.close();
+                if(mBufferedReader != null) mBufferedReader.close();
+                if(mCon != null) mCon.disconnect();
             } catch (IOException e) {
                 e.printStackTrace();
             }

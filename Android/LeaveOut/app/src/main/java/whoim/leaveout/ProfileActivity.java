@@ -36,16 +36,16 @@ public class ProfileActivity extends AppCompatActivity {
     // comment list
     private ArrayList<ListView> profile_list = null;
     private profile_Comment_Adapter profile_adapter = null;
+    View header = null; // 리스트뷰 헤더
 
     // comment 버튼
-    private ArrayList<Button> btnlistner = null;
+    private ArrayList<Button> comment_btnlistner = null;
     private boolean profile_flag = true;
 
     //tab
     private TabLayout tabLayout = null;
     private ViewPager viewPager = null;
     profile_tab tab;
-    View header = null;
 
     int menuCount = 0;  //매뉴 옵션 아이템 순서
 
@@ -62,9 +62,9 @@ public class ProfileActivity extends AppCompatActivity {
         // 초기설정 (db필요)
         init(R.drawable.basepicture, "허성문", "gjtjdans123@naver.com");
 
-        profile_list = new ArrayList<ListView>();
-        btnlistner = new ArrayList<Button>();
-        header = getLayoutInflater().inflate(R.layout.profile_header, null);
+        profile_list = new ArrayList<ListView>();                              // profile listview
+        comment_btnlistner = new ArrayList<Button>();                         // 댓글보기 버튼
+        header = getLayoutInflater().inflate(R.layout.profile_header, null);  // 프로필 위의 지도(listview header지정하여 스크롤 가능하게함)
 
         // 모아보기 listview 셋팅
         setProfile();
@@ -333,7 +333,11 @@ public class ProfileActivity extends AppCompatActivity {
             holder.contents.setText(mData.contents);
 
             // 댓글
-            profile_list.add((ListView) convertView.findViewById(R.id.profile_comment_list));
+            if(profile_list.size() == position) { // ArrayList 자원 재활용
+                profile_list.add(position, (ListView) convertView.findViewById(R.id.profile_comment_list));
+            } else {
+                profile_list.set(position, (ListView) convertView.findViewById(R.id.profile_comment_list));
+            }
             // 어뎁터 생성 등록
             profile_adapter = new profile_Comment_Adapter(ProfileActivity.this);
             // 댓글 셋팅(db받아서)
@@ -350,9 +354,13 @@ public class ProfileActivity extends AppCompatActivity {
             }
 
             // 커멘드 버튼 클릭시 처리
-            btnlistner.add((Button) convertView.findViewById(R.id.profile_comment_btn));
-            btnlistner.get(position).setTag(position);
-            btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
+            if(comment_btnlistner.size() == position) { // ArrayList 자원 재활용
+                comment_btnlistner.add(position, (Button) convertView.findViewById(R.id.profile_comment_btn));
+            } else {
+                comment_btnlistner.set(position, (Button) convertView.findViewById(R.id.profile_comment_btn));
+            }
+            comment_btnlistner.get(position).setTag(position);
+            comment_btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int pos = (int) v.getTag();

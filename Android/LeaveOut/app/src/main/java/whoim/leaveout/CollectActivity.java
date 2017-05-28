@@ -37,7 +37,7 @@ public class CollectActivity extends AppCompatActivity {
     private collect_Comment_Adapter comment_adapter = null;
 
     // comment 버튼
-    private ArrayList<Button> btnlistner = null;
+    private ArrayList<Button> comment_btnlistner = null;
     private boolean comment_flag = true;
 
     //tab
@@ -52,7 +52,7 @@ public class CollectActivity extends AppCompatActivity {
         setContentView(R.layout.collect_layout);
 
         comment_list = new ArrayList<ListView>();
-        btnlistner = new ArrayList<Button>();
+        comment_btnlistner = new ArrayList<Button>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
@@ -172,6 +172,7 @@ public class CollectActivity extends AppCompatActivity {
     }
     // 옵션 버튼 끝
 
+    // 텝 설정
     private class profile_tab
     {
         private profile_tab(String text)
@@ -319,7 +320,11 @@ public class CollectActivity extends AppCompatActivity {
             iv.setImageResource(R.drawable.basepicture);
 
             // 댓글
-            comment_list.add((ListView) convertView.findViewById(R.id.collect_comment_list));
+            if(comment_list.size() == position) {  // ArrayList 자원 재활용
+                comment_list.add(position, (ListView) convertView.findViewById(R.id.collect_comment_list));
+            } else {
+                comment_list.set(position, (ListView) convertView.findViewById(R.id.collect_comment_list));
+            }
             // 어뎁터 생성민 등록
             comment_adapter = new collect_Comment_Adapter(CollectActivity.this);
             comment_list.get(position).setAdapter(comment_adapter);
@@ -336,13 +341,18 @@ public class CollectActivity extends AppCompatActivity {
             }
 
             // 커멘드 버튼 클릭시 처리
-            btnlistner.add((Button) convertView.findViewById(R.id.collect_comment_btn));
-            btnlistner.get(position).setTag(position);
-            btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
+            if(comment_btnlistner.size() == position) { // ArrayList 자원 재활용
+                comment_btnlistner.add(position, (Button) convertView.findViewById(R.id.collect_comment_btn));
+            } else {
+                comment_btnlistner.set(position, (Button) convertView.findViewById(R.id.collect_comment_btn));
+            }
+            comment_btnlistner.get(position).setTag(position); // tag로 listview position 등록
+            comment_btnlistner.get(position).setOnClickListener(new View.OnClickListener() { // 댓글 보기 버튼 이벤트
                 @Override
                 public void onClick(View v) {
-                    int pos = (int) v.getTag();
+                    int pos = (int) v.getTag(); // listview의 position
                     comment_flag = false;
+
                     if(comment_list.get(pos).getVisibility() == View.GONE) {
                         comment_list.get(pos).setVisibility(View.VISIBLE);
                     }

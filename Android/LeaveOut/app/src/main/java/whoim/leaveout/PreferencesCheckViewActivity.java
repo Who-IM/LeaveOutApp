@@ -21,8 +21,9 @@ import java.util.ArrayList;
 public class PreferencesCheckViewActivity extends AppCompatActivity {
     private ListView check_delete_lv = null;
     private Preferences_Adapter adapter = null;
-    Button delete_button = null;
-    ArrayList<ImageButton> btn = null;
+    private Button delete_button = null;
+    private ArrayList<ImageButton> btn = null;
+    private boolean btn_flag = true;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,18 +35,38 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
         adapter = new Preferences_Adapter(this);
         check_delete_lv.setAdapter(adapter);
 
+        // listview 아이템 셋팅
         setItem("1");
         setItem("2");
         setItem("3");
         setItem("4");
         setItem("5");
+
+        // 삭제 버튼 눌렀을시 나타남 or 지워짐(채크 아이콘)
+        delete_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for(int i = 0; i < btn.size(); i++) {
+                    int pos = (int) btn.get(i).getTag();  // listview item position
+
+                    // 버튼 숨김 및 나타남
+                    if(btn.get(pos).getVisibility() == View.INVISIBLE) {
+                        btn.get(pos).setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        btn.get(pos).setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+        });
     }
 
+    // 아이템 셋팅
     public void setItem(String text) {
-
         adapter.addItem(text);
     }
 
+    // 리스트뷰 홀더
     private class Preferences_ViewHolder {
         public TextView name;
     }
@@ -101,16 +122,21 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
                 holder = (Preferences_ViewHolder) convertView.getTag();
             }
 
-
             Preferences_ListData mData = mListData.get(position);
 
             // textView 처리
             holder.name.setText(mData.name);
 
-            btn.add(position, (ImageButton) convertView.findViewById(R.id.check_delete_button));
+            // 버튼 중복생성 방지
+            if(btn.size() == position) {
+                btn.add(position, (ImageButton) convertView.findViewById(R.id.check_delete_button));  // 처음의 경우만 생성
+            } else {
+                btn.set(position, (ImageButton) convertView.findViewById(R.id.check_delete_button));  // 재활용할 경우
+            }
             btn.get(position).setTag(position);
             btn.get(position).setImageResource(R.drawable.public_delete);
 
+            // 삭제아이콘 누를시
             btn.get(position).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -119,30 +145,14 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
                     // 아이템 삭제
                     mListData.remove(pos);
 
+                    // 버튼리스너 삭제
+                    btn.remove(pos);
+
                     // listview 선택 초기화.
                     check_delete_lv.clearChoices();
 
                     // listview 갱신.
                     adapter.notifyDataSetChanged();
-                }
-            });
-
-            // 삭제 버튼 눌렀을시 나타남
-            delete_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    for(int i = 0; i < btn.size(); i++) {
-                        int pos = (int) btn.get(i).getTag();
-
-                        if(pos >= btn.size())
-
-                        if(btn.get(i).getVisibility() == View.INVISIBLE) {
-                            btn.get(i).setVisibility(View.VISIBLE);
-                        }
-                        else {
-                            btn.get(i).setVisibility(View.INVISIBLE);
-                        }
-                    }
                 }
             });
 

@@ -1,0 +1,22 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="whoim.leaveout.ProfileActivity" >
+    <item
+        android:id="@+id/profile_menu_location"
+        android:orderInCategory="100"
+        android:title="가까운 위치 글" />
+    <item
+        android:id="@+id/profile_menu_time"
+        android:orderInCategory="100"
+        android:title="최신 글" />
+    <item
+        android:id="@+id/profile_menu_view"
+        android:orderInCategory="100"
+        android:title="조회수" />
+
+    <item
+        android:id="@+id/profile_menu_recommended"
+        android:orderInCategory="100"
+        android:title="추천수" />
+</menu>

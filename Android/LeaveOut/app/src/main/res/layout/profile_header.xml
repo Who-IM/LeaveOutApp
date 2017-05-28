@@ -47,27 +47,21 @@
             android:text="글" />
     </RadioGroup>
 
-    <HorizontalScrollView
-        android:id="@+id/tab_scroll"
-        android:layout_width="fill_parent"
+    <android.support.design.widget.TabLayout
+        android:id="@+id/profile_tab"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/profile_radio_group"
-        android:fillViewport="true"
-        android:scrollbars="none">
-
-        <android.support.design.widget.TabLayout
-            android:id="@+id/profile_tab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#cccccc"
-            app:tabMinWidth="100dp"
-            app:tabTextColor="#FF000000" />
-    </HorizontalScrollView>
+        android:layout_below="@id/profile_radio_group"
+        android:background="#0089b3"
+        app:tabTextColor="#FFFFFFFF"
+        app:tabSelectedTextColor="#FF000000"
+        android:elevation="10dp"
+        app:tabMode="scrollable" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/profile_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

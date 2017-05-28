@@ -31,7 +31,7 @@ public class ViewArticleActivity extends AppCompatActivity
     private view_Comment_Adapter view_adapter = null;
 
     // comment 버튼
-    private ArrayList<Button> btnlistner = null;
+    private ArrayList<Button> comment_btnlistener = null;
     private boolean views_flag = true;
 
     protected void onCreate(Bundle savedInstanceState)
@@ -41,7 +41,7 @@ public class ViewArticleActivity extends AppCompatActivity
 
         // 댓글
         view_list = new ArrayList<ListView>();
-        btnlistner = new ArrayList<Button>();
+        comment_btnlistener = new ArrayList<Button>();
 
         // 모아보기 listview 셋팅
         setCollect();
@@ -88,6 +88,7 @@ public class ViewArticleActivity extends AppCompatActivity
         listView.requestLayout();
     }
 
+    // 리스트뷰 홀더
     private class article_ViewHolder {
         public ImageView Image;
         public TextView name;
@@ -183,7 +184,11 @@ public class ViewArticleActivity extends AppCompatActivity
             holder.contents.setText(mData.contents);
 
             // 댓글
-            view_list.add((ListView) convertView.findViewById(R.id.view_comment_list));
+            if(view_list.size() == position) { // ArrayList 자원 재활용
+                view_list.add(position, (ListView) convertView.findViewById(R.id.view_comment_list));
+            } else {
+                view_list.set(position, (ListView) convertView.findViewById(R.id.view_comment_list));
+            }
             // 어뎁터 생성민 등록
             view_adapter = new view_Comment_Adapter(ViewArticleActivity.this);
             view_list.get(position).setAdapter(view_adapter);
@@ -200,13 +205,18 @@ public class ViewArticleActivity extends AppCompatActivity
             }
 
             // 커멘드 버튼 클릭시 처리
-            btnlistner.add((Button) convertView.findViewById(R.id.views_comment_btn));
-            btnlistner.get(position).setTag(position);
-            btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
+            if(comment_btnlistener.size() == position) { // ArrayList 자원 재활용
+                comment_btnlistener.add(position, (Button) convertView.findViewById(R.id.views_comment_btn));
+            } else {
+                comment_btnlistener.set(position, (Button) convertView.findViewById(R.id.views_comment_btn));
+            }
+            comment_btnlistener.get(position).setTag(position); // tag로 listview의 position 등록
+            comment_btnlistener.get(position).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int pos = (int) v.getTag();
+                    int pos = (int) v.getTag();  // listview의 position
                     views_flag = false;
+
                     if(view_list.get(pos).getVisibility() == View.GONE) {
                         view_list.get(pos).setVisibility(View.VISIBLE);
                     }

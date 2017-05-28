@@ -2,12 +2,16 @@ package whoim.leaveout;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -16,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
@@ -41,10 +46,18 @@ public class ProfileActivity extends AppCompatActivity {
     private ViewPager viewPager = null;
     profile_tab tab;
     View header = null;
+
+    int menuCount = 0;  //매뉴 옵션 아이템 순서
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_layout);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
+        toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
+        setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
+        getSupportActionBar().setDisplayShowTitleEnabled(false);        //액션바에 표시되는 제목의 표시유무를 설정합니다.
 
         // 초기설정 (db필요)
         init(R.drawable.basepicture, "허성문", "gjtjdans123@naver.com");
@@ -97,6 +110,83 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
     }
+
+    //옵션 버튼
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // 메뉴버튼이 처음 눌러졌을 때 실행되는 콜백메서드
+        // 메뉴버튼을 눌렀을 때 보여줄 menu 에 대해서 정의
+        getMenuInflater().inflate(R.menu.profile_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // 옵션 메뉴가 화면에 보여지는 메서드
+
+        if (menuCount == 0) //가까운 위치 누를시 버튼 비활성화 그외 다 활성화
+        {
+            menu.getItem(0).setEnabled(false);
+            menu.getItem(1).setEnabled(true);
+            menu.getItem(2).setEnabled(true);
+            menu.getItem(3).setEnabled(true);
+        }
+
+        else if(menuCount == 1) //최신글 누를시 버튼 비활성화 그외 다 활성화
+        {
+            menu.getItem(0).setEnabled(true);
+            menu.getItem(1).setEnabled(false);
+            menu.getItem(2).setEnabled(true);
+            menu.getItem(3).setEnabled(true);
+        }
+
+        else if(menuCount == 2) //조회수 누를시 버튼 비활성화 그외 다 활성화
+        {
+            menu.getItem(0).setEnabled(true);
+            menu.getItem(1).setEnabled(true);
+            menu.getItem(2).setEnabled(false);
+            menu.getItem(3).setEnabled(true);
+        }
+
+        else if(menuCount == 3) //추천수 누를시 버튼 비활성화 그외 다 활성화
+        {
+            menu.getItem(0).setEnabled(true);
+            menu.getItem(1).setEnabled(true);
+            menu.getItem(2).setEnabled(true);
+            menu.getItem(3).setEnabled(false);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // 메뉴의 항목을 선택(클릭)했을 때 호출되는 콜백메서드
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.profile_menu_location:
+                Toast.makeText(getApplicationContext(), "가까운 위치 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 0;
+                return true;
+
+            case R.id.profile_menu_time:
+                Toast.makeText(getApplicationContext(), "최신글 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 1;
+                return true;
+
+            case R.id.profile_menu_view:
+                Toast.makeText(getApplicationContext(), "조회수 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 2;
+                return true;
+
+            case R.id.profile_menu_recommended:
+                Toast.makeText(getApplicationContext(), "추천수 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 3;
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    // 옵션 버튼 끝
 
     protected class profile_tab
     {

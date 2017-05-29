@@ -121,6 +121,8 @@
                 android:gravity="end|center_vertical"
                 android:onClick="comment"
                 android:text="댓글보기"
+                android:textColor="#808080"
+                android:textStyle="bold"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true" />
 
@@ -165,7 +167,9 @@
                 android:layout_marginRight="15dp"
                 android:gravity="end|center_vertical"
                 android:onClick="follow"
-                android:text="따라가기" />
+                android:text="따라가기"
+                android:textColor="#808080"
+                android:textStyle="bold"/>
         </RelativeLayout>
 
         <View
@@ -200,6 +204,8 @@
                 android:layout_marginRight="15dp"
                 android:gravity="end|center_vertical"
                 android:onClick="like"
+                android:textColor="#808080"
+                android:textStyle="bold"
                 android:text="추천하기" />
         </RelativeLayout>
     </LinearLayout>

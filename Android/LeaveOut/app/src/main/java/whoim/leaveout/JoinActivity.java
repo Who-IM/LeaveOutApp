@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -15,7 +16,11 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import org.json.JSONObject;
+
 import whoim.leaveout.Loading.LoadingDialog;
+import whoim.leaveout.SQL.SQLListener;
+import whoim.leaveout.SQL.SQLWeb;
 
 public class JoinActivity extends AppCompatActivity {
 
@@ -50,13 +55,13 @@ public class JoinActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 TextView ImageView = null;
-                if(v.getId() == R.id.id_insert) {       // id 칸 일경우
+                if (v.getId() == R.id.id_insert) {       // id 칸 일경우
                     ImageView = mIdOverlap;             // id 옆에 뷰
-                } else if(v.getId() == R.id.mail_insert) {  // 이메일 칸 일 경우
+                } else if (v.getId() == R.id.mail_insert) {  // 이메일 칸 일 경우
                     ImageView = mEmailOverlap;          // 메일 옆에 뷰
                 }
 
-                if(hasFocus)
+                if (hasFocus)
                     ImageView.setVisibility(View.INVISIBLE);
                 else
                     ImageView.setVisibility(View.VISIBLE);
@@ -69,11 +74,9 @@ public class JoinActivity extends AppCompatActivity {
         mMail_insert.setOnEditorActionListener(new TextView.OnEditorActionListener()        // 키보드에 완료 버튼 리스너 설정
         {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
-            {
-                if(actionId == EditorInfo.IME_ACTION_DONE)
-                {
-                    Toast.makeText(getApplicationContext(),"로그인 성공",Toast.LENGTH_SHORT).show();
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    Toast.makeText(getApplicationContext(), "로그인 성공", Toast.LENGTH_SHORT).show();
 
                     //키보드 내리기
                     InputMethodManager immhide = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -84,7 +87,6 @@ public class JoinActivity extends AppCompatActivity {
                 return false;
             }
         });
-
 
 
     }
@@ -101,8 +103,25 @@ public class JoinActivity extends AppCompatActivity {
 
     // 버튼 onclick 함수
     public void joinOnClicked(View view) {
+        SQLDataSend();
+    }
 
-        new LoadingDialog(this).execute();
+    // SQL로 보낸 데이터 처리
+    private void SQLDataSend() {
+        LoadingDialog loadingDialog = new LoadingDialog(this);
+        loadingDialog.setSqlListener(new SQLListener() {
+            @Override
+            public JSONObject getDataSend() {
+                return SQLWeb.getSQLJSONData("select * from user",-1,"select");
+            }
+
+            @Override
+            public void dataProcess(JSONObject responseData) {
+                Log.d("responseData",responseData.toString());
+                Toast.makeText(JoinActivity.this,"처리 완료.",Toast.LENGTH_SHORT).show();
+            }
+        });
+        loadingDialog.execute();
 
     }
 

@@ -14,8 +14,8 @@
         <!-- 프로필 이미지 -->
         <ImageView
             android:id="@+id/menu_home_icon"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="15dp" />
 
@@ -48,8 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="5dp"
         android:layout_marginTop="8dp"
-        android:background="#ff8fd3ff">
-
+        android:background="#7e7e7e">
     </View>
 
 </LinearLayout>

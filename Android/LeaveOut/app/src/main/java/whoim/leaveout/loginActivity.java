@@ -1,5 +1,6 @@
 package whoim.leaveout;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +27,7 @@ import org.json.JSONObject;
 
 import java.util.Arrays;
 
+import whoim.leaveout.StartSetting.Permission;
 import whoim.leaveout.StartSetting.SharedName;
 import whoim.leaveout.User.UserInfo;
 
@@ -41,6 +43,8 @@ public class loginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
+
+        Permission.permissionSetting(this, new String[]{Manifest.permission.READ_PHONE_STATE});
 
         mUserInfo = UserInfo.getInstance();     // 유저 정보 객체 가져오기
         mLoginShared = getSharedPreferences(SharedName.SHARED_LOGIN_INFO, Activity.MODE_PRIVATE);     // 로그인 정보 상태
@@ -137,8 +141,8 @@ public class loginActivity extends AppCompatActivity {
 
     // 비번 찾기 화면
     public void idPwSelect(View view) {
-        SharedPreferences.Editor LoginSharedEdit = mLoginShared.edit();     // 상태 저장 에디터
-        LoginSharedEdit.clear().commit();
+        SharedPreferences.Editor LoginSharedEdit = mLoginShared.edit();     // 상태 저장 에디터(테스트)
+        LoginSharedEdit.clear().commit();   // 테스트용
         Toast.makeText(this,"비번 찾기 버튼 테스트 완료",Toast.LENGTH_SHORT).show();
     }
 

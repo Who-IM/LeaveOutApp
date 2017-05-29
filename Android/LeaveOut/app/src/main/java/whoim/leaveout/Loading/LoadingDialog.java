@@ -5,9 +5,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import whoim.leaveout.SQL.SQLListener;
 import whoim.leaveout.SQL.SQLWeb;
 
 /**
@@ -17,7 +17,7 @@ public class LoadingDialog extends AsyncTask<Void,Void,Void> {
 
     private Context mContext;
     private ProgressDialog mAsyncDialog;        // 로딩 중 다이얼로그
-    private SQLListener mSqlListener;           // WebSQL에 데이터를 보내고 처리할 데이터 리스너
+    private LoadingSQLListener mLoadingSqlListener;           // WebSQL에 데이터를 보내고 처리할 데이터 리스너
     private SQLWeb sqlWeb;                      // WebSQL 접속 객체
     private JSONObject responseData;            // 응답받은 데이터
 
@@ -36,22 +36,19 @@ public class LoadingDialog extends AsyncTask<Void,Void,Void> {
         // show dialog
         mAsyncDialog.show();        // 보여주기
 
-        if(mSqlListener != null) {      // 구현 했을경우 만 실행
+        if(mLoadingSqlListener != null) {      // 구현 했을경우 만 실행
             try {
                 sqlWeb = new SQLWeb();
-                sqlWeb.execute(mSqlListener.getDataSend());     // 접속하기 구현한 리스너에서 데이터 넣기
+                sqlWeb.execute(mLoadingSqlListener.getDataSend());     // 접속하기 구현한 리스너에서 데이터 넣기
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
-        super.onPreExecute();
-
     }
 
     @Override
     protected Void doInBackground(Void... params) {
-        if(mSqlListener != null) {      // 구현 했을경우 만 실행
+        if(mLoadingSqlListener != null) {      // 구현 했을경우 만 실행
             try {
                 responseData = sqlWeb.get();
             } catch (Exception e) {
@@ -64,15 +61,17 @@ public class LoadingDialog extends AsyncTask<Void,Void,Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         mAsyncDialog.dismiss();         // 종료
-        if(responseData != null && mSqlListener != null) {      // 구현 했을경우 만 실행
-            mSqlListener.dataProcess(responseData);     // WebSQL에서 받은 데이터 처리
+        if (responseData != null && mLoadingSqlListener != null) {      // 구현 했을경우 만 실행
+            try {
+                mLoadingSqlListener.dataProcess(responseData);     // WebSQL에서 받은 데이터 처리
+            } catch (JSONException e) { e.printStackTrace(); }
         }
         else {
             Toast.makeText(mContext,"다시 시도해 주십시오.",Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void setSqlListener(SQLListener mSqlListener) {
-        this.mSqlListener = mSqlListener;
+    public void setSqlListener(LoadingSQLListener mLoadingSqlListener) {
+        this.mLoadingSqlListener = mLoadingSqlListener;
     }
 }

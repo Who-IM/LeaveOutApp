@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:text="*ID"
         android:textColor="#FFFFFFFF"
-        android:textSize="25dp"
+        android:textSize="20dp"
         android:layout_below="@+id/find_name"
         android:layout_alignParentStart="true"
         android:layout_marginStart="25dp"
@@ -35,28 +35,27 @@
 
     <EditText
         android:id="@+id/id_insert"
-        android:layout_width="160dp"
+        android:layout_width="150dp"
         android:layout_height="30dp"
         android:paddingLeft="5dp"
         android:background="@drawable/login_text"
         android:hint="입력하세요"
         android:textSize="17dp"
         android:inputType="text"
-        android:layout_marginLeft="90dp"
-        android:layout_above="@+id/pw_text"
-        android:layout_toEndOf="@+id/id_text"
-        />
+        android:layout_marginRight="15dp"
+        android:layout_alignTop="@+id/id_text"
+        android:layout_toStartOf="@+id/id_overlap" />
 
     <Button
         android:id="@+id/id_overlap"
         android:layout_width="65dp"
         android:layout_height="wrap_content"
-        android:text="중복확인"
+        android:text="확인"
         android:textSize="17dp"
+        android:layout_marginRight="10dp"
         android:background="@drawable/join_overlap"
-        android:layout_marginStart="30dp"
-        android:layout_toEndOf="@+id/find_name"
         android:layout_alignBottom="@+id/id_insert"
+        android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/id_insert" />
     <!--ID 구간 끝-->
 
@@ -67,14 +66,14 @@
         android:layout_height="wrap_content"
         android:text="*비밀 번호"
         android:textColor="#FFFFFFFF"
-        android:textSize="25dp"
+        android:textSize="20dp"
         android:layout_below="@+id/id_text"
         android:layout_alignStart="@+id/id_text"
         android:layout_marginTop="20dp" />
 
     <EditText
         android:id="@+id/pw_insert"
-        android:layout_width="160dp"
+        android:layout_width="150dp"
         android:layout_height="30dp"
         android:paddingLeft="5dp"
         android:layout_marginRight="40dp"
@@ -93,14 +92,14 @@
         android:layout_height="wrap_content"
         android:text="*비번 확인"
         android:textColor="#FFFFFFFF"
-        android:textSize="25dp"
+        android:textSize="20dp"
         android:layout_below="@+id/pw_text"
         android:layout_alignStart="@+id/pw_text"
         android:layout_marginTop="20dp" />
 
     <EditText
         android:id="@+id/re_pw_insert"
-        android:layout_width="160dp"
+        android:layout_width="150dp"
         android:layout_height="30dp"
         android:paddingLeft="5dp"
         android:background="@drawable/login_text"
@@ -118,14 +117,14 @@
         android:layout_height="wrap_content"
         android:text="*이름"
         android:textColor="#FFFFFFFF"
-        android:textSize="25dp"
+        android:textSize="20dp"
         android:layout_below="@+id/re_pw_text"
         android:layout_alignStart="@+id/re_pw_text"
         android:layout_marginTop="20dp" />
 
     <EditText
         android:id="@+id/name_insert"
-        android:layout_width="160dp"
+        android:layout_width="150dp"
         android:layout_height="30dp"
         android:paddingLeft="5dp"
         android:background="@drawable/login_text"
@@ -143,14 +142,14 @@
         android:layout_height="wrap_content"
         android:text="*전화 번호"
         android:textColor="#FFFFFFFF"
-        android:textSize="25dp"
+        android:textSize="20dp"
         android:layout_below="@+id/name_text"
         android:layout_alignStart="@+id/name_text"
         android:layout_marginTop="20dp" />
 
     <EditText
         android:id="@+id/p_number_insert"
-        android:layout_width="160dp"
+        android:layout_width="150dp"
         android:layout_height="30dp"
         android:paddingLeft="5dp"
         android:background="@drawable/login_text"
@@ -168,14 +167,14 @@
         android:layout_height="wrap_content"
         android:text="*E-mail"
         android:textColor="#FFFFFFFF"
-        android:textSize="25dp"
+        android:textSize="20dp"
         android:layout_below="@+id/p_number_text"
         android:layout_alignStart="@+id/p_number_text"
         android:layout_marginTop="20dp" />
 
     <EditText
         android:id="@+id/mail_insert"
-        android:layout_width="160dp"
+        android:layout_width="150dp"
         android:layout_height="30dp"
         android:paddingLeft="5dp"
         android:background="@drawable/login_text"
@@ -189,10 +188,11 @@
         android:id="@+id/email_overlap"
         android:layout_width="65dp"
         android:layout_height="wrap_content"
-        android:text="중복확인"
+        android:text="확인"
         android:textSize="17dp"
+        android:layout_marginRight="10dp"
         android:background="@drawable/join_overlap"
-        android:layout_alignStart="@+id/id_overlap"
+        android:layout_alignParentEnd="true"
         android:layout_alignBottom="@+id/mail_insert"
         android:layout_alignTop="@+id/mail_insert" />
     <!--email 구간 끝-->
@@ -200,7 +200,7 @@
     <!-- 회원가입 -->
     <Button
         android:id="@+id/find_insert"
-        android:layout_width="120dp"
+        android:layout_width="100dp"
         android:layout_height="40dp"
         android:text="가입하기"
         android:background="@drawable/login_button"
@@ -213,14 +213,16 @@
     <!-- 취소 -->
     <Button
         android:id="@+id/find_cancel"
-        android:layout_width="120dp"
+        android:layout_width="100dp"
         android:layout_height="40dp"
         android:text="취소"
         android:background="@drawable/login_button"
         android:onClick="Join_cancelButton"
         android:textSize="23dp"
-        android:layout_marginRight="60dp"
-        android:layout_alignBottom="@+id/find_insert"
-        android:layout_alignParentEnd="true" />
+        android:layout_marginTop="18dp"
+        android:layout_below="@+id/mail_text"
+        android:layout_alignStart="@+id/find_insert"
+        android:layout_marginLeft="200dp"
+        />
 
 </RelativeLayout>

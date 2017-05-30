@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -50,9 +51,14 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
                 dialog.setTitle("카테고리 추가");
                 dialog.setView(etEdit);
 
+                //다이얼로그 키보드 바로 띄우기
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+
                 // OK 버튼 이벤트
                 dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
+
                         inputValue = etEdit.getText().toString();
                         if (inputValue.equals("")) {    //다이얼로그에 아무것도 입력하지 않았을 경우
                             Toast.makeText(PreferencesCategoryActivity.this, "아무것도 입력하지 않았습니다.", Toast.LENGTH_SHORT).show();

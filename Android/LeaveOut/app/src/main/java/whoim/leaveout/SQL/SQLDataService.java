@@ -58,9 +58,30 @@ public final class SQLDataService {
         }
 
         // 데이터 추가
-        public void add(String data) {
+        public void addString(String data) {
             if(index == 0) stringBuilder.append("\""+data+"\"");
             else stringBuilder.append("/\"" + data +"\"");
+
+            index++;
+        }
+
+        public void addInt(int data) {
+            if(index == 0) stringBuilder.append(data);
+            else stringBuilder.append("/" + data);
+
+            index++;
+        }
+
+        public void addDouble(double data) {
+            if(index == 0) stringBuilder.append(data);
+            else stringBuilder.append("/" + data);
+
+            index++;
+        }
+
+        public void addBoolean(boolean data) {
+            if(index == 0) stringBuilder.append(data);
+            else stringBuilder.append("/" + data);
 
             index++;
         }

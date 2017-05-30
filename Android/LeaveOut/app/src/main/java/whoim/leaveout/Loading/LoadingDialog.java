@@ -20,10 +20,12 @@ public class LoadingDialog extends AsyncTask<Void,Void,Void> {
     private LoadingSQLListener mLoadingSqlListener;           // WebSQL에 데이터를 보내고 처리할 데이터 리스너
     private SQLWeb sqlWeb;                      // WebSQL 접속 객체
     private JSONObject responseData;            // 응답받은 데이터
+    private Object mCaller;
 
-    public LoadingDialog(Context context) {
+    public LoadingDialog(Context context, Object caller) {
         super();
         mContext = context;
+        mCaller = caller;
         mAsyncDialog = new ProgressDialog(mContext);
         mAsyncDialog.setCancelable(false);
     }
@@ -63,7 +65,7 @@ public class LoadingDialog extends AsyncTask<Void,Void,Void> {
         mAsyncDialog.dismiss();         // 종료
         if (responseData != null && mLoadingSqlListener != null) {      // 구현 했을경우 만 실행
             try {
-                mLoadingSqlListener.dataProcess(responseData);     // WebSQL에서 받은 데이터 처리
+                mLoadingSqlListener.dataProcess(responseData,mCaller);     // WebSQL에서 받은 데이터 처리
             } catch (JSONException e) { e.printStackTrace(); }
         }
         else {

@@ -32,14 +32,11 @@ public class JoinActivity extends AppCompatActivity {
     private EditText mName_insert;
     private EditText mMail_insert;
 
-    // 중복 확인(이미지로)
-    private TextView mIdOverlap;
-    private TextView mEmailOverlap;
-
     LoadingDialog mLoadingDialog;            // 로딩 다이얼 로그
     private SQLDataService.DataStringGroup dataStringGroup = new SQLDataService.DataStringGroup();          // sql에 필요한 데이터 그룹
     private String mInsertSQL = "insert into user(id,password,name,email,phone_num) values(?,?,?,?,?)";     // 유저 추가 sql
-    private StringBuilder mSelectSQL = new StringBuilder("select * from user");       // 유저 검색 sql
+    private String mSelectSQL;       // 유저 검색 sql
+    private boolean[] overcheck = {false,false};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,30 +49,7 @@ public class JoinActivity extends AppCompatActivity {
         mName_insert = (EditText) findViewById(R.id.name_insert);
         mMail_insert = (EditText) findViewById(R.id.mail_insert);
 
-        mIdOverlap = (TextView) findViewById(R.id.id_overlap);
-        mEmailOverlap = (TextView) findViewById(R.id.email_overlap);
-
-        // 포커스 확인 리스너
-        View.OnFocusChangeListener FocusListener = new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                TextView ImageView = null;
-                if (v.getId() == R.id.id_insert) {       // id 칸 일경우
-                    ImageView = mIdOverlap;             // id 옆에 뷰
-                } else if (v.getId() == R.id.mail_insert) {  // 이메일 칸 일 경우
-                    ImageView = mEmailOverlap;          // 메일 옆에 뷰
-                }
-                if (hasFocus)       // 포커스 확인
-                    ImageView.setVisibility(View.INVISIBLE);    // 표시 x
-                else
-                    ImageView.setVisibility(View.VISIBLE);      // 표시 o
-            }
-        };
-
-        mIdInsert.setOnFocusChangeListener(FocusListener);      // 포커스 확인 리스너 설정(ID입력 칸)
-        mMail_insert.setOnFocusChangeListener(FocusListener);   // 포커스 확인 리스너 설정(메일 입력칸)
-        mMail_insert.setOnEditorActionListener(new TextView.OnEditorActionListener()        // 키보드에 완료 버튼 리스너 설정
-        {
+        mMail_insert.setOnEditorActionListener(new TextView.OnEditorActionListener() {       // 키보드에 완료 버튼 리스너 설정
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_NEXT) {
@@ -92,8 +66,7 @@ public class JoinActivity extends AppCompatActivity {
     public void joinOnClicked(View view) {
         switch (view.getId()) {
             case R.id.join_insert:      // 가입 버튼 눌럿을시
-//                updateSQLData();        // 유저 추가 sql
-                selectSQLData();
+                updateSQLData();        // 유저 추가 sql
                 break;
             case R.id.join_cancel:      // 취소 버튼
                 finish();               // 액티비티 종료
@@ -101,8 +74,40 @@ public class JoinActivity extends AppCompatActivity {
         }
     }
 
+    public void onOverClicked(View view) {
+        switch (view.getId()) {
+            case R.id.id_overlap:       // 확인
+                if(!editCheck(mIdInsert)) return;       // 입력 없을 시 리턴
+                mSelectSQL = "select id from user where id = ?";
+                dataStringGroup.clear();
+                dataStringGroup.addString(mIdInsert.getText().toString());
+                selectSQLData(view);
+                break;
+            case R.id.email_overlap:    // 메일
+                if(!editCheck(mMail_insert)) return;    // 입력 없을 시 리턴
+                mSelectSQL = "select email from user where email = ?";
+                dataStringGroup.clear();
+                dataStringGroup.addString(mMail_insert.getText().toString());
+                selectSQLData(view);
+                break;
+        }
+    }
+
+    private boolean editCheck(EditText editText) {
+        if (mIdInsert.getText().toString().equals("")) {
+            if(editText.getId() == R.id.id_insert)
+                Toast.makeText(JoinActivity.this, "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();
+            else if(editText.getId() == R.id.mail_insert)
+                Toast.makeText(JoinActivity.this, "메일을 입력해주세요", Toast.LENGTH_SHORT).show();
+            mIdInsert.requestFocus();       // 포커스 이동
+            keyBoardPutDown(false);         // 키보드 보이기
+            return false;
+        }
+        return true;
+    }
+
     // edit 체크 확인(true 체크 완료, false 체크 실패)
-    private boolean editCheck() {
+    private boolean editCheckAll() {
         if (mIdInsert.getText().toString().equals("")) {
             Toast.makeText(JoinActivity.this, "아이디를 입력해주세요", Toast.LENGTH_SHORT).show();
             mIdInsert.requestFocus();       // 포커스 이동
@@ -147,41 +152,76 @@ public class JoinActivity extends AppCompatActivity {
 
     // sql 업데이트
     private void updateSQLData() {
-        if (editCheck()) {
-            dataStringGroup.clear();
-            dataStringGroup.add(mIdInsert.getText().toString());        // id
-            dataStringGroup.add(mPassInsert.getText().toString());      // 패스워드
-            dataStringGroup.add(mName_insert.getText().toString());     // 이름
-            dataStringGroup.add(mMail_insert.getText().toString());     // 메일
-            TelephonyManager mgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-            dataStringGroup.add(mgr.getLine1Number());      //  폰번호
-            SQLDataSendStart(SQLDataService.getDynamicSQLJSONData(mInsertSQL,dataStringGroup,0,"update"));     // SQL 서비스 시작
+        if (editCheckAll()) {
+            LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+                @Override
+                public JSONObject getDataSend() {
+                    dataStringGroup.clear();
+                    dataStringGroup.addString(mIdInsert.getText().toString());        // id
+                    dataStringGroup.addString(mPassInsert.getText().toString());      // 패스워드
+                    dataStringGroup.addString(mName_insert.getText().toString());     // 이름
+                    dataStringGroup.addString(mMail_insert.getText().toString());     // 메일
+                    TelephonyManager mgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+                    dataStringGroup.addString(mgr.getLine1Number());      //  폰번호
+                    return SQLDataService.getDynamicSQLJSONData(mInsertSQL, dataStringGroup, 0, "update");     // update SQL 제이슨
+                }
+
+                @Override
+                public void dataProcess(JSONObject responseData, Object caller) throws JSONException {
+                    Log.d("responseData", responseData.toString());
+                    if (!(responseData.getString("result").equals("error")))
+                        Toast.makeText(JoinActivity.this, "가입이 완료 되었습니다.", Toast.LENGTH_LONG).show();
+                    else
+                        Toast.makeText(JoinActivity.this, "잠시 후 다시 시도해 주십시오.", Toast.LENGTH_LONG).show();
+                }
+            };
+            SQLDataSendStart(loadingSQLListener, null);
         }
     }
 
-    private void selectSQLData() {
-        dataStringGroup.clear();
-        SQLDataSendStart(SQLDataService.getSQLJSONData(mSelectSQL.toString(),-1,"select"));
+    private void selectSQLData(Object caller) {
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public JSONObject getDataSend() {
+                return SQLDataService.getDynamicSQLJSONData(mSelectSQL.toString(),dataStringGroup,-1,"select");     // select SQL 제이슨
+            }
+
+            @Override
+            public void dataProcess(JSONObject responseData, Object caller) throws JSONException {
+                Log.d("responseData", responseData.toString());
+                if (caller instanceof View) {
+                    View v = (View) caller;
+                    if (responseData.getJSONArray("result").length() != 0) {
+                        if (v.getId() == R.id.id_overlap) {
+                            Toast.makeText(JoinActivity.this, "ID 중복이 있습니다.", Toast.LENGTH_LONG).show();
+                            overcheck[0] = false;
+                        }
+                        else if (v.getId() == R.id.email_overlap) {
+                            Toast.makeText(JoinActivity.this, "메일이 중복이 있습니다.", Toast.LENGTH_LONG).show();
+                            overcheck[1] = false;
+                        }
+                    }
+                    else {
+                        if (v.getId() == R.id.id_overlap) {
+                            Toast.makeText(JoinActivity.this, "ID 사용 가능합니다.", Toast.LENGTH_LONG).show();
+                            overcheck[0] = true;
+                        }
+                        else if (v.getId() == R.id.email_overlap) {
+                            Toast.makeText(JoinActivity.this, "메일 사용가능합니다.", Toast.LENGTH_LONG).show();
+                            overcheck[1] = true;
+                        }
+                    }
+                }   // if -- END --
+            }   // dataProcess -- END --
+        };   // loadingSQLListener -- END --
+
+        SQLDataSendStart(loadingSQLListener, caller);
     }
 
     // SQL로 보낸 데이터 처리(리스너 구현 및 로딩 다이얼로그 구현)
-    private void SQLDataSendStart(final JSONObject requestData) {
-        mLoadingDialog = new LoadingDialog(this);             // 로딩 다이얼 로그
-        mLoadingDialog.setSqlListener(new LoadingSQLListener() {            // 로딩 데이터 프로세스 리스너
-            @Override
-            public JSONObject getDataSend() {       // 송신 할 데이터
-                return requestData;
-            }
-
-            @Override
-            public void dataProcess(JSONObject responseData) throws JSONException {      // 수신된 데이터 받은 뒤 프로세스
-                Log.d("responseData", responseData.toString());
-                if (!(responseData.getString("result").equals("error")))
-                    Toast.makeText(JoinActivity.this, "가입이 완료 되었습니다.", Toast.LENGTH_LONG).show();
-                else
-                    Toast.makeText(JoinActivity.this, "잠시 후 다시 시도해 주십시오.", Toast.LENGTH_LONG).show();
-            }
-        });
+    private void SQLDataSendStart(LoadingSQLListener loadingSQLListener, Object caller) {   // caller 어디서 호출 했는지 판단(필요 없을시 null)
+        mLoadingDialog = new LoadingDialog(this, caller);             // 로딩 다이얼 로그
+        mLoadingDialog.setSqlListener(loadingSQLListener);
         mLoadingDialog.execute();        // 다이얼로그 시작
     }
 

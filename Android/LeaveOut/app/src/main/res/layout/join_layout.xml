@@ -46,18 +46,18 @@
         android:layout_above="@+id/pw_text"
         android:layout_toEndOf="@+id/id_text"/>
 
-    <TextView
+    <Button
         android:id="@+id/id_overlap"
-        android:layout_width="20dp"
-        android:layout_height="50dp"
-        android:visibility="gone"
-        tools:visibility="visible"
-        android:text="▼"
-        android:textSize="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_alignParentRight="true"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:text="확인"
+        android:textSize="17dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/join_overlap"
         android:layout_alignBottom="@+id/id_insert"
-        android:layout_alignTop="@+id/id_insert" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/id_insert"
+        android:onClick="onOverClicked"/>
     <!--ID 구간 끝-->
 
     <!--비밀번호 구간-->
@@ -162,19 +162,18 @@
         android:imeOptions="actionNext"
         android:inputType="text" />
 
-    <TextView
+    <Button
         android:id="@+id/email_overlap"
-        android:layout_width="20dp"
-        android:layout_height="50dp"
-        android:visibility="gone"
-        tools:visibility="visible"
-        android:text="▼"
-        android:textSize="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignStart="@+id/id_overlap"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:text="확인"
+        android:textSize="17dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/join_overlap"
+        android:layout_alignParentEnd="true"
         android:layout_alignBottom="@+id/mail_insert"
-        android:layout_alignTop="@+id/mail_insert" />
+        android:layout_alignTop="@+id/mail_insert"
+        android:onClick="onOverClicked"/>
     <!--email 구간 끝-->
 
     <!-- 회원가입 -->

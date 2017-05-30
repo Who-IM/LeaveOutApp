@@ -8,5 +8,5 @@ import org.json.JSONObject;
  */
 public interface LoadingSQLListener {
     JSONObject getDataSend();
-    void dataProcess(JSONObject responseData) throws JSONException;
+    void dataProcess(JSONObject responseData, Object caller) throws JSONException;
 }

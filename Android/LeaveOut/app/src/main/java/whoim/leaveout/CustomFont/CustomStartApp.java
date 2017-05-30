@@ -13,7 +13,8 @@ public class CustomStartApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Typekit.getInstance().addCustom1(Typekit.createFromAsset(this, "RixToyGray.ttf"))
-                             .addCustom2(Typekit.createFromAsset(this, "HMKMMAG.TTF"));
+        Typekit.getInstance().addCustom1(Typekit.createFromAsset(this, "BMJUA_ttf.ttf"))
+                             .addCustom2(Typekit.createFromAsset(this, "GodoB.ttf"))
+                             .addCustom3(Typekit.createFromAsset(this, "GodoM.ttf"));
     }
 }

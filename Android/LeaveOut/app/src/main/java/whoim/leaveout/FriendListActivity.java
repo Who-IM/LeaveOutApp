@@ -208,7 +208,7 @@ public class FriendListActivity extends AppCompatActivity {
         @Override
         public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
             String headerTitle = (String) getGroup(groupPosition);
-            Typeface ty = Typeface.createFromAsset(getAssets(), "RixToyGray.ttf");
+            Typeface ty = Typeface.createFromAsset(getAssets(), "GodoM.ttf");
             if (convertView == null) {
                 LayoutInflater infalInflater = (LayoutInflater) this._context
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);

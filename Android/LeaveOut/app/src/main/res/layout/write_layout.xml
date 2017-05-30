@@ -146,28 +146,24 @@
     </RelativeLayout>
 
     <!--사진 띄울울 공간-->
-    <ScrollView
-        android:id="@+id/scroll"
+
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
+        android:layout_above="@+id/write_line3"
         android:layout_below="@+id/write_textarea"
-        android:layout_above="@+id/write_line3">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <ListView
+            android:id="@+id/write_listview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:choiceMode="singleChoice"
+            android:divider="#00ffffff"
+            android:dividerHeight="0px" />
+    </LinearLayout>
 
-            <ListView
-                android:id="@+id/write_listview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:choiceMode="singleChoice"
-                android:divider="#00ffffff"
-                android:dividerHeight="0px" />
-        </LinearLayout>
-    </ScrollView>
 
     <!-- 검은색 선(밑에) -->
     <View

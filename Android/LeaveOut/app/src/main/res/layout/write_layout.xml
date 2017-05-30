@@ -94,7 +94,7 @@
         android:layout_alignEnd="@+id/write_textarea"
         android:layout_below="@id/toolbar"
         android:layout_marginTop="17dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="15dp"
         android:background="#00000000"
         app:srcCompat="@drawable/public_addlist" />
 
@@ -175,7 +175,7 @@
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="70dp"
+        android:layout_marginBottom="75dp"
         android:background="#FF000000"></View>
 
     <!-- 하단 레이아웃 -->
@@ -185,6 +185,7 @@
         android:layout_height="match_parent"
         android:layout_alignTop="@+id/write_line3"
         android:orientation="horizontal"
+        android:layout_marginTop="3dp"
         android:weightSum="4">
 
         <!-- 친구태그 -->
@@ -215,8 +216,8 @@
             android:layout_height="64dp"
             android:layout_marginTop="5dp"
             android:layout_weight="1"
-            android:onClick="goToAlbumButton"
             android:background="#00000000"
+            android:onClick="goToAlbumButton"
             app:srcCompat="@drawable/write_image" />
 
         <!-- 공개여부 -->

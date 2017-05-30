@@ -9,13 +9,16 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -35,12 +38,13 @@ public class ProfileActivity extends AppCompatActivity {
 
     // comment list
     private ArrayList<ListView> profile_list = null;
-    private profile_Comment_Adapter profile_adapter = null;
+    private ArrayList<profile_Comment_Adapter> profile_adapter = null;
     View header = null; // 리스트뷰 헤더
 
     // comment 버튼
     private ArrayList<Button> comment_btnlistner = null;
     private boolean profile_flag = true;
+    private ArrayList<EditText> profile_edit = null;
 
     //tab
     private TabLayout tabLayout = null;
@@ -64,6 +68,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         profile_list = new ArrayList<ListView>();                              // profile listview
         comment_btnlistner = new ArrayList<Button>();                         // 댓글보기 버튼
+        profile_adapter = new ArrayList<profile_Comment_Adapter>();
+        profile_edit = new ArrayList<EditText>();
         header = getLayoutInflater().inflate(R.layout.profile_header, null);  // 프로필 위의 지도(listview header지정하여 스크롤 가능하게함)
 
         // 모아보기 listview 셋팅
@@ -212,9 +218,9 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     // 댓글 listview 셋팅
-    private void setComment(int image, String name, String comment) {
+    private void setComment(int position, int image, String name, String comment) {
         // 실제 데이터 삽입
-        profile_adapter.addItem(getResources().getDrawable(image, null), name, comment);
+        profile_adapter.get(position).addItem(getResources().getDrawable(image, null), name, comment);
     }
 
     // 리스트뷰 펼처보기(한화면에)
@@ -338,20 +344,58 @@ public class ProfileActivity extends AppCompatActivity {
             } else {
                 profile_list.set(position, (ListView) convertView.findViewById(R.id.profile_comment_list));
             }
-            // 어뎁터 생성 등록
-            profile_adapter = new profile_Comment_Adapter(ProfileActivity.this);
-            // 댓글 셋팅(db받아서)
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            profile_list.get(position).setAdapter(profile_adapter);
-            setListViewHeightBasedOnChildren(profile_list.get(position)); // 리스트뷰 펼처보기(한화면에)
 
-            // 처음에만 댓글 지우기
-            if(profile_flag) {
-                profile_list.get(position).setVisibility(View.GONE);
+
+            // 어뎁터 생성 등록
+            if(profile_adapter.size() == position) { // ArrayList 자원 재활용
+                profile_adapter.add(position, new profile_Comment_Adapter(ProfileActivity.this));     }
+            else {
+                profile_adapter.set(position, new profile_Comment_Adapter(ProfileActivity.this));     }
+
+
+            // 댓글 edittext
+            if(profile_edit.size() == position) { // ArrayList 자원 재활용
+                profile_edit.add(position, (EditText) convertView.findViewById(R.id.profile_comment_editText));     }
+            else {
+                profile_edit.set(position, (EditText) convertView.findViewById(R.id.profile_comment_editText));     }
+            profile_edit.get(position).setTag(position);
+            profile_edit.get(position).setOnEditorActionListener(new TextView.OnEditorActionListener()
+            {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+                {
+                    if(actionId == EditorInfo.IME_ACTION_DONE)
+                    {
+                        int pos = (int) v.getTag();  // 포지션값 받아오기
+
+                        setComment(pos, R.drawable.basepicture, "김창석", profile_edit.get(pos).getText().toString());  // 데이터 셋팅
+                        profile_adapter.get(pos).notifyDataSetChanged();   // 데이터 변화시
+                        profile_list.get(pos).setAdapter(profile_adapter.get(pos));   // 어뎁터 등록
+                        setListViewHeightBasedOnChildren(profile_list.get(pos)); // 리스트뷰 펼처보기(한화면에)
+                        profile_edit.get(pos).setText("");   // 내용 초기화
+
+                        // 입력했는데 감춰져있으면 보이게 셋팅
+                        if(profile_list.get(pos).getVisibility() == View.GONE) {
+                            profile_flag = false;
+                            profile_list.get(pos).setVisibility(View.VISIBLE);
+                        }
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+
+            // getview 초기화시 셋팅
+            if(profile_adapter.get(position).getCount() != 0) {
+                profile_list.get(position).setAdapter(profile_adapter.get(position));
+                setListViewHeightBasedOnChildren(profile_list.get(position)); // 리스트뷰 펼처보기(한화면에)
+
+                // 처음에만 댓글 지우기
+                if (profile_flag)
+                    profile_list.get(position).setVisibility(View.GONE);
             }
+
 
             // 커멘드 버튼 클릭시 처리
             if(comment_btnlistner.size() == position) { // ArrayList 자원 재활용
@@ -365,11 +409,14 @@ public class ProfileActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     int pos = (int) v.getTag();
                     profile_flag = false;
-                    if(profile_list.get(pos).getVisibility() == View.GONE) {
-                        profile_list.get(pos).setVisibility(View.VISIBLE);
-                    }
-                    else {
-                        profile_list.get(pos).setVisibility(View.GONE);
+
+                    // 리스트뷰에 데이터가 있을시만
+                    if(profile_list.size() != 0) {
+                        if (profile_list.get(pos).getVisibility() == View.GONE) {
+                            profile_list.get(pos).setVisibility(View.VISIBLE);
+                        } else {
+                            profile_list.get(pos).setVisibility(View.GONE);
+                        }
                     }
                 }
             });

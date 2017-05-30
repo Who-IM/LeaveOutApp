@@ -240,13 +240,14 @@
             android:layout_marginTop="10dp" />
 
         <EditText
+            android:id="@+id/collect_comment_editText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:background="@drawable/public_search"
             android:inputType="text"
-            android:text="댓글을 입력하시오.."
+            android:hint="댓글을 입력하시오.."
             android:padding="5dp"
             android:layout_alignBottom="@+id/collect_mycomment_image"
             android:layout_toEndOf="@+id/collect_mycomment_image"

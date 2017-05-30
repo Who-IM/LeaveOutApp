@@ -7,13 +7,16 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -33,11 +36,12 @@ public class ViewArticleActivity extends AppCompatActivity
 
     // 글보기(댓글) 리스트 뷰
     private ArrayList<ListView> view_list = null;
-    private view_Comment_Adapter view_adapter = null;
+    private ArrayList<view_Comment_Adapter> view_adapter = null;
 
     // comment 버튼
-    private ArrayList<Button> comment_btnlistener = null;
-    private boolean views_flag = true;
+    private ArrayList<Button> view_btnlistener = null;
+    private boolean view_flag = true;
+    private ArrayList<EditText> view_edit = null;
 
     int menuCount = 0;  //매뉴 옵션 아이템 순서
 
@@ -53,7 +57,9 @@ public class ViewArticleActivity extends AppCompatActivity
 
         // 댓글
         view_list = new ArrayList<ListView>();
-        comment_btnlistener = new ArrayList<Button>();
+        view_btnlistener = new ArrayList<Button>();
+        view_edit = new ArrayList<EditText>();
+        view_adapter = new ArrayList<view_Comment_Adapter>();
 
         // 모아보기 listview 셋팅
         setCollect();
@@ -151,10 +157,10 @@ public class ViewArticleActivity extends AppCompatActivity
     }
 
     // 댓글 listview 셋팅
-    private void setComment(int image, String name, String comment) {
+    private void setComment(int position, int image, String name, String comment) {
 
         // 실제 데이터 삽입
-        view_adapter.addItem(getResources().getDrawable(image, null), name, comment);
+        view_adapter.get(position).addItem(getResources().getDrawable(image, null), name, comment);
     }
 
     // 리스트뷰 펼처보기(한화면에)
@@ -278,39 +284,79 @@ public class ViewArticleActivity extends AppCompatActivity
             } else {
                 view_list.set(position, (ListView) convertView.findViewById(R.id.view_comment_list));
             }
-            // 어뎁터 생성민 등록
-            view_adapter = new view_Comment_Adapter(ViewArticleActivity.this);
-            view_list.get(position).setAdapter(view_adapter);
-            // 댓글 셋팅(db받아서)
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setListViewHeightBasedOnChildren(view_list.get(position)); // 리스트뷰 펼처보기(한화면에)
 
-            // 처음에만 댓글 지우기
-            if(views_flag) {
-                view_list.get(position).setVisibility(View.GONE);
+
+            // 어뎁터 생성 등록
+            if(view_adapter.size() == position) { // ArrayList 자원 재활용
+                view_adapter.add(position, new view_Comment_Adapter(ViewArticleActivity.this));     }
+            else {
+                view_adapter.set(position, new view_Comment_Adapter(ViewArticleActivity.this));     }
+
+
+            // 댓글 edittext
+            if(view_edit.size() == position) { // ArrayList 자원 재활용
+                view_edit.add(position, (EditText) convertView.findViewById(R.id.view_comment_editText));     }
+            else {
+                view_edit.set(position, (EditText) convertView.findViewById(R.id.view_comment_editText));     }
+            view_edit.get(position).setTag(position);
+            view_edit.get(position).setOnEditorActionListener(new TextView.OnEditorActionListener()
+            {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+                {
+                    if(actionId == EditorInfo.IME_ACTION_DONE)
+                    {
+                        int pos = (int) v.getTag();  // 포지션값 받아오기
+
+                        setComment(pos, R.drawable.basepicture, "김창석", view_edit.get(pos).getText().toString());  // 데이터 셋팅
+                        view_adapter.get(pos).notifyDataSetChanged();   // 데이터 변화시
+                        view_list.get(pos).setAdapter(view_adapter.get(pos));   // 어뎁터 등록
+                        setListViewHeightBasedOnChildren(view_list.get(pos)); // 리스트뷰 펼처보기(한화면에)
+                        view_edit.get(pos).setText("");   // 내용 초기화
+
+                        // 입력했는데 감춰져있으면 보이게 셋팅
+                        if(view_list.get(pos).getVisibility() == View.GONE) {
+                            view_flag = false;
+                            view_list.get(pos).setVisibility(View.VISIBLE);
+                        }
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+
+            // getview 초기화시 셋팅
+            if(view_adapter.get(position).getCount() != 0) {
+                view_list.get(position).setAdapter(view_adapter.get(position));
+                setListViewHeightBasedOnChildren(view_list.get(position)); // 리스트뷰 펼처보기(한화면에)
+
+                // 처음에만 댓글 지우기
+                if (view_flag)
+                    view_list.get(position).setVisibility(View.GONE);
             }
+
 
             // 커멘드 버튼 클릭시 처리
-            if(comment_btnlistener.size() == position) { // ArrayList 자원 재활용
-                comment_btnlistener.add(position, (Button) convertView.findViewById(R.id.views_comment_btn));
+            if(view_btnlistener.size() == position) { // ArrayList 자원 재활용
+                view_btnlistener.add(position, (Button) convertView.findViewById(R.id.views_comment_btn));
             } else {
-                comment_btnlistener.set(position, (Button) convertView.findViewById(R.id.views_comment_btn));
+                view_btnlistener.set(position, (Button) convertView.findViewById(R.id.views_comment_btn));
             }
-            comment_btnlistener.get(position).setTag(position); // tag로 listview의 position 등록
-            comment_btnlistener.get(position).setOnClickListener(new View.OnClickListener() {
+            view_btnlistener.get(position).setTag(position); // tag로 listview의 position 등록
+            view_btnlistener.get(position).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int pos = (int) v.getTag();  // listview의 position
-                    views_flag = false;
+                    view_flag = false;
 
-                    if(view_list.get(pos).getVisibility() == View.GONE) {
-                        view_list.get(pos).setVisibility(View.VISIBLE);
-                    }
-                    else {
-                        view_list.get(pos).setVisibility(View.GONE);
+                    // 리스트뷰에 데이터가 있을시만
+                    if(view_list.size() != 0) {
+                        if (view_list.get(pos).getVisibility() == View.GONE) {
+                            view_list.get(pos).setVisibility(View.VISIBLE);
+                        } else {
+                            view_list.get(pos).setVisibility(View.GONE);
+                        }
                     }
                 }
             });

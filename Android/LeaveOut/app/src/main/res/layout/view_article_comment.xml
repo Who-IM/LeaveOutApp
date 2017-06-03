@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="1dp"
         android:background="@drawable/public_comment_outline">
@@ -36,14 +36,13 @@
 
         <TextView
             android:id="@+id/view_comment_text"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="text"
             android:padding="5dp"
             app:font="custom2"
             android:layout_marginRight="10dp"
             android:textSize="19dp"
-            android:layout_alignBottom="@+id/view_comment_image"
+            android:layout_below="@+id/view_comment_name"
             android:layout_alignStart="@+id/view_comment_name" />
 
         <Button

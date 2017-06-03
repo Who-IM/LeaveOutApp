@@ -227,18 +227,21 @@ public class ProfileActivity extends AppCompatActivity {
     public static void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {
+            // pre-condition
             return;
         }
 
         int totalHeight = 0;
+
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
         for (int i = 0; i < listAdapter.getCount(); i++) {
             View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(0, 0);
+            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
             totalHeight += listItem.getMeasuredHeight();
         }
-
         ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+
+        params.height = totalHeight;
         listView.setLayoutParams(params);
         listView.requestLayout();
     }
@@ -371,8 +374,8 @@ public class ProfileActivity extends AppCompatActivity {
                         // 빈칸 입력시 입력 x
                         if(profile_edit.get(pos).getText().toString().equals("") == false) {
                             setComment(pos, R.drawable.basepicture, "김창석", profile_edit.get(pos).getText().toString());  // 데이터 셋팅
-                            profile_adapter.get(pos).notifyDataSetChanged();   // 데이터 변화시
                             profile_list.get(pos).setAdapter(profile_adapter.get(pos));   // 어뎁터 등록
+                            profile_adapter.get(pos).notifyDataSetChanged();   // 데이터 변화시
                             setListViewHeightBasedOnChildren(profile_list.get(pos)); // 리스트뷰 펼처보기(한화면에)
                             profile_edit.get(pos).setText("");   // 내용 초기화
 

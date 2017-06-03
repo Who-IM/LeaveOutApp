@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -22,10 +23,12 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,9 +76,13 @@ public class MainActivity extends MapAPIActivity {
     private ListView list;
     private DrawerLayout Drawer;
     private ImageButton menu_btn;
+    private menu_Adapter adapter = null;
 
-    DataAdapter adapter; // 데이터를 연결할 Adapter
-    ArrayList<MenuData> alist; // 데이터를 담을 자료구조
+    // 메뉴 친구목록
+    private ListView menu_friend_list;
+    private menu_friend_Adapter menu_adapter = null;
+    View header = null;
+    View footer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +148,8 @@ public class MainActivity extends MapAPIActivity {
         list = (ListView)findViewById(R.id.main_menu);
         Drawer = (DrawerLayout)findViewById(R.id.main_drawer);
         menu_btn = (ImageButton)findViewById(R.id.menu_btn); // 메뉴 버튼
+        header = getLayoutInflater().inflate(R.layout.menu_friend_list_header, null);
+        footer = getLayoutInflater().inflate(R.layout.menu_friend_list_footer, null);
 
         // 메뉴에 글 목록 등록
         list.setOnItemClickListener(new DrawerItemClickListener());
@@ -207,19 +216,14 @@ public class MainActivity extends MapAPIActivity {
     // 메뉴 커스텀 (나중에 DB받아서 수정)
     private void setMenuCustom() {
 
-        // ArrayList객체를 생성합니다
-        alist = new ArrayList<MenuData>();
-        // 데이터를 받기위해 데이터어댑터 객체 선언
-        adapter = new DataAdapter(this, alist);
-
-        // 자기 프로필(사진, 이름, email)
-        adapter.add(new MenuData(getApplicationContext(), R.drawable.basepicture, "허 성 문", "gjtjdans123@naver.com"));  // 안의 데이터는 db받아서
-        adapter.add(new MenuData(getApplicationContext(), R.drawable.profile_icon, "프로필")); // 프로필아이콘 & 프로필(text)
-        adapter.add(new MenuData(getApplicationContext(), R.drawable.friends_icon, "친구목록")); // 친구아이콘 & 친구(text)
-        adapter.add(new MenuData(getApplicationContext(), R.drawable.preferences_icon, "환경설정")); // 환경설정아이콘 & 환경설정(text)
-
-        // 리스트뷰에 어댑터 연결
+        adapter = new menu_Adapter(this);
         list.setAdapter(adapter);
+
+        // 여기서 db데이터 넣기
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "gjtjdans123@naver.com");
+        adapter.addItem(getResources().getDrawable(R.drawable.profile_icon, null),"프로필", null);
+        adapter.addItem(getResources().getDrawable(R.drawable.friends_icon, null),"친구목록", null);
+        adapter.addItem(getResources().getDrawable(R.drawable.preferences_icon, null),"환경설정", null);
     }
 
     /* 매뉴 눌렀을 시 이벤트 처리
@@ -256,79 +260,218 @@ public class MainActivity extends MapAPIActivity {
         }
     }
 
-    // 메뉴 커스텀
-    private class DataAdapter extends ArrayAdapter<MenuData> {
-        // 레이아웃 XML을 읽어들이기 위한 객체
-        private LayoutInflater mInflater;
+    // ------------ menu listview -------------
+    private class menu_ViewHolder {
+        public ImageView Image;
+        public TextView name;
+        public TextView email;
+    }
 
-        public DataAdapter(Context context, ArrayList<MenuData> object) {
-            // 상위 클래스의 초기화 과정
-            // context, 0, 자료구조
-            super(context, 0, object);
-            mInflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    // 리스트뷰 어뎁터
+    private class menu_Adapter extends BaseAdapter {
+        private Context mContext = null;
+        private ArrayList<menu_ListData> mListData = new ArrayList<menu_ListData>();
+
+        public menu_Adapter(Context mContext) {
+            super();
+            this.mContext = mContext;
         }
-        // 보여지는 스타일을 자신이 만든 xml로 보이기 위한 구문
+
         @Override
-        public View getView(int position, View v, ViewGroup parent) {
-            View view = null;
-            // 현재 리스트의 하나의 항목에 보일 컨트롤 얻기
-
-            // view 구성하기 (0 : 자기 프로필 화면, 1 : 프로필 아이콘 & text, 2 : 친구아이콘 & text)
-            if (v == null && position == 0) {
-                view = mInflater.inflate(R.layout.menu_profile_title, null);
-            } else  {
-                view = mInflater.inflate(R.layout.menu_item, null);
-            }
-
-            // 자료를 받는다.
-            final MenuData data = this.getItem(position);
-
-            // 자기 프로필
-            if (data != null && position == 0) {
-                // 자기 사진
-                ImageView iv = (ImageView) view.findViewById(R.id.menu_home_icon);
-                iv.setImageResource(data.getImage());
-
-                // 이름. email
-                TextView tv = (TextView) view.findViewById(R.id.menu_profile_myname);
-                TextView tv2 = (TextView) view.findViewById(R.id.menu_profile_myemail);
-                tv.setText(data.getLabel());
-                tv2.setText(data.getLabel2());
-            }
-            else {
-                ImageView iv = (ImageView) view.findViewById(R.id.menu_icon);
-                iv.setImageResource(data.getImage());
-
-                TextView tv = (TextView) view.findViewById(R.id.menu_text);
-                tv.setText(data.getLabel());
-            }
-            return view;
-        }
-    }       // DataAdapter class -- END --
-
-    // menuData안에 받은 값을 직접 할당
-    private class MenuData {
-        private String label1; // text 처리
-        private String label2; // text 처리2
-        private int menu_image; // 이미지 처리
-
-        public MenuData(Context context, int image, String label1) {
-            menu_image = image;
-            this.label1 = label1;
+        public int getCount() {
+            return mListData.size();
         }
 
-        public MenuData(Context context, int image, String label1, String label2) {
-            menu_image = image;
-            this.label1 = label1;
-            this.label2 = label2;
+        @Override
+        public Object getItem(int position) {
+            return mListData.get(position);
         }
 
-        public MenuData(Context context, String label) { label1 = label; }
-        public String getLabel() { return label1; }
-        public String getLabel2() { return label2; }
-        public int getImage() { return menu_image; }
-    }    // profileData class -- END --
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        // 생성자로 값을 받아 셋팅
+        public void addItem(Drawable image, String name, String email) {
+            menu_ListData addInfo = null;
+            addInfo = new menu_ListData();
+            addInfo.Image = image;
+            addInfo.name = name;
+            addInfo.email = email;
+
+            mListData.add(addInfo);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            menu_ViewHolder holder = null;
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            if (convertView == null && position == 0) {
+                holder = new menu_ViewHolder();
+                convertView = inflater.inflate(R.layout.menu_profile_title, null);
+
+                holder.Image = (ImageView) convertView.findViewById(R.id.menu_home_icon);
+                holder.name = (TextView) convertView.findViewById(R.id.menu_profile_myname);
+                holder.email = (TextView) convertView.findViewById(R.id.menu_profile_myemail);
+            } else {
+                holder = new menu_ViewHolder();
+                convertView = inflater.inflate(R.layout.menu_item, null);
+
+                holder.Image = (ImageView) convertView.findViewById(R.id.menu_icon);
+                holder.name = (TextView) convertView.findViewById(R.id.menu_text);
+
+                if(position == 2) {
+                    // 매뉴 친구목록 인스턴스
+                    menu_friend_list = (ListView) convertView.findViewById(R.id.menu_friend_listview);
+                    menu_adapter = new menu_friend_Adapter(MainActivity.this);
+                    menu_friend_list.setAdapter(menu_adapter);
+                    menu_friend_list.addHeaderView(header);
+                    menu_friend_list.addFooterView(footer);
+
+                    menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문");
+                    menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석");
+                    menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"최수용");
+
+                    setListViewHeightBasedOnChildren(menu_friend_list);
+                    menu_friend_list.setVisibility(View.VISIBLE);
+                }
+            }
+
+            menu_ListData mData = mListData.get(position);
+
+            // 이미지 처리
+            if (mData.Image != null) {
+                holder.Image.setVisibility(View.VISIBLE);
+                holder.Image.setImageDrawable(mData.Image);
+            }else{
+                holder.Image.setVisibility(View.GONE);
+            }
+
+            // textView 처리
+            holder.name.setText(mData.name);
+            if(position == 0) {
+                holder.email.setText(mData.email);
+            }
+
+            return convertView;
+        }
+    }
+
+    // 메뉴의 실제 데이터를 저장할 class
+    class menu_ListData {
+        public Drawable Image;
+        public String name;
+        public String email;
+    }
+    // -------------------------------------- End menu listview -----------------------
+
+
+    // ------------ menu listview -------------
+    private class menu_friend_ViewHolder {
+        public ImageView Image;
+        public TextView name;
+    }
+
+    // 리스트뷰 어뎁터
+    private class menu_friend_Adapter extends BaseAdapter {
+        private Context mContext = null;
+        private ArrayList<menu_friend_ListData> ListData = new ArrayList<menu_friend_ListData>();
+
+        public menu_friend_Adapter(Context mContext) {
+            super();
+            this.mContext = mContext;
+        }
+
+        @Override
+        public int getCount() {
+            return ListData.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return ListData.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        // 생성자로 값을 받아 셋팅
+        public void addItem(Drawable image, String name) {
+            menu_friend_ListData addInfo = null;
+            addInfo = new menu_friend_ListData();
+            addInfo.Image = image;
+            addInfo.name = name;
+
+            ListData.add(addInfo);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            menu_friend_ViewHolder holder;
+
+            if (convertView == null) {
+                holder = new menu_friend_ViewHolder();
+
+                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.menu_friend_list_item, null);
+
+                holder.Image = (ImageView) convertView.findViewById(R.id.menu_friend_list_image);
+                holder.name = (TextView) convertView.findViewById(R.id.menu_friend_list_name);
+
+                convertView.setTag(holder);
+            }else{
+                holder = (menu_friend_ViewHolder) convertView.getTag();
+            }
+
+            menu_friend_ListData mData = ListData.get(position);
+
+            // 이미지 처리
+            if (mData.Image != null) {
+                holder.Image.setVisibility(View.VISIBLE);
+                holder.Image.setImageDrawable(mData.Image);
+            }else{
+                holder.Image.setVisibility(View.GONE);
+            }
+
+            // textView 처리
+            holder.name.setText(mData.name);
+
+            return convertView;
+        }
+    }
+
+    // 메뉴의 실제 데이터를 저장할 class
+    class menu_friend_ListData {
+        public Drawable Image;
+        public String name;
+        public String email;
+    }
+    // -------------------------------------- End menu listview -----------------------
+
+    // 리스트뷰 펼처보기(한화면에)
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            return;
+        }
+
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+        listView.requestLayout();
+    }
+
 
     // 글쓰기, 체크, 모아보기 메뉴 onClick 메소드
     public void nextActivityButton(View v) {

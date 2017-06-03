@@ -14,7 +14,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -484,7 +483,6 @@ public class MainActivity extends MapAPIActivity {
                 break;
             case R.id.main_check:       // 체크 버튼(토스트 출력)
                 Toast toastView = Toast.makeText(getApplicationContext(), "체크되었습니다.", Toast.LENGTH_LONG);
-                toastView.setGravity(Gravity.TOP, 0, 1300);
                 toastView.show();
                 break;
             case R.id.main_collect:     // 모아보기 버튼(모아보기 액티비티 이동)

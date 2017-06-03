@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
         android:id="@+id/menu_icon"
@@ -25,7 +26,8 @@
         android:textStyle="bold"
         android:layout_marginStart="14dp"
         android:layout_alignBottom="@+id/menu_icon"
-        android:layout_toEndOf="@+id/menu_icon" />
+        android:layout_toEndOf="@+id/menu_icon"
+        app:font="custom2" />
 
 
     <ListView
@@ -41,9 +43,9 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="3dp"
+        android:layout_height="2dp"
         android:layout_below="@+id/menu_friend_listview"
-        android:background="#7e7e7e"
+        android:background="#a5a5a5"
         android:layout_alignParentStart="true"
         android:id="@+id/menu_line">
     </View>

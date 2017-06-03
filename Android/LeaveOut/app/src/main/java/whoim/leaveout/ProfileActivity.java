@@ -368,16 +368,19 @@ public class ProfileActivity extends AppCompatActivity {
                     {
                         int pos = (int) v.getTag();  // 포지션값 받아오기
 
-                        setComment(pos, R.drawable.basepicture, "김창석", profile_edit.get(pos).getText().toString());  // 데이터 셋팅
-                        profile_adapter.get(pos).notifyDataSetChanged();   // 데이터 변화시
-                        profile_list.get(pos).setAdapter(profile_adapter.get(pos));   // 어뎁터 등록
-                        setListViewHeightBasedOnChildren(profile_list.get(pos)); // 리스트뷰 펼처보기(한화면에)
-                        profile_edit.get(pos).setText("");   // 내용 초기화
+                        // 빈칸 입력시 입력 x
+                        if(profile_edit.get(pos).getText().toString().equals("") == false) {
+                            setComment(pos, R.drawable.basepicture, "김창석", profile_edit.get(pos).getText().toString());  // 데이터 셋팅
+                            profile_adapter.get(pos).notifyDataSetChanged();   // 데이터 변화시
+                            profile_list.get(pos).setAdapter(profile_adapter.get(pos));   // 어뎁터 등록
+                            setListViewHeightBasedOnChildren(profile_list.get(pos)); // 리스트뷰 펼처보기(한화면에)
+                            profile_edit.get(pos).setText("");   // 내용 초기화
 
-                        // 입력했는데 감춰져있으면 보이게 셋팅
-                        if(profile_list.get(pos).getVisibility() == View.GONE) {
-                            profile_flag = false;
-                            profile_list.get(pos).setVisibility(View.VISIBLE);
+                            // 입력했는데 감춰져있으면 보이게 셋팅
+                            if (profile_list.get(pos).getVisibility() == View.GONE) {
+                                profile_flag = false;
+                                profile_list.get(pos).setVisibility(View.VISIBLE);
+                            }
                         }
                         return true;
                     }

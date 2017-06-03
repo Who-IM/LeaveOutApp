@@ -8,7 +8,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/public_bar"
+        android:background="@drawable/public_bar2"
         android:layout_marginStart="50dp">
 
         <TextView

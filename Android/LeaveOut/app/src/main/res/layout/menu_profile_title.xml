@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -28,7 +28,8 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="5dp"
             android:text="TextView"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            app:font="custom2" />
 
         <!-- 이메일 -->
         <TextView
@@ -39,16 +40,17 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="5dp"
             android:text="TextView"
-            android:textSize="15dp" />
+            android:textSize="15dp"
+            app:font="custom2" />
 
     </RelativeLayout>
 
     <!-- 흰흰 선-->
     <View
         android:layout_width="match_parent"
-        android:layout_height="5dp"
+        android:layout_height="3dp"
         android:layout_marginTop="8dp"
-        android:background="#7e7e7e">
+        android:background="#a5a5a5">
     </View>
 
 </LinearLayout>

@@ -247,7 +247,8 @@
             android:layout_alignBottom="@+id/profile_mycomment_image"
             android:layout_toEndOf="@+id/profile_mycomment_image"
             android:layout_alignTop="@+id/profile_mycomment_image" />
-
     </RelativeLayout>
+
+
 
 </RelativeLayout>

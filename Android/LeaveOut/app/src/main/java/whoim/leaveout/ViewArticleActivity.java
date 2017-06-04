@@ -164,7 +164,6 @@ public class ViewArticleActivity extends AppCompatActivity
     }
 
     // 리스트뷰 펼처보기(한화면에)
-    // 리스트뷰 펼처보기(한화면에)
     public static void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {

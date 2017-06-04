@@ -82,11 +82,13 @@ public class MainActivity extends MapAPIActivity {
     private menu_friend_Adapter menu_adapter = null;
     View header = null;
     View footer = null;
+    ImageButton friend_open_list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         restoreState(savedInstanceState);     // 상태 불러오기
+
         // 화면 캡쳐 방지
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.main_layout);
@@ -94,7 +96,7 @@ public class MainActivity extends MapAPIActivity {
         // 인스턴스들 셋팅
         setInstance();
 
-        super.buildGoogleApiClient();         // GooglePlayServicesClient 객체를 생성
+        super.buildGoogleApiClient();           // GooglePlayServicesClient 객체를 생성
         super.mGoogleApiClient.connect();     // connect 메소드가 성공하면 onConnect() 콜백 메소드를 호출
 
         // 툴바 설정
@@ -102,6 +104,7 @@ public class MainActivity extends MapAPIActivity {
 
         // 검색 셋팅
         setSerach();
+
         // 메뉴 셋팅
         setMenuCustom();
 
@@ -321,20 +324,52 @@ public class MainActivity extends MapAPIActivity {
                 holder.Image = (ImageView) convertView.findViewById(R.id.menu_icon);
                 holder.name = (TextView) convertView.findViewById(R.id.menu_text);
 
+                // 친구 목록일 경우
                 if(position == 2) {
                     // 매뉴 친구목록 인스턴스
+                    friend_open_list = (ImageButton) convertView.findViewById(R.id.menu_friend_open_list);
+                    friend_open_list.setVisibility(View.VISIBLE);
+
                     menu_friend_list = (ListView) convertView.findViewById(R.id.menu_friend_listview);
                     menu_adapter = new menu_friend_Adapter(MainActivity.this);
                     menu_friend_list.setAdapter(menu_adapter);
-                    menu_friend_list.addHeaderView(header);
-                    menu_friend_list.addFooterView(footer);
+                    menu_friend_list.addHeaderView(header);  // header 등록
+                    menu_friend_list.addFooterView(footer);  // footer 등록
 
+                    // header와 footer 터치 안되게 하기
+                    header.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            return true; // 기본값 false -> true(클릭 안되게)
+                        }
+                    });
+                    footer.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            Intent it = new Intent(getApplicationContext(), FriendListActivity.class);
+                            startActivity(it);
+                            return false;
+                        }
+                    });
+
+                    // 데이터 셋팅
                     menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문");
                     menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석");
                     menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"최수용");
+                    setListViewHeightBasedOnChildren(menu_friend_list); // 펼쳐보기
+                    menu_friend_list.setVisibility(View.GONE);          // 초기값은 안보이게
 
-                    setListViewHeightBasedOnChildren(menu_friend_list);
-                    menu_friend_list.setVisibility(View.VISIBLE);
+                    // image button 클릭시 listview open
+                    friend_open_list.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if(menu_friend_list.getVisibility() == View.GONE)
+                                menu_friend_list.setVisibility(View.VISIBLE);
+                            else {
+                                menu_friend_list.setVisibility(View.GONE);
+                            }
+                        }
+                    });
                 }
             }
 
@@ -350,7 +385,7 @@ public class MainActivity extends MapAPIActivity {
 
             // textView 처리
             holder.name.setText(mData.name);
-            if(position == 0) {
+            if(position == 0) {  // 매뉴 프로필 email
                 holder.email.setText(mData.email);
             }
 

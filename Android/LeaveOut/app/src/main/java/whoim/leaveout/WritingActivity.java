@@ -358,7 +358,6 @@ public class WritingActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.e("ERROR", e.getMessage().toString());
             }
-
         }
         //카메라
         else if (requestCode == PICK_FROM_CAMERA) {

@@ -2,9 +2,13 @@ package whoim.leaveout;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +31,8 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 // 환경설정
@@ -51,7 +57,14 @@ public class ProfileActivity extends AppCompatActivity {
     private ViewPager viewPager = null;
     profile_tab tab;
 
+    //갤러리
+    ImageView iv = null;
+    ImageView profile_image = null;
+    Uri photoUri;
+    Bitmap thumbImage = null;
+
     int menuCount = 0;  //매뉴 옵션 아이템 순서
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +128,42 @@ public class ProfileActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    //갤러리 불러오기
+    public void profileAddImage(View v)
+    {
+        Intent intent = new Intent(Intent.ACTION_PICK); //ACTION_PICK 즉 사진을 고르겠다!
+        intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+        startActivityForResult(intent, 1);
+    }
+
+    //갤러리 기능 활성화
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //갤러리 창을 종료 했을 경우
+        if (resultCode != RESULT_OK) {
+            Toast.makeText(ProfileActivity.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+        }
+
+        if(data==null){
+            return;
+        }
+        photoUri = data.getData();
+        try {
+            imageExtraction();
+        } catch (Exception e) {}
+    }
+
+    //이미지 추출
+    protected void imageExtraction() throws IOException {
+        //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
+        iv = (ImageView) findViewById(R.id.profile_title_image);
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
+        thumbImage = ThumbnailUtils.extractThumbnail(bitmap, 100, 100);  //사진 크기를 조절
+        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+        thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
+        profile_image.setImageBitmap(thumbImage);
     }
 
     //옵션 버튼
@@ -227,23 +276,26 @@ public class ProfileActivity extends AppCompatActivity {
     public static void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {
+            // pre-condition
             return;
         }
 
         int totalHeight = 0;
+
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
         for (int i = 0; i < listAdapter.getCount(); i++) {
             View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(0, 0);
+            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
             totalHeight += listItem.getMeasuredHeight();
         }
-
         ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+
+        params.height = totalHeight;
         listView.setLayoutParams(params);
         listView.requestLayout();
     }
 
-    // ------------ collect listview -------------
+    // ------------ profile listview -------------
     private class profile_ViewHolder {
         public ImageView Image;
         public TextView name;
@@ -371,8 +423,8 @@ public class ProfileActivity extends AppCompatActivity {
                         // 빈칸 입력시 입력 x
                         if(profile_edit.get(pos).getText().toString().equals("") == false) {
                             setComment(pos, R.drawable.basepicture, "김창석", profile_edit.get(pos).getText().toString());  // 데이터 셋팅
-                            profile_adapter.get(pos).notifyDataSetChanged();   // 데이터 변화시
                             profile_list.get(pos).setAdapter(profile_adapter.get(pos));   // 어뎁터 등록
+                            profile_adapter.get(pos).notifyDataSetChanged();   // 데이터 변화시
                             setListViewHeightBasedOnChildren(profile_list.get(pos)); // 리스트뷰 펼처보기(한화면에)
                             profile_edit.get(pos).setText("");   // 내용 초기화
 
@@ -423,7 +475,6 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 }
             });
-
             return convertView;
         }
     }
@@ -531,8 +582,8 @@ public class ProfileActivity extends AppCompatActivity {
                 세번째는 이메일 : db에서  */
     public void init(int image, String name, String email) {
         // 프로필 사진
-        ImageView iv1 = (ImageView) findViewById(R.id.profile_title_image);
-        iv1.setImageResource(image);
+        profile_image = (ImageView) findViewById(R.id.profile_title_image);
+        profile_image.setImageResource(image);
 
         // 프로필 이름
         TextView tx1 = (TextView) findViewById(R.id.profile_title_name);

@@ -159,7 +159,7 @@
         android:textSize="17dp"
         android:layout_alignTop="@+id/mail_text"
         android:layout_alignStart="@+id/name_insert"
-        android:imeOptions="actionNext"
+        android:imeOptions="actionDone"
         android:inputType="text" />
 
     <Button

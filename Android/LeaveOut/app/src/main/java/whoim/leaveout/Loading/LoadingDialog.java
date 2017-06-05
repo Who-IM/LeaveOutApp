@@ -22,7 +22,14 @@ public class LoadingDialog extends AsyncTask<Void,Void,Void> {
     private JSONObject responseData;            // 응답받은 데이터
     private Object mCaller;
 
-    public LoadingDialog(Context context, Object caller) {
+    // SQL로 보낸 데이터 처리(리스너 구현 및 로딩 다이얼로그 구현)
+    public static void SQLDataSendStart(Context context, LoadingSQLListener loadingSQLListener, Object caller) {   // caller 어디서 호출 했는지 판단(필요 없을시 null)
+        LoadingDialog loadingDialog = new LoadingDialog(context, caller);             // 로딩 다이얼 로그
+        loadingDialog.setSqlListener(loadingSQLListener);
+        loadingDialog.execute();        // 다이얼로그 시작
+    }
+
+    private LoadingDialog(Context context, Object caller) {     // 생성자
         super();
         mContext = context;
         mCaller = caller;
@@ -73,7 +80,7 @@ public class LoadingDialog extends AsyncTask<Void,Void,Void> {
         }
     }
 
-    public void setSqlListener(LoadingSQLListener mLoadingSqlListener) {
+    private void setSqlListener(LoadingSQLListener mLoadingSqlListener) {
         this.mLoadingSqlListener = mLoadingSqlListener;
     }
 }

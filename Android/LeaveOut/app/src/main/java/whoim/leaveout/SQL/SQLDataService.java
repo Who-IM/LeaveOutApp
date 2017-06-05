@@ -31,7 +31,7 @@ public final class SQLDataService {
         return requestData;
     }
 
-    public static JSONObject getDynamicSQLJSONData(String sql, DataStringGroup data, int size, String type) {
+    public static JSONObject getDynamicSQLJSONData(String sql, DataQueryGroup data, int size, String type) {
         char ch = sql.charAt(sql.length()-1);
         int sqlsize =  (ch != '?') ? new StringTokenizer(sql,"?").countTokens() - 1 : new StringTokenizer(sql,"?").countTokens();          // 동적 sql 토큰 갯수 확인(끝 부분이 ?가 아니면 1개 빼기)
         int datasize = data.size();                                             // 갯수 확인
@@ -47,12 +47,12 @@ public final class SQLDataService {
     }
 
     // 동적용 sql에 보낼 data 만들기
-    public static final class DataStringGroup {
+    public static final class DataQueryGroup {
 
         private StringBuilder stringBuilder;
         private int index;
 
-        public DataStringGroup() {
+        public DataQueryGroup() {
             this.stringBuilder = new StringBuilder();
             this.index = 0;
         }

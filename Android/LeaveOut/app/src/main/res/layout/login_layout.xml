@@ -54,6 +54,7 @@
             android:background="@drawable/login_text"
             android:hint="패스워드"
             android:inputType="textPassword"
+            android:imeOptions="actionDone"
             android:paddingLeft="10dp" />
 
 

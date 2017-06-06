@@ -21,7 +21,7 @@
 
     <!-- 찾기 -->
     <Button
-        android:id="@+id/find_insert"
+        android:id="@+id/join_insert"
         android:layout_width="120dp"
         android:layout_height="40dp"
         android:text="찾기"
@@ -34,7 +34,7 @@
 
     <!-- 취소 -->
     <Button
-        android:id="@+id/find_cancel"
+        android:id="@+id/join_cancel"
         android:layout_width="120dp"
         android:layout_height="40dp"
         android:text="취소"
@@ -42,7 +42,7 @@
         android:onClick="find_cancelButton"
         android:textSize="23dp"
         android:layout_marginRight="60dp"
-        android:layout_alignTop="@id/find_insert"
+        android:layout_alignTop="@id/join_insert"
         android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

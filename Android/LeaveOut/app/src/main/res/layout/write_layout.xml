@@ -41,7 +41,7 @@
             android:textSize="33dp" />
 
         <!--게시-->
-        zz<Button
+        <Button
             android:id="@+id/write_commit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -94,7 +94,7 @@
         android:layout_alignEnd="@+id/write_textarea"
         android:layout_below="@id/toolbar"
         android:layout_marginTop="17dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="15dp"
         android:background="#00000000"
         app:srcCompat="@drawable/public_addlist" />
 
@@ -103,7 +103,7 @@
         android:id="@+id/write_line1"
         android:layout_width="match_parent"
         android:layout_height="3dp"
-        android:layout_below="@+id/write_loc_text"
+        android:layout_below="@+id/write_address"
         android:layout_marginTop="15dp"
         android:background="#FF000000"></View>
 
@@ -146,28 +146,22 @@
     </RelativeLayout>
 
     <!--사진 띄울울 공간-->
-    <ScrollView
-        android:id="@+id/scroll"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
+        android:layout_above="@+id/write_line3"
         android:layout_below="@+id/write_textarea"
-        android:layout_above="@+id/write_line3">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <ListView
+            android:id="@+id/write_listview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:choiceMode="singleChoice"
+            android:divider="#00ffffff"
+            android:dividerHeight="0px" />
+    </LinearLayout>
 
-            <ListView
-                android:id="@+id/write_listview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:choiceMode="singleChoice"
-                android:divider="#00ffffff"
-                android:dividerHeight="0px" />
-        </LinearLayout>
-    </ScrollView>
 
     <!-- 검은색 선(밑에) -->
     <View
@@ -175,7 +169,7 @@
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="70dp"
+        android:layout_marginBottom="75dp"
         android:background="#FF000000"></View>
 
     <!-- 하단 레이아웃 -->
@@ -185,6 +179,7 @@
         android:layout_height="match_parent"
         android:layout_alignTop="@+id/write_line3"
         android:orientation="horizontal"
+        android:layout_marginTop="3dp"
         android:weightSum="4">
 
         <!-- 친구태그 -->
@@ -215,8 +210,8 @@
             android:layout_height="64dp"
             android:layout_marginTop="5dp"
             android:layout_weight="1"
-            android:onClick="goToAlbumButton"
             android:background="#00000000"
+            android:onClick="goToAlbumButton"
             app:srcCompat="@drawable/write_image" />
 
         <!-- 공개여부 -->

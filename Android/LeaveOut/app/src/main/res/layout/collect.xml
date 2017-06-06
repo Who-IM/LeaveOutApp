@@ -121,13 +121,15 @@
                 android:gravity="end|center_vertical"
                 android:onClick="comment"
                 android:text="댓글보기"
+                android:textColor="#808080"
+                android:textStyle="bold"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true" />
 
             <Button
-                android:id="@+id/comment_btn"
+                android:id="@+id/collect_comment_btn"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:background="#00000000"
                 />
         </RelativeLayout>
@@ -165,7 +167,9 @@
                 android:layout_marginRight="15dp"
                 android:gravity="end|center_vertical"
                 android:onClick="follow"
-                android:text="따라가기" />
+                android:text="따라가기"
+                android:textColor="#808080"
+                android:textStyle="bold"/>
         </RelativeLayout>
 
         <View
@@ -200,6 +204,8 @@
                 android:layout_marginRight="15dp"
                 android:gravity="end|center_vertical"
                 android:onClick="like"
+                android:textColor="#808080"
+                android:textStyle="bold"
                 android:text="추천하기" />
         </RelativeLayout>
     </LinearLayout>
@@ -234,13 +240,14 @@
             android:layout_marginTop="10dp" />
 
         <EditText
+            android:id="@+id/collect_comment_editText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:background="@drawable/public_search"
             android:inputType="text"
-            android:text="댓글을 입력하시오.."
+            android:hint="댓글을 입력하시오.."
             android:padding="5dp"
             android:layout_alignBottom="@+id/collect_mycomment_image"
             android:layout_toEndOf="@+id/collect_mycomment_image"

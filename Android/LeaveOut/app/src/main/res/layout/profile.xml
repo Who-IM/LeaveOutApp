@@ -93,11 +93,11 @@
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/profile_contents"
         android:layout_marginTop="13dp"
         android:background="#FFabdeff"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_below="@+id/profile_contents"
+        android:layout_alignParentStart="true">
 
         <RelativeLayout
             android:layout_width="0dp"
@@ -124,6 +124,13 @@
                 android:text="댓글보기"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true" />
+
+            <Button
+                android:id="@+id/profile_comment_btn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#00000000"
+                />
         </RelativeLayout>
 
         <View
@@ -204,7 +211,6 @@
         android:id="@+id/profile_comment_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alwaysDrawnWithCache="true"
         android:layout_below="@+id/linearLayout2"
         android:background="@drawable/public_open_list" />
 
@@ -229,18 +235,20 @@
             android:layout_marginTop="10dp" />
 
         <EditText
+            android:id="@+id/profile_comment_editText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:background="@drawable/public_search"
             android:inputType="text"
-            android:text="댓글을 입력하시오.."
+            android:hint="댓글을 입력하시오.."
             android:padding="5dp"
             android:layout_alignBottom="@+id/profile_mycomment_image"
             android:layout_toEndOf="@+id/profile_mycomment_image"
             android:layout_alignTop="@+id/profile_mycomment_image" />
-
     </RelativeLayout>
+
+
 
 </RelativeLayout>

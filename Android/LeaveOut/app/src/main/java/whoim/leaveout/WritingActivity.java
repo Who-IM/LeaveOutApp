@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.icu.text.SimpleDateFormat;
+import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
@@ -25,6 +27,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -48,6 +52,10 @@ import whoim.leaveout.SingleClick.OnSingleClickListener;
 public class WritingActivity extends AppCompatActivity {
     Toolbar toolbar;
     TextView mAddressText;
+
+    ExifInterface exif = null;
+    File photoFile = null;
+    int orientation;
 
     // spinner로 나중에 시간나면 바꿀예정
     // checkList
@@ -79,7 +87,13 @@ public class WritingActivity extends AppCompatActivity {
     // 메뉴 관련 인스턴스
     private ListView list;
     write_DataAdapter adapter; // 데이터를 연결할 Adapter
-    ArrayList<bitMapData> alist; // 데이터를 담을 자료구조
+
+    // 입력공간
+    EditText write_input = null;
+
+    // 친구태그
+    private ImageButton friendtag = null;
+    private String tagText = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,9 +115,7 @@ public class WritingActivity extends AppCompatActivity {
 
         // 매뉴 구성
         list = (ListView) findViewById(R.id.write_listview);
-
-        // ArrayList객체를 생성합니다
-        alist = new ArrayList<bitMapData>();
+        adapter = new write_DataAdapter(WritingActivity.this);  // 데이터를 받기위해 데이터어댑터 객체 선언
 
         page = (RelativeLayout) findViewById(R.id.write_whether_layout);
         whether_button = (ImageButton) findViewById(R.id.whether_open);
@@ -118,8 +130,27 @@ public class WritingActivity extends AppCompatActivity {
 
         whether_open_button();   // 공개여부 버튼 작동
 
-        writing_search_layout.setVisibility(View.GONE); //
+        writing_search_layout.setVisibility(View.GONE);
         check_list_open();
+
+        setFriendtag();
+
+        Intent tagintent = getIntent();
+        tagText = tagintent.getStringExtra("tag");
+        write_input.setText(write_input.getText().toString() + tagText);
+    }
+
+    // 친구태그
+    private void setFriendtag() {
+        // 친구 태그
+        friendtag = (ImageButton) findViewById(R.id.friendtag);
+        friendtag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(getApplicationContext(), TagFriendListActivity.class);
+                startActivity(it);
+            }
+        });
     }
 
     private void setInstance() {
@@ -132,6 +163,9 @@ public class WritingActivity extends AppCompatActivity {
 
         // 검색 리스트 뷰
         writing_adapter_search = new ArrayAdapter<String>(this, R.layout.main_search_item, R.id.product_name, products);
+
+        // 입력공간 EditText
+        write_input = (EditText) findViewById(R.id.write_input);
     }
 
     // 검색관련 셋팅
@@ -150,46 +184,83 @@ public class WritingActivity extends AppCompatActivity {
         });
     }
 
-    public void setWriteAdapter(Bitmap th) {
+    public void addWriteAdapter(Bitmap th) {
         // 카메라, 겔러리 사진 업데이트
-        adapter.add(new bitMapData(th));
+        adapter.addItem(th);
     }
 
-    // 메뉴 커스텀
-    private class write_DataAdapter extends ArrayAdapter<bitMapData> {
-        // 레이아웃 XML을 읽어들이기 위한 객체
-        private LayoutInflater mInflater;
+    private class Writing_Holder {
+        public ImageView Image;
+    }
 
-        public write_DataAdapter(Context context, ArrayList<bitMapData> object) {
-            // 상위 클래스의 초기화 과정
-            // context, 0, 자료구조
-            super(context, 0, object);
-            mInflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    // 리스트뷰 어뎁터
+    private class write_DataAdapter extends BaseAdapter {
+        private Context mContext = null;
+        private ArrayList<writing_ListData> mListData = new ArrayList<writing_ListData>();
+
+        public write_DataAdapter(Context mContext) {
+            super();
+            this.mContext = mContext;
         }
 
-        // 보여지는 스타일을 자신이 만든 xml로 보이기 위한 구문
         @Override
-        public View getView(int position, View v, ViewGroup parent) {
-            View view = null;
-
-            // view 구성하기
-            if (v == null) {
-                view = mInflater.inflate(R.layout.write, null);
-            } else {
-                view = v;
-            }
-
-            // 자료를 받는다.
-            final bitMapData data = this.getItem(position);
-
-            if (data != null) {
-                // 카메라 사진
-                iv = (ImageView) view.findViewById(R.id.write_input_picture);
-                iv.setImageBitmap(data.getImage());  // bitmap으로 이미지 샛팅
-            }
-            return view;
+        public int getCount() {
+            return mListData.size();
         }
+
+        @Override
+        public Object getItem(int position) {
+            return mListData.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        // 생성자로 값을 받아 셋팅
+        public void addItem(Bitmap image) {
+            writing_ListData addInfo = null;
+            addInfo = new writing_ListData();
+            addInfo.Image = image;
+
+            mListData.add(addInfo);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            Writing_Holder holder;
+
+            if (convertView == null) {
+                holder = new Writing_Holder();
+
+                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.write, null);
+
+                holder.Image = (ImageView) convertView.findViewById(R.id.write_input_picture);
+
+                convertView.setTag(holder);
+            }else{
+                holder = (Writing_Holder) convertView.getTag();
+            }
+
+            final writing_ListData mData = mListData.get(position);
+
+            // 이미지 처리
+            if (mData.Image != null) {
+                holder.Image.setVisibility(View.VISIBLE);
+                holder.Image.setImageBitmap(mData.Image);
+            }else{
+                holder.Image.setVisibility(View.GONE);
+            }
+
+            return convertView;
+        }
+    }
+
+    // 메뉴의 실제 데이터를 저장할 class
+    class writing_ListData {
+        public Bitmap Image;
     }
 
     // 카메라 사진에 받은 값을 직접 할당(bitmap)
@@ -266,6 +337,7 @@ public class WritingActivity extends AppCompatActivity {
         if (!storageDir.exists()) {
             storageDir.mkdirs();
         }
+
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);    //확장자를 .jpg로 저장
         return image;
     }
@@ -273,7 +345,6 @@ public class WritingActivity extends AppCompatActivity {
     //카메라 불러오기 버튼
     public void takePhotoButton(View v) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //사진을 찍기 위하여 설정
-        File photoFile = null;
         try {
             photoFile = createImageFile();  //찍은 사진정보
         } catch (IOException e) {
@@ -310,14 +381,12 @@ public class WritingActivity extends AppCompatActivity {
             }
             photoUri = data.getData();  //Uri 주소값을 받아온다
             try {
-                imageExtraction();  //이미지 추출
-                adapter = new write_DataAdapter(getApplicationContext(), alist);  // 데이터를 받기위해 데이터어댑터 객체 선언
+                imageExtraction(requestCode);  //이미지 추출
+                addWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
                 list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
-                setWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
             } catch (Exception e) {
                 Log.e("ERROR", e.getMessage().toString());
             }
-
         }
         //카메라
         else if (requestCode == PICK_FROM_CAMERA) {
@@ -327,11 +396,9 @@ public class WritingActivity extends AppCompatActivity {
                         public void onScanCompleted(String path, Uri uri) {}
                     });
             try {
-                imageExtraction();  //이미지 추출
-                adapter = new write_DataAdapter(getApplicationContext(), alist);  // 데이터를 받기위해 데이터어댑터 객체 선언
+                imageExtraction(requestCode);  //이미지 추출
+                addWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
                 list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
-                setWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
-
 
             } catch (Exception e) {
                 Log.e("ERROR", e.getMessage().toString());
@@ -340,13 +407,25 @@ public class WritingActivity extends AppCompatActivity {
     }
 
     //이미지 추출
-    protected void imageExtraction() throws IOException {
+    protected void imageExtraction(int requestCode) throws IOException {
         //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
         iv = (ImageView) findViewById(R.id.write_input_picture);
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
         thumbImage = ThumbnailUtils.extractThumbnail(bitmap, 1024, 768);  //사진 크기를 조절
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
 
+        if (requestCode == PICK_FROM_CAMERA) {
+            // 파일 경로 저장
+            try {
+                exif = new ExifInterface(photoFile.getPath());
+                orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 이미지 돌리기
+        thumbImage = rotateBitmap(thumbImage, orientation);
         thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
     }
 
@@ -376,14 +455,11 @@ public class WritingActivity extends AppCompatActivity {
         @Override
         public void onAnimationEnd(Animation animation)
         {
-            if(ispageOpen)
-            {
+            if(ispageOpen) {
                 page.setVisibility(View.INVISIBLE);     //페이지가 열려있으면 안보이도록 하기
-
                 ispageOpen = false;
             }
-            else
-            {
+            else {
                 ispageOpen = true;      //페이지가 닫겨있으면 보이도록 하기
             }
         }
@@ -393,6 +469,51 @@ public class WritingActivity extends AppCompatActivity {
 
         @Override
         public void onAnimationRepeat(Animation animation) {}
+    }
+
+    // 이미지 돌리기(삼성폰경우 90도 회전되기때문에)
+    public static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
+
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_NORMAL:
+                return bitmap;
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setRotate(180);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.setRotate(-90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(-90);
+                break;
+            default:
+                return bitmap;
+        }
+        try {
+            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return bmRotated;
+        }
+        catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     // 뒤로가기

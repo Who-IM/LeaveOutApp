@@ -2,17 +2,26 @@ package whoim.leaveout;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
@@ -21,20 +30,117 @@ import java.util.ArrayList;
 // 글 보기
 public class ViewArticleActivity extends AppCompatActivity
 {
+    // 글보기 리스트 뷰
     private ListView list = null;
     private article_Adapter adapter = null;
 
-    private ListView view_list = null;
-    private view_Comment_Adapter view_adapter = null;
+    // 글보기(댓글) 리스트 뷰
+    private ArrayList<ListView> view_list = null;
+    private ArrayList<view_Comment_Adapter> view_adapter = null;
+
+    // comment 버튼
+    private ArrayList<Button> view_btnlistener = null;
+    private boolean view_flag = true;
+    private ArrayList<EditText> view_edit = null;
+
+    int menuCount = 0;  //매뉴 옵션 아이템 순서
 
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_article_layout);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
+        toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
+        setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
+        getSupportActionBar().setDisplayShowTitleEnabled(false);        //액션바에 표시되는 제목의 표시유무를 설정합니다.
+
+        // 댓글
+        view_list = new ArrayList<ListView>();
+        view_btnlistener = new ArrayList<Button>();
+        view_edit = new ArrayList<EditText>();
+        view_adapter = new ArrayList<view_Comment_Adapter>();
+
         // 모아보기 listview 셋팅
         setCollect();
     }
+
+    //옵션 버튼
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // 메뉴버튼이 처음 눌러졌을 때 실행되는 콜백메서드
+        // 메뉴버튼을 눌렀을 때 보여줄 menu 에 대해서 정의
+        getMenuInflater().inflate(R.menu.collect_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // 옵션 메뉴가 화면에 보여지는 메서드
+
+        if (menuCount == 0) //가까운 위치 누를시 버튼 비활성화 그외 다 활성화
+        {
+            menu.getItem(0).setEnabled(false);
+            menu.getItem(1).setEnabled(true);
+            menu.getItem(2).setEnabled(true);
+            menu.getItem(3).setEnabled(true);
+        }
+
+        else if(menuCount == 1) //최신글 누를시 버튼 비활성화 그외 다 활성화
+        {
+            menu.getItem(0).setEnabled(true);
+            menu.getItem(1).setEnabled(false);
+            menu.getItem(2).setEnabled(true);
+            menu.getItem(3).setEnabled(true);
+        }
+
+        else if(menuCount == 2) //조회수 누를시 버튼 비활성화 그외 다 활성화
+        {
+            menu.getItem(0).setEnabled(true);
+            menu.getItem(1).setEnabled(true);
+            menu.getItem(2).setEnabled(false);
+            menu.getItem(3).setEnabled(true);
+        }
+
+        else if(menuCount == 3) //추천수 누를시 버튼 비활성화 그외 다 활성화
+        {
+            menu.getItem(0).setEnabled(true);
+            menu.getItem(1).setEnabled(true);
+            menu.getItem(2).setEnabled(true);
+            menu.getItem(3).setEnabled(false);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // 메뉴의 항목을 선택(클릭)했을 때 호출되는 콜백메서드
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.collect_menu_location:
+                Toast.makeText(getApplicationContext(), "가까운 위치 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 0;
+                return true;
+
+            case R.id.collect_menu_time:
+                Toast.makeText(getApplicationContext(), "최신글 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 1;
+                return true;
+
+            case R.id.collect_menu_view:
+                Toast.makeText(getApplicationContext(), "조회수 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 2;
+                return true;
+
+            case R.id.collect_menu_recommended:
+                Toast.makeText(getApplicationContext(), "추천수 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 3;
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    // 옵션 버튼 끝
 
     // 모아보기 listview 셋팅
     private void setCollect() {
@@ -47,21 +153,21 @@ public class ViewArticleActivity extends AppCompatActivity
 
         // 여기서 db데이터 넣기
         adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석", "대구 북구 복현동", "2017.05.24 20:58","50","111","test");
     }
 
     // 댓글 listview 셋팅
-    private void setComment(int image, String name, String comment) {
+    private void setComment(int position, int image, String name, String comment) {
 
         // 실제 데이터 삽입
-        view_adapter.addItem(getResources().getDrawable(image, null), name, comment);
-        // 리스트뷰 펼처보기(한화면에)
-        setListViewHeightBasedOnChildren(view_list);
+        view_adapter.get(position).addItem(getResources().getDrawable(image, null), name, comment);
     }
 
     // 리스트뷰 펼처보기(한화면에)
-    public void setListViewHeightBasedOnChildren(ListView listView) {
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null) {
+            // pre-condition
             return;
         }
 
@@ -77,10 +183,10 @@ public class ViewArticleActivity extends AppCompatActivity
 
         params.height = totalHeight;
         listView.setLayoutParams(params);
-
         listView.requestLayout();
     }
 
+    // 리스트뷰 홀더
     private class article_ViewHolder {
         public ImageView Image;
         public TextView name;
@@ -163,11 +269,9 @@ public class ViewArticleActivity extends AppCompatActivity
                 holder.Image.setVisibility(View.GONE);
             }
 
-            // 한번만 처리
-            if(position == 0) {
-                ImageView iv = (ImageView) convertView.findViewById(R.id.view_mycomment_image);
-                iv.setImageResource(R.drawable.basepicture);
-            }
+            // 글쓰기 이미지
+            ImageView iv = (ImageView) convertView.findViewById(R.id.view_mycomment_image);
+            iv.setImageResource(R.drawable.basepicture);
 
             // textView 처리
             holder.name.setText(mData.name);
@@ -178,15 +282,90 @@ public class ViewArticleActivity extends AppCompatActivity
             holder.contents.setText(mData.contents);
 
             // 댓글
-            view_list = (ListView) convertView.findViewById(R.id.view_comment_list);
-            // 어뎁터 생성민 등록
-            view_adapter = new view_Comment_Adapter(ViewArticleActivity.this);
-            view_list.setAdapter(view_adapter);
-            // 댓글 셋팅(db받아서)
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
-            setComment(R.drawable.basepicture, "김창석", "값싸다");
+            if(view_list.size() == position) { // ArrayList 자원 재활용
+                view_list.add(position, (ListView) convertView.findViewById(R.id.view_comment_list));
+            } else {
+                view_list.set(position, (ListView) convertView.findViewById(R.id.view_comment_list));
+            }
+
+
+            // 어뎁터 생성 등록
+            if(view_adapter.size() == position) { // ArrayList 자원 재활용
+                view_adapter.add(position, new view_Comment_Adapter(ViewArticleActivity.this));     }
+            else {
+                view_adapter.set(position, new view_Comment_Adapter(ViewArticleActivity.this));     }
+
+
+            // 댓글 edittext
+            if(view_edit.size() == position) { // ArrayList 자원 재활용
+                view_edit.add(position, (EditText) convertView.findViewById(R.id.view_comment_editText));     }
+            else {
+                view_edit.set(position, (EditText) convertView.findViewById(R.id.view_comment_editText));     }
+            view_edit.get(position).setTag(position);
+            view_edit.get(position).setOnEditorActionListener(new TextView.OnEditorActionListener()
+            {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+                {
+                    if(actionId == EditorInfo.IME_ACTION_DONE)
+                    {
+                        int pos = (int) v.getTag();  // 포지션값 받아오기
+
+                        // 빈칸 입력시 입력 x
+                        if(view_edit.get(pos).getText().toString().equals("") == false) {
+                            setComment(pos, R.drawable.basepicture, "김창석", view_edit.get(pos).getText().toString());  // 데이터 셋팅
+                            view_adapter.get(pos).notifyDataSetChanged();   // 데이터 변화시
+                            view_list.get(pos).setAdapter(view_adapter.get(pos));   // 어뎁터 등록
+                            setListViewHeightBasedOnChildren(view_list.get(pos)); // 리스트뷰 펼처보기(한화면에)
+                            view_edit.get(pos).setText("");   // 내용 초기화
+
+                            // 입력했는데 감춰져있으면 보이게 셋팅
+                            if (view_list.get(pos).getVisibility() == View.GONE) {
+                                view_flag = false;
+                                view_list.get(pos).setVisibility(View.VISIBLE);
+                            }
+                        }
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+
+            // getview 초기화시 셋팅
+            if(view_adapter.get(position).getCount() != 0) {
+                view_list.get(position).setAdapter(view_adapter.get(position));
+                setListViewHeightBasedOnChildren(view_list.get(position)); // 리스트뷰 펼처보기(한화면에)
+
+                // 처음에만 댓글 지우기
+                if (view_flag)
+                    view_list.get(position).setVisibility(View.GONE);
+            }
+
+
+            // 커멘드 버튼 클릭시 처리
+            if(view_btnlistener.size() == position) { // ArrayList 자원 재활용
+                view_btnlistener.add(position, (Button) convertView.findViewById(R.id.views_comment_btn));
+            } else {
+                view_btnlistener.set(position, (Button) convertView.findViewById(R.id.views_comment_btn));
+            }
+            view_btnlistener.get(position).setTag(position); // tag로 listview의 position 등록
+            view_btnlistener.get(position).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = (int) v.getTag();  // listview의 position
+                    view_flag = false;
+
+                    // 리스트뷰에 데이터가 있을시만
+                    if(view_list.size() != 0) {
+                        if (view_list.get(pos).getVisibility() == View.GONE) {
+                            view_list.get(pos).setVisibility(View.VISIBLE);
+                        } else {
+                            view_list.get(pos).setVisibility(View.GONE);
+                        }
+                    }
+                }
+            });
 
             return convertView;
         }

@@ -43,7 +43,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/profile_title_layout"
         android:layout_below="@+id/toolbar"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:background="#bdbdbd">
 
         <ImageView
             android:id="@+id/profile_title_image"
@@ -53,7 +54,17 @@
             android:layout_marginBottom="15dp"
             android:layout_marginStart="20dp"
             android:layout_marginTop="15dp"
-            android:background="#000000" />
+            android:background="#7a7a7a" />
+
+        <ImageButton
+            android:id="@+id/profile_add_Image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/public_profile_add_image"
+            android:onClick="profileAddImage"
+            android:background="#00FFFFFF"
+            android:layout_alignBottom="@+id/profile_title_image"
+            android:layout_alignEnd="@+id/profile_title_image" />
 
         <TextView
             android:id="@+id/profile_title_name"
@@ -81,92 +92,11 @@
             android:layout_alignStart="@+id/profile_title_name" />
     </RelativeLayout>
 
-    <ScrollView
-        android:id="@+id/profile_scroll"
+    <ListView
+        android:id="@+id/proflie_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/profile_title_layout"
-        android:layout_centerHorizontal="true">
+        android:choiceMode="singleChoice" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/profile_map_layout"
-            android:layout_below="@+id/profile_title_layout">
-
-            <fragment
-                android:id="@+id/profile_google_map"
-                class="com.google.android.gms.maps.MapFragment"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_margin="8dp"/>
-
-            <TextView
-                android:id="@+id/profile_map_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="10dp"
-                android:textSize="20dp"
-                app:font="custom2"
-                android:layout_below="@+id/profile_google_map"
-                android:layout_centerHorizontal="true" />
-
-            <RadioGroup
-                android:id="@+id/profile_radio_group"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignStart="@+id/profile_google_map"
-                android:layout_below="@+id/profile_google_map" >
-
-                <RadioButton
-                    android:id="@+id/profile_check"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:checked="true"
-                    android:text="체크" />
-
-                <RadioButton
-                    android:id="@+id/profile_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="글" />
-            </RadioGroup>
-
-            <HorizontalScrollView
-                android:id="@+id/tab_scroll"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/profile_radio_group"
-                android:scrollbars="none"
-                android:fillViewport = "true">
-
-                <android.support.design.widget.TabLayout
-                    android:id="@+id/profile_tab"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:tabTextColor="#FF000000"
-                    app:tabMinWidth="100dp"
-                    android:background="#cccccc"  />
-            </HorizontalScrollView>
-
-            <android.support.v4.view.ViewPager
-                android:id="@+id/profile_pager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <ListView
-                android:id="@+id/proflie_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:choiceMode="singleChoice"
-                android:layout_below="@+id/tab_scroll" />
-
-
-
-        </RelativeLayout>
-    </ScrollView>
 </RelativeLayout>

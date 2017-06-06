@@ -28,6 +28,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -87,6 +88,13 @@ public class WritingActivity extends AppCompatActivity {
     private ListView list;
     write_DataAdapter adapter; // 데이터를 연결할 Adapter
 
+    // 입력공간
+    EditText write_input = null;
+
+    // 친구태그
+    private ImageButton friendtag = null;
+    private String tagText = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,8 +130,27 @@ public class WritingActivity extends AppCompatActivity {
 
         whether_open_button();   // 공개여부 버튼 작동
 
-        writing_search_layout.setVisibility(View.GONE); //
+        writing_search_layout.setVisibility(View.GONE);
         check_list_open();
+
+        setFriendtag();
+
+        Intent tagintent = getIntent();
+        tagText = tagintent.getStringExtra("tag");
+        write_input.setText(write_input.getText().toString() + tagText);
+    }
+
+    // 친구태그
+    private void setFriendtag() {
+        // 친구 태그
+        friendtag = (ImageButton) findViewById(R.id.friendtag);
+        friendtag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(getApplicationContext(), TagFriendListActivity.class);
+                startActivity(it);
+            }
+        });
     }
 
     private void setInstance() {
@@ -136,6 +163,9 @@ public class WritingActivity extends AppCompatActivity {
 
         // 검색 리스트 뷰
         writing_adapter_search = new ArrayAdapter<String>(this, R.layout.main_search_item, R.id.product_name, products);
+
+        // 입력공간 EditText
+        write_input = (EditText) findViewById(R.id.write_input);
     }
 
     // 검색관련 셋팅
@@ -351,10 +381,9 @@ public class WritingActivity extends AppCompatActivity {
             }
             photoUri = data.getData();  //Uri 주소값을 받아온다
             try {
-                imageExtraction();  //이미지 추출
-                adapter = new write_DataAdapter(WritingActivity.this);  // 데이터를 받기위해 데이터어댑터 객체 선언
-                list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
+                imageExtraction(requestCode);  //이미지 추출
                 addWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
+                list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
             } catch (Exception e) {
                 Log.e("ERROR", e.getMessage().toString());
             }
@@ -367,7 +396,7 @@ public class WritingActivity extends AppCompatActivity {
                         public void onScanCompleted(String path, Uri uri) {}
                     });
             try {
-                imageExtraction();  //이미지 추출
+                imageExtraction(requestCode);  //이미지 추출
                 addWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
                 list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
 
@@ -378,19 +407,21 @@ public class WritingActivity extends AppCompatActivity {
     }
 
     //이미지 추출
-    protected void imageExtraction() throws IOException {
+    protected void imageExtraction(int requestCode) throws IOException {
         //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
         iv = (ImageView) findViewById(R.id.write_input_picture);
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
         thumbImage = ThumbnailUtils.extractThumbnail(bitmap, 1024, 768);  //사진 크기를 조절
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
 
-        // 파일 경로 저장
-        try {
-            exif = new ExifInterface(photoFile.getPath());
-            orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (requestCode == PICK_FROM_CAMERA) {
+            // 파일 경로 저장
+            try {
+                exif = new ExifInterface(photoFile.getPath());
+                orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         // 이미지 돌리기

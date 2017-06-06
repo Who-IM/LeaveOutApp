@@ -156,7 +156,7 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
 
-        <!--7.0버전 이상부터는 URI접근이 되지 않기 때문에 URI에 대해 임시 액세스 권한을 부여-->
+        <!--7.0버전 이상부터는 URI접근이 되지 않기 때문에 URI에 대해 임시 액세스 권한을 부여t-->
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="whoim.leaveout.provider"

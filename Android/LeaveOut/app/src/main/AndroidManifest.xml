@@ -118,6 +118,13 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <!--친구목록 화면-->
+        <activity
+            android:name=".TagFriendListActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
         <!--프로필 화면-->
         <activity
             android:name=".ProfileActivity"

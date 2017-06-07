@@ -41,7 +41,7 @@
             android:textSize="33dp" />
 
         <!--게시-->
-        zz<Button
+        <Button
             android:id="@+id/write_commit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -103,7 +103,7 @@
         android:id="@+id/write_line1"
         android:layout_width="match_parent"
         android:layout_height="3dp"
-        android:layout_below="@+id/write_loc_text"
+        android:layout_below="@+id/write_address"
         android:layout_marginTop="15dp"
         android:background="#FF000000"></View>
 
@@ -146,8 +146,6 @@
     </RelativeLayout>
 
     <!--사진 띄울울 공간-->
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -191,6 +189,7 @@
             android:layout_height="64dp"
             android:layout_marginTop="5dp"
             android:layout_weight="1"
+            android:onClick="tag"
             android:background="#00000000"
             app:srcCompat="@drawable/write_friend" />
 

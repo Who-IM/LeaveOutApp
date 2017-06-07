@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <!-- 툴바 -->
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/public_toobar">
+
+        <!--뒤로가기-->
+        <ImageButton
+            android:id="@+id/preferences_back_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/toolbar"
+            android:layout_alignParentTop="true"
+            android:layout_margin="9dp"
+            android:background="#00000000"
+            android:onClick="Back"
+            app:srcCompat="@drawable/public_back" />
+
+        <!--친구목록-->
+        <TextView
+            android:id="@+id/friend_list_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/preferences_back_icon"
+            android:layout_alignTop="@id/preferences_back_icon"
+            android:text="친구테그"
+            android:textColor="#FF000000"
+            app:font="custom1"
+            android:textSize="35dp" />
+
+        <!--완료-->
+        <Button
+            android:id="@+id/tag_commit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="right"
+            android:layout_marginLeft="10dp"
+            android:onClick="tagCommit"
+            android:background="#00000000"
+            android:text="완료"
+            app:font="custom1"
+            android:textColor="#77FFFFFF"
+            android:textSize="27dp" />
+    </android.support.v7.widget.Toolbar>
+
+    <!--검색 틀-->
+    <RelativeLayout
+        android:id="@+id/tag_friend_list_search_layout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/toolbar"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:background="@drawable/public_bar">
+
+        <!-- 검색 상자 -->
+        <EditText
+            android:id="@+id/tag_friend_search"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/public_search"
+            android:inputType="text"
+            android:paddingLeft="10dp"
+            android:paddingRight="50dp"
+            android:textSize="20dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+
+        <ImageButton
+            android:id="@+id/tag_search_icon"
+            android:layout_width="50dp"
+            android:layout_height="40dp"
+            android:layout_alignBottom="@+id/tag_friend_search"
+            android:layout_alignEnd="@+id/tag_friend_search"
+            android:layout_alignTop="@+id/tag_friend_search"
+            android:background="#00000000"
+            app:srcCompat="@drawable/main_search_menu" />
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/tag_friend_list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:choiceMode="singleChoice"
+        android:layout_below="@+id/tag_friend_list_search_layout"/>
+
+    <LinearLayout
+        android:id="@+id/tag_friend_search_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_below="@+id/tag_friend_list_search_layout">
+
+        <ListView
+            android:id="@+id/tag_friend_search_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/public_open_list" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>

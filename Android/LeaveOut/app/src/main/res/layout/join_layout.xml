@@ -9,7 +9,7 @@
     tools:context=".JoinActivity"
     tools:ignore="missingPrefix"
     android:weightSum="1">
-
+  
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -65,7 +65,8 @@
             android:textStyle="bold"
             android:textSize="17dp"
             android:layout_marginLeft="30dp"
-            android:background="@drawable/join_overlap" />
+            android:background="@drawable/join_overlap"
+            android:onClick="onOverClicked"/>
         <!--ID 구간 끝-->
     </LinearLayout>
 
@@ -171,8 +172,6 @@
         <!--이름확인 구간 끝-->
     </LinearLayout>
 
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -209,7 +208,8 @@
             android:textStyle="bold"
             android:text="확인"
             android:textSize="17dp"
-            android:layout_marginLeft="30dp" />
+            android:layout_marginLeft="30dp"
+            android:onClick="onOverClicked"/>
         <!--ID 구간 끝-->
     </LinearLayout>
 
@@ -221,23 +221,23 @@
         android:orientation="horizontal">
         <!-- 회원가입 -->
         <Button
-            android:id="@+id/find_insert"
+            android:id="@+id/join_insert"
             android:layout_width="100dp"
             android:layout_height="40dp"
             android:text="가입하기"
             android:background="@drawable/login_button"
-            android:onClick="joinButton"
+            android:onClick="joinOnClicked"
             android:layout_marginRight="40dp"
             android:textSize="23dp" />
 
         <!-- 취소 -->
         <Button
-            android:id="@+id/find_cancel"
+            android:id="@+id/join_cancel"
             android:layout_width="100dp"
             android:layout_height="40dp"
             android:text="취소"
             android:background="@drawable/login_button"
-            android:onClick="Join_cancelButton"
+            android:onClick="joinOnClicked"
             android:textSize="23dp" />
     </LinearLayout>
 </LinearLayout>

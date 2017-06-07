@@ -13,6 +13,7 @@
 
 
     <uses-permission android:name="android.permission.INTERNET"/>                   // 인터넷 퍼미션
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>           // 폰번호 퍼미션
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>       //지도 퍼미션
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />    //카메라 퍼미션
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />     //갤러리 퍼미션
@@ -114,6 +115,13 @@
         <!--친구목록 화면-->
         <activity
             android:name=".FriendListActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--친구목록 화면-->
+        <activity
+            android:name=".TagFriendListActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait">
         </activity>

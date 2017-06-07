@@ -54,7 +54,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import whoim.leaveout.Loading.LoadingDialog;
+import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.SingleClick.OnSingleClickListener;
@@ -604,7 +604,7 @@ public class WritingActivity extends AppCompatActivity {
                     Toast.makeText(WritingActivity.this,"잠시 후 다시 시도해 주십시오.",Toast.LENGTH_LONG).show();
             }
         };
-        LoadingDialog.SQLSendStart(this, loadingSQLListener, null);
+        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, null);
     }
 
     // 공개여부 라디오 버튼 체크 된 부분 찾기

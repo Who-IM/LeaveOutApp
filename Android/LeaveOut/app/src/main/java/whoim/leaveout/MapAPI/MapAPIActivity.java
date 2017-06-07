@@ -35,7 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import whoim.leaveout.Loading.LoadingDialog;
+import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.R;
 import whoim.leaveout.Server.SQLDataService;
@@ -159,7 +159,10 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public boolean onMyLocationButtonClick() {
         // GPS 위치 서비스 활성화 안 될시 하라는 화면 표시
-        if (!checkLocationServicesStatus()) showDialogForLocationServiceSetting();
+        if (!checkLocationServicesStatus()) {
+            showDialogForLocationServiceSetting();
+            return true;        // 취소
+        }
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
         Toast.makeText(this,"버튼 누름",Toast.LENGTH_SHORT).show();
         return false;
@@ -233,7 +236,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
     }
 
     // GPS 활성화를 위한 화면 표시
-    private void showDialogForLocationServiceSetting() {
+    protected void showDialogForLocationServiceSetting() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("위치 서비스 비활성화");
         builder.setMessage("앱을 사용하기 위해서는 위치 서비스가 필요합니다.\n 위치 설정을 수정하실래요?");
@@ -308,7 +311,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
                 mClusterMaker.resetCluster();
             }
         };
-        LoadingDialog.SQLSendStart(this,loadingSQLListener,null);
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,null);
     }
 
 
@@ -359,7 +362,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
                 startActivity(intent);
             }
         };
-        LoadingDialog.SQLSendStart(this, loadingSQLListener, null);
+        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, null);
     }
 }
 

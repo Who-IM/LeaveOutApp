@@ -20,7 +20,7 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import whoim.leaveout.Loading.LoadingDialog;
+import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.Server.SQLDataService;
 
@@ -211,7 +211,7 @@ public class JoinActivity extends AppCompatActivity {
                         Toast.makeText(JoinActivity.this, "잠시 후 다시 시도해 주십시오.", Toast.LENGTH_LONG).show();
                 }
             };
-            LoadingDialog.SQLSendStart(this,loadingSQLListener, null);      // 로딩 다이얼로그 및 sql 전송
+            LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, null);      // 로딩 다이얼로그 및 sql 전송
         }
     }
 
@@ -251,12 +251,12 @@ public class JoinActivity extends AppCompatActivity {
             }   // dataProcess -- END --
         };   // loadingSQLListener -- END --
 
-        LoadingDialog.SQLSendStart(this,loadingSQLListener, caller);        // 로딩 다이얼로그 및 sql 전송
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, caller);        // 로딩 다이얼로그 및 sql 전송
     }
 
 /*    // SQL로 보낸 데이터 처리(리스너 구현 및 로딩 다이얼로그 구현)
     private void SQLSendStart(LoadingSQLListener loadingSQLListener, Object caller) {   // caller 어디서 호출 했는지 판단(필요 없을시 null)
-        mLoadingDialog = new LoadingDialog(this, caller);             // 로딩 다이얼 로그
+        mLoadingDialog = new LoadingSQLDialog(this, caller);             // 로딩 다이얼 로그
         mLoadingDialog.setSqlListener(loadingSQLListener);
         mLoadingDialog.execute();        // 다이얼로그 시작
     }*/

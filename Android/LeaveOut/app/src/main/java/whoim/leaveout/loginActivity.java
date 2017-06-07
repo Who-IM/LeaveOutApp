@@ -32,7 +32,7 @@ import org.json.JSONObject;
 
 import java.util.Arrays;
 
-import whoim.leaveout.Loading.LoadingDialog;
+import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.StartSetting.Permission;
@@ -224,7 +224,7 @@ public class loginActivity extends AppCompatActivity {
                     }
                 }
             };
-            LoadingDialog.SQLSendStart(this, loadingSQLListener, null);       // sql 시작
+            LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, null);       // sql 시작
         }
     }
 
@@ -250,7 +250,7 @@ public class loginActivity extends AppCompatActivity {
                 }
             }
         };
-        LoadingDialog.SQLSendStart(this, loadingSQLListener, null);       // sql 시작
+        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, null);       // sql 시작
     }
 
     // 메인액티비티로

@@ -1,6 +1,7 @@
 package Controll;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -15,6 +16,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import DBSQLServer.DBSQL;
+import FileSystem.FileManagement;
 
 import javax.naming.*;
 
@@ -41,14 +43,14 @@ public class PhoneController extends HttpServlet {
 			throws ServletException, IOException {
 		request.setCharacterEncoding("euc-kr"); // 요청 charset 설정
 		response.setContentType("text/html; charset=euc-kr"); // 응답 타입 및 charset 설정
-
+		
 		try {
 			out = response.getWriter(); // 웹 출력(응답용) 스트림 생성
 			in = request.getReader();	// 웹 입력(요청용) 스트림 생성
 			JSONObject resJSON = null;
 			// 데이터 가져온 후 dataProcess 작동 
 			// 출력할(응답 데이터) 요청 스트림 안될경우 null 반환 
-			resJSON = (in != null) ? getInputData(): null;
+			resJSON = (in != null) ? getInputData(request): null;
 			
 			if(resJSON == null) {	// 응답 제이슨을 안 만들어진경우
 				resJSON = new JSONObject();
@@ -99,7 +101,7 @@ public class PhoneController extends HttpServlet {
 	}
 	
 	/* 요청한 곳에서 데이터 가져오기 */
-	private JSONObject getInputData() {
+	private JSONObject getInputData(HttpServletRequest request) {
 
 		JSONObject json = null;
 		String line;
@@ -115,13 +117,13 @@ public class PhoneController extends HttpServlet {
 			e.printStackTrace();
 			return null;
 		}
-		return dataProcess(json);		// 받은 데이터 처리 함수 
+		return dataProcess(json,request);		// 받은 데이터 처리 함수 
 	}
 	
 	/* 받은 데이터 처리 함수 */
-	private JSONObject dataProcess(JSONObject data) {
+	private JSONObject dataProcess(JSONObject data, HttpServletRequest request) {
 		JSONObject resJSON = null;
-		
+
 		if (data == null) {	// 데이터가 없는경우
 			return null;
 		}
@@ -132,7 +134,7 @@ public class PhoneController extends HttpServlet {
 				JSONObject subdata = (JSONObject) data.get("sql");		// sql 타입 가져오기
 				String type = (String) subdata.get("type");				// type (select or update)
 				String sql = (String) subdata.get("query");				// 쿼리문
-				
+
 				if (type.equals("select")) {							// select 일 경우
 					int size = ((Long)subdata.get("size")).intValue();	// 검색할 갯수
 					resJSON = dbsql.getPhoneSelect(sql,size);			// 꺼내오기
@@ -141,10 +143,21 @@ public class PhoneController extends HttpServlet {
 					resJSON = dbsql.getPhoneUpdate(sql);			// 업데이트
 				}
 			}
+			if(data.get("upload") != null && resJSON != null) {		// 서브 데이터가 있을경우(현재 테스트중)
+				JSONObject jsonupload = (JSONObject) data.get("upload");
+				FileManagement fileManagement = new FileManagement();
+				if(jsonupload.get("text") != null)
+					fileManagement.fileTextUpload(jsonupload, request);		// 파일 업로드
+				
+				if(jsonupload.get("context") != null) {
+					if(jsonupload.get("context").equals("image"))
+						fileManagement.fileImageUpload(jsonupload,request);		// 이미지 업로드
+				}
+			}
+			return resJSON;
 		}
-
-		return resJSON;
-
 	}
+	
+	
 
 }

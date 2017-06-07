@@ -53,6 +53,7 @@ public class WritingActivity extends AppCompatActivity {
     Toolbar toolbar;
     TextView mAddressText;
 
+    File storageDir = null;
     ExifInterface exif = null;
     File photoFile = null;
     int orientation;
@@ -133,24 +134,13 @@ public class WritingActivity extends AppCompatActivity {
         writing_search_layout.setVisibility(View.GONE);
         check_list_open();
 
-        setFriendtag();
-
+        // tag 데이터 받기
         Intent tagintent = getIntent();
         tagText = tagintent.getStringExtra("tag");
-        write_input.setText(write_input.getText().toString() + tagText);
-    }
-
-    // 친구태그
-    private void setFriendtag() {
-        // 친구 태그
-        friendtag = (ImageButton) findViewById(R.id.friendtag);
-        friendtag.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), TagFriendListActivity.class);
-                startActivity(it);
-            }
-        });
+        if(tagText != null) {
+            // 여기다 db 내용 + tagText 하면됨
+            write_input.setText(tagText);
+        }
     }
 
     private void setInstance() {
@@ -333,7 +323,7 @@ public class WritingActivity extends AppCompatActivity {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("HHmmss").format(new Date());   //그림저장할때 파일명 지정
         String imageFileName = "IP" + timeStamp + "_";
-        File storageDir = new File(Environment.getExternalStorageDirectory() + "/LeaveOut/"); //LeaveOut라는 경로에 이미지를 저장하기 위함
+        storageDir = new File(Environment.getExternalStorageDirectory() + "/LeaveOut/"); //LeaveOut라는 경로에 이미지를 저장하기 위함
         if (!storageDir.exists()) {
             storageDir.mkdirs();
         }
@@ -423,6 +413,14 @@ public class WritingActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        /*else if (requestCode == PICK_FROM_ALBUM){
+            try {
+                exif = new ExifInterface(storageDir.toURI().getPath());
+                orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }*/
 
         // 이미지 돌리기
         thumbImage = rotateBitmap(thumbImage, orientation);
@@ -520,6 +518,12 @@ public class WritingActivity extends AppCompatActivity {
     public void writeBack(View v) {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
+    }
+
+    // 친구태그
+    public void tag(View v) {
+        Intent it = new Intent(getApplicationContext(), TagFriendListActivity.class);
+        startActivity(it);
     }
 
     // 폰트 바꾸기

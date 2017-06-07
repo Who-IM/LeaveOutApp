@@ -8,7 +8,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import whoim.leaveout.SQL.SQLWeb;
+import whoim.leaveout.Server.SQLWeb;
 
 /**
  * 회전 로딩 다이얼로그
@@ -23,7 +23,7 @@ public class LoadingDialog extends AsyncTask<Void,Void,Void> {
     private Object mCaller;
 
     // SQL로 보낸 데이터 처리(리스너 구현 및 로딩 다이얼로그 구현)
-    public static void SQLDataSendStart(Context context, LoadingSQLListener loadingSQLListener, Object caller) {   // caller 어디서 호출 했는지 판단(필요 없을시 null)
+    public static void SQLSendStart(Context context, LoadingSQLListener loadingSQLListener, Object caller) {   // caller 어디서 호출 했는지 판단(필요 없을시 null)
         LoadingDialog loadingDialog = new LoadingDialog(context, caller);             // 로딩 다이얼 로그
         loadingDialog.setSqlListener(loadingSQLListener);
         loadingDialog.execute();        // 다이얼로그 시작
@@ -73,7 +73,10 @@ public class LoadingDialog extends AsyncTask<Void,Void,Void> {
         if (responseData != null && mLoadingSqlListener != null) {      // 구현 했을경우 만 실행
             try {
                 mLoadingSqlListener.dataProcess(responseData,mCaller);     // WebSQL에서 받은 데이터 처리
-            } catch (JSONException e) { e.printStackTrace(); }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Toast.makeText(mContext,"다시 시도해 주십시오.",Toast.LENGTH_SHORT).show();
+            }
         }
         else {
             Toast.makeText(mContext,"다시 시도해 주십시오.",Toast.LENGTH_SHORT).show();

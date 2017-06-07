@@ -34,7 +34,7 @@ import java.util.Arrays;
 
 import whoim.leaveout.Loading.LoadingDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
-import whoim.leaveout.SQL.SQLDataService;
+import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.StartSetting.Permission;
 import whoim.leaveout.StartSetting.SharedName;
 import whoim.leaveout.User.UserInfo;
@@ -53,8 +53,8 @@ public class loginActivity extends AppCompatActivity {
     EditText mIdEditText;           // id 에딧
     EditText mPassEditText;         // pass 에딧
 
-    private SQLDataService.DataQueryGroup mDataQueryGroup = new SQLDataService.DataQueryGroup();          // sql에 필요한 데이터 그룹
-    private String mSelectSQL = "select id from user where id = ? and password = ?";
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
+    private String mSelectSQL = "select user_num,id from user where id = ? and password = ?";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +85,7 @@ public class loginActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     mInputMethodManager.hideSoftInputFromWindow(mPassEditText.getWindowToken(),0);      // 키보드 내리기
-                    selectSQLData();        // select sql 쿼리 돌리기
+                    loginSelectSQLData();        // select sql 쿼리 돌리기
                     return true;
                 }
                 return false;
@@ -137,10 +137,9 @@ public class loginActivity extends AppCompatActivity {
     }
 
     // 자동 로그인 체크
-    private boolean loginCheck() {
-        if(mLoginShared.getString("id",null) != null) {     // LeaveOut 로그인을 했을경우
-            Toast.makeText(this,"앱으로 로그인",Toast.LENGTH_SHORT).show();  // 테스트
-            mUserInfo.setId(mLoginShared.getString("id",null));       //  유저 id 셋팅
+    private boolean autoLogin() {
+        if(mLoginShared.getInt("user_num",0) != 0) {     // LeaveOut 로그인을 했을경우
+            autoCheckSelectSQL();           // 데이터베이스 확인 요청
             return true;
         }
         else if(AccessToken.getCurrentAccessToken() != null) {      // 페이스북 로그인을 했을경우
@@ -151,20 +150,6 @@ public class loginActivity extends AppCompatActivity {
         return false;
     }
 
-    // 자동 로그인
-    private void autoLogin() {
-        if (loginCheck()) {       // 자동 로그인 체크
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);        // 메인화면으로
-            startActivity(intent);
-//            finish();           // 액티비티 종료
-        }
-    }
-
-    @Override
-    protected void onResume() {
-//        autoLogin();      // 오토 로그인 확인
-        super.onResume();
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -188,7 +173,7 @@ public class loginActivity extends AppCompatActivity {
 
     // 앱 로그인 버튼 메인화면으로 넘어가기(데이터베이스에서 확인 후 넘기기)
     public void loginButton(View v) {
-        selectSQLData();        // select sql 쿼리 돌리기
+        loginSelectSQLData();        // select sql 쿼리 돌리기
     }
 
     // 페이스북 로그인 버튼 메인화면으로 넘어가기
@@ -214,7 +199,7 @@ public class loginActivity extends AppCompatActivity {
         return true;
     }
 
-    private void selectSQLData() {
+    private void loginSelectSQLData() {
         if(editCheckAll()) {
             LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
                 @Override
@@ -229,21 +214,51 @@ public class loginActivity extends AppCompatActivity {
                     JSONArray result = responseData.getJSONArray("result");     // 결과 값 가져오기
                     if (result.length() == 0)        // 데이터베이스에 입력한 ID가 없을경우
                         Toast.makeText(loginActivity.this, "아이디 혹은 비밀번호가 일치하지 않습니다.", Toast.LENGTH_LONG).show();
-                    else if (responseData.getJSONArray("result").getJSONObject(0).getString("id").equals(mIdEditText.getText().toString())) {     // 데이터베이스에 입력한 ID가 있을경우
+                    else if (result.getJSONObject(0).getString("id").equals(mIdEditText.getText().toString())) {     // 데이터베이스에 입력한 ID가 있을경우
                         SharedPreferences.Editor LoginSharedEdit = mLoginShared.edit();     // 상태 저장 에디터
-                        LoginSharedEdit.putString("id", mIdEditText.getText().toString());      // 유저 id 상태 저장
+                        LoginSharedEdit.putInt("user_num", result.getJSONObject(0).getInt("user_num"));      // 유저 id 상태 저장
                         LoginSharedEdit.commit();       // commit
+                        mUserInfo.setUserNum(mLoginShared.getInt("user_num",0));       //  유저 id 셋팅
 
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);        // 메인 화면으로
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        loginActivity.this.startActivity(intent);       // 다음 액티비티
-                        loginActivity.this.finish();                    // 액티비티 종료
+                        nextActivity();     // 메인액티비티로
                     }
                 }
             };
-
-            LoadingDialog.SQLDataSendStart(this, loadingSQLListener, null);       // sql 시작
+            LoadingDialog.SQLSendStart(this, loadingSQLListener, null);       // sql 시작
         }
+    }
+
+    // 오토 로그인 하기 전 데이터베이스에 있는지 확인
+    private void autoCheckSelectSQL() {
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public JSONObject getDataSend() {
+                String sql = "select id from user where user_num = " + mLoginShared.getInt("user_num",0);
+                return SQLDataService.getSQLJSONData(sql,-1,"select");
+            }
+            @Override
+            public void dataProcess(JSONObject responseData, Object caller) throws JSONException {
+                JSONArray result = responseData.getJSONArray("result");     // 결과 값 가져오기
+                if(result.length() == 0) {
+                    Toast.makeText(loginActivity.this, "다시 로그인 해주십시오.", Toast.LENGTH_LONG).show();     // 없을경우
+                    mLoginShared.edit().clear().commit();       // 상태 정보 초기화
+                }
+                else {
+                    Toast.makeText(loginActivity.this,"앱으로 로그인",Toast.LENGTH_SHORT).show();  // 테스트
+                    mUserInfo.setUserNum(mLoginShared.getInt("user_num",0));       //  유저 id 셋팅
+                    nextActivity();        // 있을경우
+                }
+            }
+        };
+        LoadingDialog.SQLSendStart(this, loadingSQLListener, null);       // sql 시작
+    }
+
+    // 메인액티비티로
+    private void nextActivity() {
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);        // 메인 화면으로
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        loginActivity.this.startActivity(intent);       // 다음 액티비티
+//        loginActivity.this.finish();                    // 액티비티 종료
     }
 
     // 폰트 바꾸기

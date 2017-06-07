@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 import whoim.leaveout.Loading.LoadingDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
-import whoim.leaveout.SQL.SQLDataService;
+import whoim.leaveout.Server.SQLDataService;
 
 public class JoinActivity extends AppCompatActivity {
 
@@ -35,7 +35,7 @@ public class JoinActivity extends AppCompatActivity {
     private EditText mName_insert;
     private EditText mMail_insert;
 
-    private SQLDataService.DataQueryGroup mDataQueryGroup = new SQLDataService.DataQueryGroup();          // sql에 필요한 데이터 그룹
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
     private String mInsertSQL = "insert into user(id,password,name,email,phone_num) values(?,?,?,?,?)";     // 유저 추가 sql
     private String mSelectSQL;       // 유저 검색 sql
     private boolean[] overcheck = {false,false};    // 0 : id , 1 : email
@@ -211,7 +211,7 @@ public class JoinActivity extends AppCompatActivity {
                         Toast.makeText(JoinActivity.this, "잠시 후 다시 시도해 주십시오.", Toast.LENGTH_LONG).show();
                 }
             };
-            LoadingDialog.SQLDataSendStart(this,loadingSQLListener, null);      // 로딩 다이얼로그 및 sql 전송
+            LoadingDialog.SQLSendStart(this,loadingSQLListener, null);      // 로딩 다이얼로그 및 sql 전송
         }
     }
 
@@ -251,11 +251,11 @@ public class JoinActivity extends AppCompatActivity {
             }   // dataProcess -- END --
         };   // loadingSQLListener -- END --
 
-        LoadingDialog.SQLDataSendStart(this,loadingSQLListener, caller);        // 로딩 다이얼로그 및 sql 전송
+        LoadingDialog.SQLSendStart(this,loadingSQLListener, caller);        // 로딩 다이얼로그 및 sql 전송
     }
 
 /*    // SQL로 보낸 데이터 처리(리스너 구현 및 로딩 다이얼로그 구현)
-    private void SQLDataSendStart(LoadingSQLListener loadingSQLListener, Object caller) {   // caller 어디서 호출 했는지 판단(필요 없을시 null)
+    private void SQLSendStart(LoadingSQLListener loadingSQLListener, Object caller) {   // caller 어디서 호출 했는지 판단(필요 없을시 null)
         mLoadingDialog = new LoadingDialog(this, caller);             // 로딩 다이얼 로그
         mLoadingDialog.setSqlListener(loadingSQLListener);
         mLoadingDialog.execute();        // 다이얼로그 시작

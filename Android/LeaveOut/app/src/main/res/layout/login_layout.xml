@@ -20,7 +20,7 @@
         android:text="Leave Out"
         app:font="custom1"
         android:textColor="#ffffffff"
-        android:textSize="80dp" />
+        android:textSize="75dp" />
 
     <RelativeLayout
         android:layout_width="wrap_content"

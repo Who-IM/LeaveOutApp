@@ -65,6 +65,7 @@
             android:textStyle="bold"
             android:textSize="17dp"
             android:layout_marginLeft="30dp"
+            android:onClick="onOverClicked"
             android:background="@drawable/join_overlap" />
         <!--ID 구간 끝-->
     </LinearLayout>
@@ -94,7 +95,7 @@
             android:background="@drawable/login_text"
             android:hint="입력하세요"
             android:textSize="17dp"
-            android:inputType="text" />
+            android:inputType="textPassword" />
         <View
             android:layout_width="55dp"
             android:layout_height="30dp"
@@ -127,7 +128,7 @@
             android:layout_height="30dp"
             android:background="@drawable/login_text"
             android:hint="입력하세요"
-            android:inputType="text"
+            android:inputType="textPassword"
             android:paddingLeft="5dp"
             android:textSize="17dp" />
         <View
@@ -207,7 +208,8 @@
             android:textStyle="bold"
             android:text="확인"
             android:textSize="17dp"
-            android:layout_marginLeft="30dp" />
+            android:layout_marginLeft="30dp"
+            android:onClick="onOverClicked"/>
         <!--ID 구간 끝-->
     </LinearLayout>
 
@@ -219,23 +221,23 @@
         android:orientation="horizontal">
         <!-- 회원가입 -->
         <Button
-            android:id="@+id/find_insert"
+            android:id="@+id/join_insert"
             android:layout_width="100dp"
             android:layout_height="40dp"
             android:text="가입하기"
             android:background="@drawable/login_button"
-            android:onClick="joinButton"
+            android:onClick="joinOnClicked"
             android:layout_marginRight="40dp"
             android:textSize="23dp" />
 
         <!-- 취소 -->
         <Button
-            android:id="@+id/find_cancel"
+            android:id="@+id/join_cancel"
             android:layout_width="100dp"
             android:layout_height="40dp"
             android:text="취소"
             android:background="@drawable/login_button"
-            android:onClick="Join_cancelButton"
+            android:onClick="joinOnClicked"
             android:textSize="23dp" />
     </LinearLayout>
 </LinearLayout>

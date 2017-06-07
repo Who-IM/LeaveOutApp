@@ -152,7 +152,8 @@
                 android:layout_below="@+id/toolbar"
                 android:layout_above="@id/main_button_layout"
                 android:layout_alignParentStart="true"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                tools:visibility="gone">
 
                 <ListView
                     android:id="@+id/main_search_list"

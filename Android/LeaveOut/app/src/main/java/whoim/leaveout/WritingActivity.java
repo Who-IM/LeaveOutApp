@@ -5,13 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.icu.text.SimpleDateFormat;
 import android.location.Location;
 import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -42,21 +42,29 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
-import whoim.leaveout.Loading.LoadingSQLDialog;
-import whoim.leaveout.Loading.LoadingSQLListener;
+import cz.msebera.android.httpclient.Header;
+import whoim.leaveout.Loading.LoadingSQLUploadDialog;
 import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.Server.SQLWeb2;
 import whoim.leaveout.SingleClick.OnSingleClickListener;
 import whoim.leaveout.User.UserInfo;
 
@@ -86,7 +94,7 @@ public class WritingActivity extends AppCompatActivity {
     //카메라 앨범 변수
     private static final int PICK_FROM_CAMERA = 1; //카메라 촬영으로 사진 가져오기
     private static final int PICK_FROM_ALBUM = 2;  //앨범에서 사진 가져오기
-    ImageView iv = null;
+//    ImageView iv = null;
     Uri photoUri;
     Bitmap thumbImage = null;
     private String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -106,8 +114,6 @@ public class WritingActivity extends AppCompatActivity {
     // 메뉴 관련 인스턴스
     private ListView list;
     write_DataAdapter adapter; // 데이터를 연결할 Adapter
-
-    ArrayList<String> BitmapFomatString = new ArrayList<>();
 
     // 입력공간
     private EditText write_input;
@@ -236,13 +242,15 @@ public class WritingActivity extends AppCompatActivity {
             this.mContext = mContext;
         }
 
+        public ArrayList getList() { return mListData; };
+
         @Override
         public int getCount() {
             return mListData.size();
         }
 
         @Override
-        public Object getItem(int position) {
+        public writing_ListData getItem(int position) {
             return mListData.get(position);
         }
 
@@ -289,6 +297,8 @@ public class WritingActivity extends AppCompatActivity {
 
             return convertView;
         }
+
+
     }
 
     // 메뉴의 실제 데이터를 저장할 class
@@ -417,6 +427,7 @@ public class WritingActivity extends AppCompatActivity {
                 imageExtraction(requestCode);  //이미지 추출
                 addWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
                 list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
+                thumbImage = null;
             } catch (Exception e) {
                 Log.e("ERROR", e.getMessage().toString());
             }
@@ -432,6 +443,7 @@ public class WritingActivity extends AppCompatActivity {
                 imageExtraction(requestCode);  //이미지 추출
                 addWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
                 list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
+                thumbImage = null;
 
             } catch (Exception e) {
                 Log.e("ERROR", e.getMessage().toString());
@@ -442,10 +454,13 @@ public class WritingActivity extends AppCompatActivity {
     //이미지 추출
     protected void imageExtraction(int requestCode) throws IOException {
         //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
-        iv = (ImageView) findViewById(R.id.write_input_picture);
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-        thumbImage = ThumbnailUtils.extractThumbnail(bitmap, 1024, 768);  //사진 크기를 조절
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+//        iv = (ImageView) findViewById(R.id.write_input_picture);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 4;
+        thumbImage= BitmapFactory.decodeStream(getContentResolver().openInputStream(photoUri),null,options);
+//        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
+//        thumbImage = ThumbnailUtils.extractThumbnail(bitmap, 1024, 768);  //사진 크기를 조절
+//        ByteArrayOutputStream bs = new ByteArrayOutputStream();
 
         if (requestCode == PICK_FROM_CAMERA) {
             // 파일 경로 저장
@@ -459,9 +474,11 @@ public class WritingActivity extends AppCompatActivity {
 
         // 이미지 돌리기
         thumbImage = rotateBitmap(thumbImage, orientation);
-        thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
-        BitmapFomatString.add(getStringFromBitmap(thumbImage));
+//        thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
+//        bs.close();
     }
+
+//    ArrayList<String> BitmapFomatString = new ArrayList<>();
 
     private String getStringFromBitmap(Bitmap bitmapPicture) {
         String encodedImage;
@@ -574,7 +591,7 @@ public class WritingActivity extends AppCompatActivity {
         }
     }
 
-    private void contentUpdateSQLData() {
+ /*   private void contentUpdateSQLData2() {
         final UserInfo userInfo = UserInfo.getInstance();
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
             @Override
@@ -590,21 +607,144 @@ public class WritingActivity extends AppCompatActivity {
                 SQLDataService.putBundleValue(data,"upload","usernum",userInfo.getUserNum());                             // 번들 데이터 더 추가(유저 id)
                 SQLDataService.putBundleValue(data,"upload","path","content");
                 SQLDataService.putBundleValue(data,"upload","text",write_input.getText().toString());        // 번들 데이터 더 추가(내용)
-                SQLDataService.putBundleValue(data,"upload","context","image");
-                SQLDataService.putBundleArray(data,"upload", BitmapFomatString);
+//                SQLDataService.putBundleValue(data,"upload","context","image");
+                JSONArray jsonArray = new JSONArray();
+                int size = adapter.getCount();
+                for(int i = 0; i < size; i++) {
+                    ArrayList<writing_ListData> arrayList = adapter.getList();
+                    jsonArray.put(getStringFromBitmap(arrayList.get(0).Image));
+                    arrayList.get(0).Image.recycle();
+                    arrayList.get(0).Image = null;
+                    arrayList.remove(0);
+                }
+                SQLDataService.putBundleValue(data,"upload","array",jsonArray);
+//                SQLDataService.putBundleArray(data,"upload", BitmapFomatString);
                 return data;
             }
             @Override
             public void dataProcess(JSONObject responseData, Object caller) throws JSONException {
                 if(!responseData.getString("result").equals("error")) {      // error이 아닐 경우
                     Toast.makeText(WritingActivity.this,"등록 되었습니다.",Toast.LENGTH_LONG).show();
+//                    test();
 //                    finish();   // 액티비티 종료
                 }
                 else    // 에러 일 경우
                     Toast.makeText(WritingActivity.this,"잠시 후 다시 시도해 주십시오.",Toast.LENGTH_LONG).show();
             }
         };
-        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, null);
+        LoadingSQLUploadDialog.SQLSendStart(this, loadingSQLListener, null);
+    }*/
+
+    private void contentUpdateSQLData() {
+       LoadingSQLUploadDialog loadingSQLUploadDialog = new LoadingSQLUploadDialog(this) {
+
+           @Override
+            protected void onPreExecute() {
+               super.sqlWeb = new SQLWeb2(InsertSQLContent());
+               super.onPreExecute();
+            }
+
+           @Override
+           protected Void doInBackground(Void... params) {
+               try {
+                   while(super.sqlWeb != null) {
+                       responseData = mEexecutorService.submit(super.sqlWeb).get();
+                       if(responseData != null) {
+                           if (uploadImage() != null) super.sqlWeb = new SQLWeb2(uploadImage());
+                           else super.sqlWeb = null;
+                       }
+                   }
+               } catch (InterruptedException e) {
+                   e.printStackTrace();
+               } catch (ExecutionException e) {
+                   e.printStackTrace();
+               }
+               return null;
+           }
+
+           protected void onPostExecute(Void aVoid) {
+               try {
+                   if(!responseData.getString("result").equals("error")) {      // error이 아닐 경우
+                       Toast.makeText(WritingActivity.this,"등록 되었습니다.",Toast.LENGTH_LONG).show();
+    //                    test();
+    //                    finish();   // 액티비티 종료
+                   }
+                   else    // 에러 일 경우
+                       Toast.makeText(WritingActivity.this,"잠시 후 다시 시도해 주십시오.",Toast.LENGTH_LONG).show();
+               } catch (JSONException e) {
+                   e.printStackTrace();
+               }
+           }
+       };
+        loadingSQLUploadDialog.execute();
+    }
+
+    private JSONObject InsertSQLContent() {
+        final UserInfo userInfo = UserInfo.getInstance();
+        mDataQueryGroup.clear();
+        mDataQueryGroup.addInt(userInfo.getUserNum());          // 유저 번호
+        mDataQueryGroup.addInt(SecurityRadioChecked());         // 공개여부 값
+        mDataQueryGroup.addBoolean(mSecretCheckBox.isChecked());    // 울타리 체크
+        mDataQueryGroup.addDouble(mCurrentLocation.getLatitude());  // 위도
+        mDataQueryGroup.addDouble(mCurrentLocation.getLongitude()); // 경도
+        mDataQueryGroup.addString(mAddressText.getText().toString());   // 주소
+        JSONObject data = SQLDataService.getDynamicSQLJSONData(mContentUpdateSQL,mDataQueryGroup,0,"update");       // sql 셋팅
+        SQLDataService.putBundleValue(data, "upload", "usernum", userInfo.getUserNum());                 // 번들 데이터 더 추가(유저 id)
+        SQLDataService.putBundleValue(data, "upload", "path", "content");
+        SQLDataService.putBundleValue(data, "upload", "text", write_input.getText().toString());        // 번들 데이터 더 추가(내용)
+        return data;
+    }
+
+    private JSONObject uploadImage() {
+        final UserInfo userInfo = UserInfo.getInstance();
+        JSONObject data = new JSONObject();
+        SQLDataService.putBundleValue(data, "upload", "usernum", userInfo.getUserNum());                 // 번들 데이터 더 추가(유저 id)
+        SQLDataService.putBundleValue(data, "upload", "path", "content");
+        JSONArray jsonArray = new JSONArray();
+        ArrayList<writing_ListData> arrayList = adapter.getList();
+        if(arrayList.size() == 0) return null;
+        jsonArray.put(getStringFromBitmap(arrayList.get(0).Image));
+        arrayList.get(0).Image.recycle();
+        arrayList.get(0).Image = null;
+        arrayList.remove(0);
+        SQLDataService.putBundleValue(data, "upload", "array", jsonArray);
+        return data;
+    }
+
+
+    private void test() {
+        final UserInfo userInfo = UserInfo.getInstance();
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.setTimeout(10000);
+        client.setResponseTimeout(10000);
+        RequestParams params = new RequestParams();
+        params.put("upload","content");
+        params.put("usernum",userInfo.getUserNum());
+        params.put("textfile",write_input.getText().toString());
+
+        client.post("http://192.168.35.91:8080/controll2",params,new ResponseHandler());
+    }
+
+    private InputStream testimage(Bitmap bitmapPicture) {
+        ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
+        bitmapPicture.compress(Bitmap.CompressFormat.PNG, 100, byteArrayBitmapStream);
+        byte[] b = byteArrayBitmapStream.toByteArray();
+        InputStream in = new ByteArrayInputStream(b);
+        return in;
+    }
+
+    class ResponseHandler extends AsyncHttpResponseHandler {
+
+        @Override
+        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+            Toast.makeText(WritingActivity.this,"OK",Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+            Toast.makeText(WritingActivity.this,"Error",Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     // 공개여부 라디오 버튼 체크 된 부분 찾기

@@ -96,6 +96,7 @@ public class WritingActivity extends AppCompatActivity {
     private ImageButton friendtag = null;
     private String tagText = null;
 
+    int count = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -359,6 +360,13 @@ public class WritingActivity extends AppCompatActivity {
     //카메라 및 갤러리 기능 활성화
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(count == 5)
+        {
+            Toast.makeText(WritingActivity.this, "이미지 갯수 5개 초과 더이상 등록할수 없습니다..", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        count++;
+
         //카메라나 갤러리 창을 종료 했을 경우
         if (resultCode != RESULT_OK) {
             Toast.makeText(WritingActivity.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
@@ -398,6 +406,7 @@ public class WritingActivity extends AppCompatActivity {
 
     //이미지 추출
     protected void imageExtraction(int requestCode) throws IOException {
+
         //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
         iv = (ImageView) findViewById(R.id.write_input_picture);
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
@@ -420,7 +429,7 @@ public class WritingActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }*/
+        }*/ 
 
         // 이미지 돌리기
         thumbImage = rotateBitmap(thumbImage, orientation);

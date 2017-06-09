@@ -1,6 +1,7 @@
 package whoim.leaveout;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -42,29 +43,22 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import cz.msebera.android.httpclient.Header;
+import whoim.leaveout.Loading.LoadingSQLListener2;
 import whoim.leaveout.Loading.LoadingSQLUploadDialog;
 import whoim.leaveout.Server.SQLDataService;
-import whoim.leaveout.Server.SQLWeb2;
 import whoim.leaveout.SingleClick.OnSingleClickListener;
 import whoim.leaveout.User.UserInfo;
 
@@ -114,6 +108,7 @@ public class WritingActivity extends AppCompatActivity {
     // 메뉴 관련 인스턴스
     private ListView list;
     write_DataAdapter adapter; // 데이터를 연결할 Adapter
+    private int imagecount;
 
     // 입력공간
     private EditText write_input;
@@ -636,47 +631,37 @@ public class WritingActivity extends AppCompatActivity {
     }*/
 
     private void contentUpdateSQLData() {
-       LoadingSQLUploadDialog loadingSQLUploadDialog = new LoadingSQLUploadDialog(this) {
 
-           @Override
-            protected void onPreExecute() {
-               super.sqlWeb = new SQLWeb2(InsertSQLContent());
-               super.onPreExecute();
+        LoadingSQLListener2 loadingSQLListener = new LoadingSQLListener2() {
+            @Override
+            public int progressSetting(ProgressDialog progressDialog) {
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);        // 원형
+                progressDialog.setMessage("로딩중입니다..");        // 내용
+                Log.d("ProgressStyle", progressDialog.getProgress() + "");
+                return adapter.getCount()+1;
             }
 
-           @Override
-           protected Void doInBackground(Void... params) {
-               try {
-                   while(super.sqlWeb != null) {
-                       responseData = mEexecutorService.submit(super.sqlWeb).get();
-                       if(responseData != null) {
-                           if (uploadImage() != null) super.sqlWeb = new SQLWeb2(uploadImage());
-                           else super.sqlWeb = null;
-                       }
-                   }
-               } catch (InterruptedException e) {
-                   e.printStackTrace();
-               } catch (ExecutionException e) {
-                   e.printStackTrace();
-               }
-               return null;
-           }
+            @Override
+            public JSONObject getSQLQuery() {
+                return InsertSQLContent();
+            }
 
-           protected void onPostExecute(Void aVoid) {
-               try {
-                   if(!responseData.getString("result").equals("error")) {      // error이 아닐 경우
-                       Toast.makeText(WritingActivity.this,"등록 되었습니다.",Toast.LENGTH_LONG).show();
-    //                    test();
-    //                    finish();   // 액티비티 종료
-                   }
-                   else    // 에러 일 경우
-                       Toast.makeText(WritingActivity.this,"잠시 후 다시 시도해 주십시오.",Toast.LENGTH_LONG).show();
-               } catch (JSONException e) {
-                   e.printStackTrace();
-               }
-           }
-       };
-        loadingSQLUploadDialog.execute();
+            @Override
+            public JSONObject getUpLoad() {
+                return uploadImage();
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+
+                if(responseData != null) {
+                    Toast.makeText(WritingActivity.this,"Good",Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+
+            }
+        };
+        LoadingSQLUploadDialog.SQLSendStart(this,loadingSQLListener,null);
     }
 
     private JSONObject InsertSQLContent() {
@@ -691,6 +676,7 @@ public class WritingActivity extends AppCompatActivity {
         JSONObject data = SQLDataService.getDynamicSQLJSONData(mContentUpdateSQL,mDataQueryGroup,0,"update");       // sql 셋팅
         SQLDataService.putBundleValue(data, "upload", "usernum", userInfo.getUserNum());                 // 번들 데이터 더 추가(유저 id)
         SQLDataService.putBundleValue(data, "upload", "path", "content");
+        SQLDataService.putBundleValue(data,"upload","context","text");
         SQLDataService.putBundleValue(data, "upload", "text", write_input.getText().toString());        // 번들 데이터 더 추가(내용)
         return data;
     }
@@ -700,6 +686,7 @@ public class WritingActivity extends AppCompatActivity {
         JSONObject data = new JSONObject();
         SQLDataService.putBundleValue(data, "upload", "usernum", userInfo.getUserNum());                 // 번들 데이터 더 추가(유저 id)
         SQLDataService.putBundleValue(data, "upload", "path", "content");
+        SQLDataService.putBundleValue(data,"upload","context","image");
         JSONArray jsonArray = new JSONArray();
         ArrayList<writing_ListData> arrayList = adapter.getList();
         if(arrayList.size() == 0) return null;
@@ -707,12 +694,14 @@ public class WritingActivity extends AppCompatActivity {
         arrayList.get(0).Image.recycle();
         arrayList.get(0).Image = null;
         arrayList.remove(0);
+        this.imagecount++;
+        SQLDataService.putBundleValue(data, "upload", "imagecount", this.imagecount);
         SQLDataService.putBundleValue(data, "upload", "array", jsonArray);
         return data;
     }
 
 
-    private void test() {
+    /*private void test() {
         final UserInfo userInfo = UserInfo.getInstance();
         AsyncHttpClient client = new AsyncHttpClient();
         client.setTimeout(10000);
@@ -745,7 +734,7 @@ public class WritingActivity extends AppCompatActivity {
             Toast.makeText(WritingActivity.this,"Error",Toast.LENGTH_SHORT).show();
         }
 
-    }
+    }*/
 
     // 공개여부 라디오 버튼 체크 된 부분 찾기
     private int SecurityRadioChecked() {

@@ -18,74 +18,106 @@ import java.util.Base64;
 import DBSQLServer.DBSQL;
 
 public class FileManagement {
-	
-	public void fileTextUpload(JSONObject jsonupload, HttpServletRequest request) {
-		int usernum = ((Long)jsonupload.get("usernum")).intValue();
-		String path = (String)jsonupload.get("path");
-		String text = (String)jsonupload.get("text");
-		String filedirstring = null;
-		String filedir = null;
-		DBSQL dbsql = new DBSQL();		// SQL 전용 관리 객체 생성
-		String sql = null;
-		int contentnum = 0;
+
+	private JSONObject jsonupload;
+	private HttpServletRequest request;
+
+	private DBSQL dbsql = new DBSQL();		// SQL 전용 관리 객체 생성
+	private String sql;
+	private String filedirstring;	// 서버 경로
+	private String filedir;			// 실제 서버 절대 경로
+
+	private int usernum;		// 유저 번호
+	private String path;		// 저장 할 실제 이름(어디서 저장됬는지 확인)
+	private int pathnum;		// 실제 저장 할곳의 데이터베이스 번호
+
+	public FileManagement(JSONObject jsonupload, HttpServletRequest request) {
+		this.jsonupload = jsonupload;
+		this.request = request;
+		init();
+	}
+
+	// 초기화
+	public void init() {
+		usernum = ((Long)jsonupload.get("usernum")).intValue();
+		path = (String)jsonupload.get("path");
+
 		if(path.equals("content")) {	// 게시글
 			sql = "select content_num from content where user_num = " + usernum + " order by content_num desc Limit 1";
 			JSONObject selectdata = dbsql.getPhoneSelect(sql,1);
 			JSONArray array = (JSONArray) selectdata.get("result");
-			contentnum = (int) ((JSONObject)array.get(0)).get("content_num");
-			filedirstring = "/leaveout/files/" + usernum + "/" + path + "/" + contentnum;
+			pathnum = (int) ((JSONObject)array.get(0)).get("content_num");
+			filedirstring = "/leaveout/files/" + usernum + "/" + path + "/" + pathnum;
 		}
-		
-		filedir = request.getServletContext().getRealPath(filedirstring);		// 경로
+		filedir = request.getServletContext().getRealPath(filedirstring);		// 실제 경로
 		File dir = new File(filedir);
 		if(!dir.exists()) dir.mkdirs();		// 폴더가 없을경우 만들기
-
-		String realfiledir = filedir + "\\text.txt";		// 파일 만들기
-		
-		PrintWriter writer = null;					// 파일 업로드
-		try {
-			writer = new PrintWriter(realfiledir);
-			writer.print(text);
-			if(writer != null && path.equals("content")) {	// 게시글
-				sql = "update content set files = \"" + filedirstring + "\" where content_num = " + contentnum;
-				dbsql.getPhoneUpdate(sql);
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		finally {if(writer!=null) writer.close();}
 	}
-	
-	public void fileImageUpload(JSONObject jsonupload, HttpServletRequest request) {
-		int usernum = ((Long)jsonupload.get("usernum")).intValue();
-		String path = (String)jsonupload.get("path");
+
+	// text 파일 업로드
+	@SuppressWarnings("unchecked")
+	public JSONObject fileTextUpload() {
+		JSONObject resJSON = null; // 응답용 데이터
+
+		String text = (String)jsonupload.get("text");
+		if(text != null) {
+			String realfiledir = filedir + "\\text.txt";		// 파일 만들기
+
+			PrintWriter writer = null;					// 파일 업로드
+			try {
+				writer = new PrintWriter(realfiledir);
+				writer.print(text);
+				
+				if(writer != null) {	// 게시글
+					if(updateFilesPath() == null) return null;
+				}
+				
+				resJSON = new JSONObject(); 	// 응답용 데이터 객체 생성
+				resJSON.put("result", 1);	// 결과값 
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			finally {if(writer!=null) writer.close();}
+		}
+
+		return resJSON;
+	}
+
+	// image 파일 업로드
+	@SuppressWarnings("unchecked")
+	public JSONObject fileImageUpload() {
+		JSONObject resJSON = null; // 응답용 데이터
+		
+		int imagecount = ((Long)jsonupload.get("imagecount")).intValue(); 
 		JSONArray imagearray = (JSONArray) jsonupload.get("array");
 		byte[] decoded = null;		// 디코딩
-		
-		String filedirstring = null;
-		String filedir = null;
-		DBSQL dbsql = new DBSQL();		// SQL 전용 관리 객체 생성
-		String sql = null;
-		int contentnum = 0;
+
+		if(imagearray != null) {
+			for(int i =0; i < imagearray.size(); i++) {
+				decoded = Base64.getDecoder().decode((String)imagearray.get(i));
+				try {
+					BufferedImage image = ImageIO.read(new ByteArrayInputStream(decoded));
+					ImageIO.write(image, "jpg", new File(filedir, imagecount+".jpg"));
+					
+					if(updateFilesPath() == null) return null;
+					
+					resJSON = new JSONObject(); 	// 응답용 데이터 객체 생성
+					resJSON.put("result", 1);	// 결과값 
+				} 
+				catch (IOException e) { e.printStackTrace();}
+			}
+		}
+		return resJSON;
+	}
+	
+	// 데이터 베이스에 파일 경로 넣기
+	public JSONObject updateFilesPath() {
+		JSONObject jsonObject = null;
 		if(path.equals("content")) {	// 게시글
-			sql = "select content_num from content where user_num = " + usernum + " order by content_num desc Limit 1";
-			JSONObject selectdata = dbsql.getPhoneSelect(sql,1);
-			JSONArray array = (JSONArray) selectdata.get("result");
-			contentnum = (int) ((JSONObject)array.get(0)).get("content_num");
-			filedirstring = "/leaveout/files/" + usernum + "/" + path + "/" + contentnum;
+			sql = "update content set files = \"" + filedirstring + "\" where content_num = " + pathnum + "&& files is null";
+			jsonObject = dbsql.getPhoneUpdate(sql);
 		}
-		
-		filedir = request.getServletContext().getRealPath(filedirstring);		// 경로
-		File dir = new File(filedir);
-		if(!dir.exists()) dir.mkdirs();		// 폴더가 없을경우 만들기
-		
-		for(int i =0; i < imagearray.size(); i++) {
-			decoded = Base64.getDecoder().decode((String)imagearray.get(i));
-			try {
-				BufferedImage image = ImageIO.read(new ByteArrayInputStream(decoded));
-				ImageIO.write(image, "jpg", new File(filedir, (i+1)+".jpg"));
-			} catch (IOException e) { e.printStackTrace();}
-		}
+		return jsonObject;
 	}
 
 }

@@ -129,7 +129,7 @@ public class PhoneController extends HttpServlet {
 		}
 		else {		// 데이터 있을 경우
 			String maindata = (String) data.get("check");
-			if (maindata.equals("mysql")) {		// 요청하는 데이터  mysql 방식
+			if (maindata != null && maindata.equals("mysql")) {		// 요청하는 데이터  mysql 방식
 				DBSQL dbsql = new DBSQL();		// SQL 전용 관리 객체 생성
 				JSONObject subdata = (JSONObject) data.get("sql");		// sql 타입 가져오기
 				String type = (String) subdata.get("type");				// type (select or update)
@@ -143,15 +143,15 @@ public class PhoneController extends HttpServlet {
 					resJSON = dbsql.getPhoneUpdate(sql);			// 업데이트
 				}
 			}
-			if(data.get("upload") != null && resJSON != null) {		// 서브 데이터가 있을경우(현재 테스트중)
+			if(data.get("upload") != null) {		// 서브 데이터가 있을경우(현재 테스트중)
 				JSONObject jsonupload = (JSONObject) data.get("upload");
-				FileManagement fileManagement = new FileManagement();
-				if(jsonupload.get("text") != null)
-					fileManagement.fileTextUpload(jsonupload, request);		// 파일 업로드
-				
 				if(jsonupload.get("context") != null) {
+					FileManagement fileManagement = new FileManagement(jsonupload, request);
+					if(jsonupload.get("context").equals("text"))	// 파일 (text) 업로드
+						resJSON = fileManagement.fileTextUpload();
+
 					if(jsonupload.get("context").equals("image"))
-						fileManagement.fileImageUpload(jsonupload,request);		// 이미지 업로드
+						resJSON = fileManagement.fileImageUpload();			// 이미지 업로드
 				}
 			}
 			return resJSON;

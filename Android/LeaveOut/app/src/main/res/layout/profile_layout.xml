@@ -54,7 +54,7 @@
             android:layout_marginBottom="15dp"
             android:layout_marginStart="20dp"
             android:layout_marginTop="15dp"
-            android:background="#7a7a7a" />
+            android:src="@drawable/basepicture" />
 
         <ImageButton
             android:id="@+id/profile_add_Image"

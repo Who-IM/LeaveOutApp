@@ -1,8 +1,10 @@
 package whoim.leaveout;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -43,29 +45,40 @@ public class PreferencesActivity extends AppCompatActivity {
             Toast.makeText(this, "카테고리 실행.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getApplicationContext(), PreferencesCategoryActivity.class);
             startActivity(intent);
-        }
-
-        else if (v.getId() == R.id.preferences_check_delete) {      //체크 삭제
+        } else if (v.getId() == R.id.preferences_check_delete) {      //체크 삭제
             Toast.makeText(this, "체크 삭제 실행.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getApplicationContext(), PreferencesCheckViewActivity.class);
             startActivity(intent);
 
-        }
-        else if (v.getId() == R.id.preferences_notice) {        //알림
+        } else if (v.getId() == R.id.preferences_notice) {        //알림
             Toast.makeText(this, "알림 실행.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getApplicationContext(), PreferencesNoticeActivity.class);
             startActivity(intent);
 
-        }
-        else if (v.getId() == R.id.preferences_logout) {       //로그아웃
+        } else if (v.getId() == R.id.preferences_logout) {       //로그아웃
             Toast.makeText(this, "로그아웃 실행.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getApplicationContext(), loginActivity.class);
             startActivity(intent);
-        }
-        else if (v.getId() == R.id.preferences_id_delete) {        //계정 탈퇴
-            Toast.makeText(this, "계정 탈퇴 실행.", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(getApplicationContext(), loginActivity.class);
-            startActivity(intent);
+        } else if (v.getId() == R.id.preferences_id_delete) {        //계정 탈퇴
+            AlertDialog.Builder d = new AlertDialog.Builder(PreferencesActivity.this);
+            d.setTitle("회원 탈퇴");
+            d.setMessage("정말 회원 탈퇴를 하시겠습니까?");
+
+            d.setPositiveButton("예", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    PreferencesActivity.this.finish();
+                    Toast.makeText(PreferencesActivity.this, "계정 탈퇴 실행.", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            d.setNegativeButton("아니요", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            d.show();
         }
     }
 

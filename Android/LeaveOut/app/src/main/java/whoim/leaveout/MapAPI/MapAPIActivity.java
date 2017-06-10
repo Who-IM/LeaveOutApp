@@ -11,6 +11,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -59,6 +60,12 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
     private LocationManager mLocationManager;       // 로케이션 매니저(GPS 활성화 여부를 위해 사용)
 
     protected ClusterMaker mClusterMaker;           // 클러스터 기능 관리 및 제공 객체
+    LatLng northeastLatLng;
+    LatLng southwestLatLng;
+    double northeastLat;
+    double northeastLng;
+    double southwestLat;
+    double southwestLng;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +98,18 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
             item.add(new SNSInfoMaker(new LatLng(mRandom.nextDouble() * (37.56 - 37.78494009999999) + 37.78494009999999, mRandom.nextDouble() * (126.97 - 127.97) + 127.97)));
         }
         mClusterMaker.addSNSInfoMakerList(item);
+        northeastLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.northeast; // 화면 좌측상단부분의 LatLng
+        southwestLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.southwest; // 화면 우측하단부분의 LatLng
 
+        northeastLat = northeastLatLng.latitude; // 화면 좌측상단부분의 위도
+        northeastLng = northeastLatLng.longitude; // 화면 좌측상단부분의 경도
+        southwestLat = southwestLatLng.latitude; //화면 우측하단부분의 위도
+        southwestLng = southwestLatLng.longitude; //화면 우측하단부분의 경도
+
+        Log.e("북동 위도", northeastLat + "");
+        Log.e("북동 경도", northeastLng + "");
+        Log.e("남서 위도", southwestLat + "");
+        Log.e("남서 경도", southwestLng + "");
 /*
         LatLng seoul = new LatLng(37.56, 126.97);
 

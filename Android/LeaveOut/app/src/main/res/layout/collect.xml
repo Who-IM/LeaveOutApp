@@ -11,7 +11,8 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:src="@drawable/basepicture"/>
 
     <TextView
         android:id="@+id/collect_location"
@@ -89,14 +90,23 @@
         android:text="글내용"
         android:textSize="20dp" />
 
+    <GridView
+        android:id="@+id/grid_collect"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/collect_contents"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"/>
+
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginTop="11dp"
         android:background="#FFabdeff"
         android:orientation="horizontal"
-        android:layout_below="@+id/collect_contents"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/grid_collect"
         android:layout_alignParentStart="true">
 
         <RelativeLayout

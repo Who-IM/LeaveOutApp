@@ -19,6 +19,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -30,6 +31,8 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import whoim.leaveout.GridAdapter.GridAdapter;
 
 //모아보기
 public class CollectActivity extends AppCompatActivity {
@@ -53,6 +56,9 @@ public class CollectActivity extends AppCompatActivity {
     profile_tab tab;
 
 
+    private ArrayList<GridView> grid_list = null;
+    private ArrayList<GridAdapter> gridAdapter = null;
+
     int menuCount = 0;  //매뉴 옵션 아이템 순서
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +70,9 @@ public class CollectActivity extends AppCompatActivity {
         comment_edit = new ArrayList<EditText>();
         comment_adapter = new ArrayList<collect_Comment_Adapter>();
         collect_comment_btn2 = new ArrayList<Button>();
+
+        grid_list = new ArrayList<GridView>();
+        gridAdapter = new ArrayList<GridAdapter>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
@@ -104,6 +113,8 @@ public class CollectActivity extends AppCompatActivity {
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
         });
+
+
     }
 
     //옵션 버튼
@@ -232,6 +243,36 @@ public class CollectActivity extends AppCompatActivity {
 
         ViewGroup.LayoutParams params = listView.getLayoutParams();
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+        listView.requestLayout();
+    }
+
+    // 리스트뷰 펼처보기(한화면에)
+    public static void setListViewHeightBasedOnChildren(GridView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
+        int count = listAdapter.getCount();
+        if(count > 2) {
+            count = count/2 + 1;
+        }
+        else {
+            count = 1;
+        }
+        for (int i = 0; i < count; i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+
+        params.height = totalHeight;
         listView.setLayoutParams(params);
         listView.requestLayout();
     }
@@ -415,6 +456,30 @@ public class CollectActivity extends AppCompatActivity {
                     }
                 }
             });
+
+            // 이미지 처리
+            if(grid_list.size() == position) {  // ArrayList 자원 재활용
+                grid_list.add(position, (GridView) convertView.findViewById(R.id.grid_collect));    }
+            else {
+                grid_list.set(position, (GridView) convertView.findViewById(R.id.grid_collect));    }
+
+            // 어뎁터 생성 등록
+            if(gridAdapter.size() == position) { // ArrayList 자원 재활용
+                gridAdapter.add(position, new GridAdapter(CollectActivity.this));     }
+            else {
+                gridAdapter.set(position, new GridAdapter(CollectActivity.this));     }
+
+            if(position == 0) {
+                // 데이터는 동적으로 apadter에 저장
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+            } else if(position == 1) {
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+            }
+            grid_list.get(position).setAdapter(gridAdapter.get(position));
+            setListViewHeightBasedOnChildren(grid_list.get(position)); // 펼쳐보기
 
             return convertView;
         }

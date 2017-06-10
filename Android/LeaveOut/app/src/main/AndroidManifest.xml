@@ -84,12 +84,6 @@
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait">
         </activity>
-        <!--아이디 삭제-->
-        <activity
-            android:name=".PreferencesIdDeleteActivity"
-            android:theme="@style/AppTheme"
-            android:screenOrientation="portrait">
-        </activity>
         <!--알림 설정-->
         <activity
             android:name=".PreferencesNoticeActivity"

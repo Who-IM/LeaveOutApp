@@ -12,7 +12,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -126,6 +125,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         */
 
     }
+
 
 /*    // LocationListener 의 함수(구현 중)
     // 로케이션 정보를 얻을 때 콜백 메소드

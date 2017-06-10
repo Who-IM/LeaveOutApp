@@ -117,13 +117,13 @@ public final class LoadingSQLDialog extends AsyncTask<Void,Integer,Void> {
         if (mLoadingSqlListener != null) {              // 구현 했을경우 만 실행
             for (int i = 0; i < responseData.size(); i++) {            // 각 결과값 확인
                 if (responseData.get(i) == null) {
-                    Toast.makeText(mContext, "업로드에 실패 했습니다.", Toast.LENGTH_SHORT).show();
-                    responseData = null;
+                    Toast.makeText(mContext, "다시 시도해 주십시오.", Toast.LENGTH_SHORT).show();
+                    responseData= null;
                     break;
                 }
             }
             try {
-                mLoadingSqlListener.dataProcess(responseData, mCaller);     // WebSQL에서 받은 데이터 처리
+                if(responseData != null) mLoadingSqlListener.dataProcess(responseData, mCaller);     // WebSQL에서 받은 데이터 처리
             } catch (JSONException e) {
                 e.printStackTrace();
                 Toast.makeText(mContext, "다시 시도해 주십시오.", Toast.LENGTH_SHORT).show();

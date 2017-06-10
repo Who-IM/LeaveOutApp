@@ -1,5 +1,6 @@
 package whoim.leaveout;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -20,9 +21,11 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import whoim.leaveout.Loading.LoadingDialog;
+import java.util.ArrayList;
+
+import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
-import whoim.leaveout.SQL.SQLDataService;
+import whoim.leaveout.Server.SQLDataService;
 
 public class JoinActivity extends AppCompatActivity {
 
@@ -35,7 +38,7 @@ public class JoinActivity extends AppCompatActivity {
     private EditText mName_insert;
     private EditText mMail_insert;
 
-    private SQLDataService.DataQueryGroup mDataQueryGroup = new SQLDataService.DataQueryGroup();          // sql에 필요한 데이터 그룹
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
     private String mInsertSQL = "insert into user(id,password,name,email,phone_num) values(?,?,?,?,?)";     // 유저 추가 sql
     private String mSelectSQL;       // 유저 검색 sql
     private boolean[] overcheck = {false,false};    // 0 : id , 1 : email
@@ -189,7 +192,12 @@ public class JoinActivity extends AppCompatActivity {
         if (editCheckAll()) {
             LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
                 @Override
-                public JSONObject getDataSend() {
+                public int getSize() {
+                    return 1;
+                }
+
+                @Override
+                public JSONObject getSQLQuery() {
                     mDataQueryGroup.clear();
                     mDataQueryGroup.addString(mIdInsert.getText().toString());        // id
                     mDataQueryGroup.addString(mPassInsert.getText().toString());      // 패스워드
@@ -199,11 +207,14 @@ public class JoinActivity extends AppCompatActivity {
                     mDataQueryGroup.addString(mgr.getLine1Number());      //  폰번호
                     return SQLDataService.getDynamicSQLJSONData(mInsertSQL, mDataQueryGroup, 0, "update");     // update SQL 제이슨
                 }
-
                 @Override
-                public void dataProcess(JSONObject responseData, Object caller) throws JSONException {
+                public JSONObject getUpLoad() {
+                    return null;
+                }
+                @Override
+                public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
                     Log.d("responseData", responseData.toString());
-                    if (!(responseData.getString("result").equals("error"))) {        // 에러가 아닐경우
+                    if (!(responseData.get(0).getString("result").equals("error"))) {        // 에러가 아닐경우
                         Toast.makeText(JoinActivity.this, "가입이 완료 되었습니다.", Toast.LENGTH_LONG).show();
                         JoinActivity.this.finish();     // 액티비티 종료
                     }
@@ -211,23 +222,30 @@ public class JoinActivity extends AppCompatActivity {
                         Toast.makeText(JoinActivity.this, "잠시 후 다시 시도해 주십시오.", Toast.LENGTH_LONG).show();
                 }
             };
-            LoadingDialog.SQLDataSendStart(this,loadingSQLListener, null);      // 로딩 다이얼로그 및 sql 전송
+            LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER , null);      // 로딩 다이얼로그 및 sql 전송
         }
     }
 
     private void selectSQLData(Object caller) {
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
             @Override
-            public JSONObject getDataSend() {
+            public int getSize() {
+                return 1;
+            }
+            @Override
+            public JSONObject getSQLQuery() {
                 return SQLDataService.getDynamicSQLJSONData(mSelectSQL.toString(), mDataQueryGroup,-1,"select");     // select SQL 제이슨
             }
-
             @Override
-            public void dataProcess(JSONObject responseData, Object caller) throws JSONException {
+            public JSONObject getUpLoad() {
+                return null;
+            }
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
                 Log.d("responseData", responseData.toString());
                 if (caller instanceof View) {
                     View v = (View) caller;
-                    if (responseData.getJSONArray("result").length() != 0) {
+                    if (responseData.get(0).getJSONArray("result").length() != 0) {
                         if (v.getId() == R.id.id_overlap) {     // 중복일 경우
                             Toast.makeText(JoinActivity.this, "ID 중복이 있습니다.", Toast.LENGTH_LONG).show();
                             overcheck[0] = false;
@@ -250,13 +268,12 @@ public class JoinActivity extends AppCompatActivity {
                 }   // if -- END --
             }   // dataProcess -- END --
         };   // loadingSQLListener -- END --
-
-        LoadingDialog.SQLDataSendStart(this,loadingSQLListener, caller);        // 로딩 다이얼로그 및 sql 전송
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER, caller);        // 로딩 다이얼로그 및 sql 전송
     }
 
 /*    // SQL로 보낸 데이터 처리(리스너 구현 및 로딩 다이얼로그 구현)
-    private void SQLDataSendStart(LoadingSQLListener loadingSQLListener, Object caller) {   // caller 어디서 호출 했는지 판단(필요 없을시 null)
-        mLoadingDialog = new LoadingDialog(this, caller);             // 로딩 다이얼 로그
+    private void SQLSendStart(LoadingSQLListener loadingSQLListener, Object caller) {   // caller 어디서 호출 했는지 판단(필요 없을시 null)
+        mLoadingDialog = new LoadingSQLDialog(this, caller);             // 로딩 다이얼 로그
         mLoadingDialog.setSqlListener(loadingSQLListener);
         mLoadingDialog.execute();        // 다이얼로그 시작
     }*/

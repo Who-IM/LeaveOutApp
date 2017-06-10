@@ -1,4 +1,4 @@
-package whoim.leaveout;
+﻿package whoim.leaveout;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -44,6 +44,7 @@ import whoim.leaveout.MapAPI.MapAPIActivity;
 import whoim.leaveout.StartSetting.Permission;
 
 public class MainActivity extends MapAPIActivity {
+
     private InputMethodManager imm;
     LinearLayout search_layout;
 
@@ -507,45 +508,6 @@ public class MainActivity extends MapAPIActivity {
         listView.requestLayout();
     }
 
-
-    // 글쓰기, 체크, 모아보기 메뉴 onClick 메소드
-    public void nextActivityButton(View v) {
-        Intent intent = null;
-        switch (v.getId()) {
-            case R.id.main_write:       // 글쓰기 버튼(글쓰기 액티비티 이동)
-                intent = new Intent(getApplicationContext(), WritingActivity.class);
-                intent.putExtra("address",mAddressView.getText().toString());
-                startActivity(intent);
-                break;
-            case R.id.main_check:       // 체크 버튼(토스트 출력)
-                Toast toastView = Toast.makeText(getApplicationContext(), "체크되었습니다.", Toast.LENGTH_LONG);
-                toastView.show();
-                break;
-            case R.id.main_collect:     // 모아보기 버튼(모아보기 액티비티 이동)
-                LatLng northeastLatLng;
-                LatLng southwestLatLng;
-                double northeastLat;
-                double northeastLng;
-                double southwestLat;
-                double southwestLng;
-                northeastLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.northeast; // 화면 좌측상단부분의 LatLng
-                southwestLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.southwest; // 화면 우측하단부분의 LatLng
-
-                northeastLat = northeastLatLng.latitude; // 화면 좌측상단부분의 위도
-                northeastLng = northeastLatLng.longitude; // 화면 좌측상단부분의 경도
-                southwestLat = southwestLatLng.latitude; //화면 우측하단부분의 위도
-                southwestLng = southwestLatLng.longitude; //화면 우측하단부분의 경도
-
-                Log.e("북동 위도", northeastLat + "");
-                Log.e("북동 경도", northeastLng + "");
-                Log.e("남서 위도", southwestLat + "");
-                Log.e("남서 경도", southwestLng + "");
-                intent = new Intent(getApplicationContext(), CollectActivity.class);
-                startActivity(intent);
-                break;
-        }
-    }
-
     // 뒤로가기
     @Override
     public void onBackPressed() {
@@ -687,6 +649,44 @@ public class MainActivity extends MapAPIActivity {
         if(mBroadcastLocation != null) {
             registerReceiver(mBroadcastLocation, new IntentFilter(LocationBackground.ACTION_LOCATION_BROADCAST));
             mBroadcastCheck = true; // 브로드캐스트 설정 완료
+        }
+    }
+
+    // 글쓰기, 체크, 모아보기 메뉴 onClick 메소드
+    public void nextActivityButton(View v) {
+        Intent intent = null;
+        switch (v.getId()) {
+            case R.id.main_write:       // 글쓰기 버튼(글쓰기 액티비티 이동)
+                intent = new Intent(getApplicationContext(), WritingActivity.class);
+                intent.putExtra("address",mAddressView.getText().toString());
+                startActivity(intent);
+                break;
+            case R.id.main_check:       // 체크 버튼(토스트 출력)
+                Toast toastView = Toast.makeText(getApplicationContext(), "체크되었습니다.", Toast.LENGTH_LONG);
+                toastView.show();
+                break;
+            case R.id.main_collect:     // 모아보기 버튼(모아보기 액티비티 이동)
+                LatLng northeastLatLng;
+                LatLng southwestLatLng;
+                double northeastLat;
+                double northeastLng;
+                double southwestLat;
+                double southwestLng;
+                northeastLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.northeast; // 화면 좌측상단부분의 LatLng
+                southwestLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.southwest; // 화면 우측하단부분의 LatLng
+
+                northeastLat = northeastLatLng.latitude; // 화면 좌측상단부분의 위도
+                northeastLng = northeastLatLng.longitude; // 화면 좌측상단부분의 경도
+                southwestLat = southwestLatLng.latitude; //화면 우측하단부분의 위도
+                southwestLng = southwestLatLng.longitude; //화면 우측하단부분의 경도
+
+                Log.e("북동 위도", northeastLat + "");
+                Log.e("북동 경도", northeastLng + "");
+                Log.e("남서 위도", southwestLat + "");
+                Log.e("남서 경도", southwestLng + "");
+                intent = new Intent(getApplicationContext(), CollectActivity.class);
+                startActivity(intent);
+                break;
         }
     }
 

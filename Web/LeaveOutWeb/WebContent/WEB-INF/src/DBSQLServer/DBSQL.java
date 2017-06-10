@@ -1,10 +1,13 @@
 package DBSQLServer;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -53,6 +56,10 @@ public class DBSQL {
 			while(rs.next()) {
 				JSONObject data = new JSONObject();
 				for(int i = 1; i <= size; i++) {		// 가져올 데이터 제이슨에 집어넣기
+					if(rs.getObject(i) instanceof Timestamp) {
+						data.put(resultmeta.getColumnLabel(i), rs.getString(i));
+						continue;
+					}
 					data.put(resultmeta.getColumnLabel(i), rs.getObject(i));
 				}
 				jsonArray.add(data);		// 데이터 추가

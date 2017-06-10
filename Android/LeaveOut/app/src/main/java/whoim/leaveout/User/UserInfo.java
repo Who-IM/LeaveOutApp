@@ -6,7 +6,7 @@ package whoim.leaveout.User;
 public class UserInfo {
 
     private static UserInfo mInstance;     // 싱글톤
-    private String id;      // 아이디
+    private int userNum;      // 아이디
     private String facebookId;
 
     private UserInfo() {}
@@ -19,12 +19,10 @@ public class UserInfo {
         return mInstance;
     }
 
-    public String getId() {
-        return id;
-    }
+    public int getUserNum() { return userNum; }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUserNum(int userNum) {
+        this.userNum = userNum;
     }
 
     public String getFacebookId() {

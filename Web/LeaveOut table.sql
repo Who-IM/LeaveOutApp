@@ -13,7 +13,6 @@ Create table comment (
 Create table Content (
 content_num int primary key not null auto_increment,
 user_num int not null,
-friend_num int,
 view_cnt int default 0,
 rec_cnt int default 0,
 reg_time date,

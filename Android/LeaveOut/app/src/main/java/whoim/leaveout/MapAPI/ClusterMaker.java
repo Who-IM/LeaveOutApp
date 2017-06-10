@@ -10,7 +10,6 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -26,8 +25,7 @@ import whoim.leaveout.R;
 /**
  * 클러스트 기능 관리 및 제공 클래스
  */
-public class ClusterMaker implements ClusterManager.OnClusterClickListener<SNSInfoMaker>,
-                                     ClusterManager.OnClusterItemClickListener<SNSInfoMaker> {
+public class ClusterMaker {
 
     private Context mContext;
     private GoogleMap mGoogleMap;
@@ -43,24 +41,14 @@ public class ClusterMaker implements ClusterManager.OnClusterClickListener<SNSIn
         mGoogleMap.setOnMarkerClickListener(mClusterManager);           // 구글맵 마커 클릭 리스너
 
         mClusterManager.setRenderer(new MakerClusterRenderer());        // 클러스터링 랜더링
-        mClusterManager.setOnClusterClickListener(this);                // 클러스터링 클릭시 리스너
-        mClusterManager.setOnClusterItemClickListener(this);            // 마커 클릭시 리스너
         mClusterManager.cluster();
     }
 
-    // 클러스링 된 마커 클릭한 경우 리스너
-    @Override
-    public boolean onClusterClick(Cluster<SNSInfoMaker> cluster) {
-        Toast.makeText(mContext,"onClusterClick" + cluster.getSize(), Toast.LENGTH_SHORT).show();
-        return true;
-    }
+    // 클러스터링 클릭시 리스너 셋팅
+    public void setOnClusterClickListener(ClusterManager.OnClusterClickListener<SNSInfoMaker> onClusterClickListener) {mClusterManager.setOnClusterClickListener(onClusterClickListener);}
 
-    // 일반 마커 클릭한 경우 리스너
-    @Override
-    public boolean onClusterItemClick(SNSInfoMaker snsInfoMaker) {
-        Toast.makeText(mContext,"onClusterItemClick", Toast.LENGTH_SHORT).show();
-        return true;
-    }
+    // 마커 클릭시 리스너
+    public void setOnClusterItemClickListener(ClusterManager.OnClusterItemClickListener<SNSInfoMaker> onClusterItemClickListener) {mClusterManager.setOnClusterItemClickListener(onClusterItemClickListener);}
 
     // 한개 마커 추가
     public void addSNSInfoMaker(SNSInfoMaker snsInfoMaker) { mClusterManager.addItem(snsInfoMaker); }
@@ -101,6 +89,12 @@ public class ClusterMaker implements ClusterManager.OnClusterClickListener<SNSIn
             setContentImage(false);                     // 말풍선 이미지 올리기
             mTextMarker.setText(String.valueOf(cluster.getSize()));     // 클러스터링 갯수 TextView 출력
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(createBitmap(mMakerView)));       // 마커 아이콘 올리기
+        }
+
+        // 클러스터링 몇개부터 할것인지 여부
+        @Override
+        protected boolean shouldRenderAsCluster(Cluster<SNSInfoMaker> cluster) {
+            return cluster.getSize() > 1;
         }
 
         // 말풍선 이미지 View 올리기 (secret : 울타리 글이면 빨간 말풍선)

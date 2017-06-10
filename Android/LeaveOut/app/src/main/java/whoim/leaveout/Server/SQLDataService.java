@@ -1,8 +1,10 @@
-package whoim.leaveout.SQL;
+package whoim.leaveout.Server;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
@@ -31,6 +33,7 @@ public final class SQLDataService {
         return requestData;
     }
 
+    // 동적 쿼리 문
     public static JSONObject getDynamicSQLJSONData(String sql, DataQueryGroup data, int size, String type) {
         char ch = sql.charAt(sql.length()-1);
         int sqlsize =  (ch != '?') ? new StringTokenizer(sql,"?").countTokens() - 1 : new StringTokenizer(sql,"?").countTokens();          // 동적 sql 토큰 갯수 확인(끝 부분이 ?가 아니면 1개 빼기)
@@ -46,13 +49,67 @@ public final class SQLDataService {
         return getSQLJSONData(sql,size,type);
     }
 
+    // 동적 (?) 쿼리 만들기
+    public static String getDynamicQuery(int size) {
+        StringBuilder sqldata = new StringBuilder();
+        for(int i = 0; i < size; i++) {
+            sqldata.append("?");
+            if(i != (size-1)) sqldata.append(",");
+        }
+        return sqldata.toString();
+    }
+
+    // 데이터 번들 값 추가(한 개)
+    public static JSONObject putBundleValue(JSONObject requestData, String group, String key, Object data) {
+        JSONObject bundle = null;       // 번들 데이터
+        try {
+            if(requestData.has(group))      // 있는지 없는지 판단
+                bundle = (JSONObject) requestData.get(group);
+            else {
+                requestData.put(group, new JSONObject());        // 없을경우 추가
+                bundle = requestData.getJSONObject(group);
+            }
+            bundle.put(key, data);       // 데이터 추가
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return requestData;
+    }
+
+    // 데이터 번들 값 추가(여러 개)
+    public static JSONObject putBundleArray(JSONObject requestData, String group, ArrayList data) {
+        JSONObject bundle = null;       // 번들 데이터
+        JSONArray jsonArray = new JSONArray();
+        try {
+            if(requestData.has(group))
+                bundle = (JSONObject) requestData.get(group); // 있는지 없는지 판단
+            else {
+                requestData.put(group, new JSONObject());        // 없을경우 추가
+                bundle = requestData.getJSONObject(group);
+            }
+            for (Object o : data) jsonArray.put(o);
+            bundle.put("array", jsonArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return requestData;
+    }
+
     // 동적용 sql에 보낼 data 만들기
     public static final class DataQueryGroup {
 
+        private static DataQueryGroup mInstance;        // 싱글 톤
         private StringBuilder stringBuilder;
         private int index;
 
-        public DataQueryGroup() {
+        public static DataQueryGroup getInstance() {
+            if(mInstance == null)
+                mInstance = new DataQueryGroup();
+
+            return mInstance;
+        }
+
+        private DataQueryGroup() {
             this.stringBuilder = new StringBuilder();
             this.index = 0;
         }

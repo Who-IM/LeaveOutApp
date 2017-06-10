@@ -1,6 +1,4 @@
-package whoim.leaveout.SQL;
-
-import android.os.AsyncTask;
+﻿package whoim.leaveout.Server;
 
 import org.json.JSONObject;
 
@@ -11,20 +9,25 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.Callable;
 
 /**
  * Created by 사용자 on 2017-05-25.
  */
 
-public class SQLWeb extends AsyncTask<JSONObject, Void, JSONObject> {
+public class SQLWeb implements Callable<JSONObject> {
 
-    HttpURLConnection mCon;
-    BufferedWriter mBufferedWriter;
-    BufferedReader mBufferedReader;
+    private HttpURLConnection mCon;
+    private BufferedWriter mBufferedWriter;
+    private BufferedReader mBufferedReader;
+    private JSONObject request;
+
+    public SQLWeb(JSONObject request) {
+        this.request = request;
+    }
 
     @Override
-    protected JSONObject doInBackground(JSONObject... params) {
-
+    public JSONObject call() throws Exception {
         try {
             URL url = new URL("http://172.19.1.155:8080/controll"); // URL화 한다.
             mCon = (HttpURLConnection) url.openConnection();                 // 접속 객체 생성
@@ -37,7 +40,7 @@ public class SQLWeb extends AsyncTask<JSONObject, Void, JSONObject> {
             mCon.setDoInput(true);          // 읽기모드 지정
 
             mBufferedWriter = new BufferedWriter(new OutputStreamWriter(mCon.getOutputStream(), "euc-kr"));       // 접속한 출력 스트림 생성
-            mBufferedWriter.write(params[0].toString());        // 여기서 각 필요한 데이터 보내기
+            mBufferedWriter.write(request.toString());        // 여기서 각 필요한 데이터 보내기
             mBufferedWriter.flush();        // 보내기
 
             mBufferedReader = new BufferedReader(new InputStreamReader(mCon.getInputStream(), "euc-kr"));       // 접속한 입력 스트림 생성

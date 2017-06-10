@@ -1,4 +1,4 @@
-﻿package whoim.leaveout;
+package whoim.leaveout;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -67,7 +67,7 @@ public class WritingActivity extends AppCompatActivity {
 
     // 게시글 등록 SQL
     private String mContentUpdateSQL = "insert into content(user_num,reg_time,visibility,fence,loc_x,loc_y,address) " +
-                                       "values(?,now(),?,?,?,?,?)";
+            "values(?,now(),?,?,?,?,?)";
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();
 
     private Toolbar toolbar;
@@ -89,7 +89,7 @@ public class WritingActivity extends AppCompatActivity {
     //카메라 앨범 변수
     private static final int PICK_FROM_CAMERA = 1; //카메라 촬영으로 사진 가져오기
     private static final int PICK_FROM_ALBUM = 2;  //앨범에서 사진 가져오기
-//    ImageView iv = null;
+    //    ImageView iv = null;
     Uri photoUri;
     Bitmap thumbImage = null;
     private String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -471,7 +471,7 @@ public class WritingActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }*/ 
+        }*/
 
         // 이미지 돌리기
         thumbImage = rotateBitmap(thumbImage, orientation);

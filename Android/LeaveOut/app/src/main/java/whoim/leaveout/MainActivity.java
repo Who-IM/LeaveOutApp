@@ -1,4 +1,4 @@
-﻿package whoim.leaveout;
+package whoim.leaveout;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -657,8 +657,18 @@ public class MainActivity extends MapAPIActivity {
         Intent intent = null;
         switch (v.getId()) {
             case R.id.main_write:       // 글쓰기 버튼(글쓰기 액티비티 이동)
+                if(mCurrentLocation == null)  {
+                    if(checkLocationServicesStatus())   // GPS 설정됬을 시
+                        Toast.makeText(this, "잠시후 다시 시도해 주십시오.", Toast.LENGTH_SHORT).show();
+                    else         // GPS 설정 안됬을시
+                        showDialogForLocationServiceSetting();      // 설정 하라는 다이얼로그 띄우기
+
+                    return;
+                }
                 intent = new Intent(getApplicationContext(), WritingActivity.class);
-                intent.putExtra("address",mAddressView.getText().toString());
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra("address",mAddressView.getText().toString());           // 주소 이름
+                intent.putExtra("loc",mCurrentLocation);                                // 주소 값 (위도,경도)
                 startActivity(intent);
                 break;
             case R.id.main_check:       // 체크 버튼(토스트 출력)

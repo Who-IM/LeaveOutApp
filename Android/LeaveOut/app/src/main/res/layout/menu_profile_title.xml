@@ -17,7 +17,8 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="15dp" />
+            android:layout_marginTop="15dp"
+            android:src="@drawable/basepicture"/>
 
         <!-- 성명 -->
         <TextView

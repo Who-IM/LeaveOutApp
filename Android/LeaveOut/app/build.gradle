@@ -41,6 +41,4 @@ dependencies {
     compile 'com.google.maps.android:android-maps-utils:0.4.4'
     compile 'com.tsengvn:Typekit:1.0.0'
     compile 'com.facebook.android:facebook-android-sdk:4.+'
-    //compile 'com.loopj.android:android-async-http:1.4.9'
-    //compile files('lib/android-async-http-1.4.9.jar')
 }

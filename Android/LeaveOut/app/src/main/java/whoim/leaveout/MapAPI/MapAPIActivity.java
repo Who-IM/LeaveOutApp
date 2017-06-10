@@ -3,6 +3,7 @@ package whoim.leaveout.MapAPI;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
@@ -11,6 +12,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -31,6 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -292,14 +295,22 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
     private void ContentMarkerSQLData() {
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
             @Override
-            public JSONObject getDataSend() {
+            public int getSize() {
+                return 1;
+            }
+            @Override
+            public JSONObject getSQLQuery() {
                 return SQLDataService.getSQLJSONData("select content_num,loc_x,loc_y from content where visibility = 1 and fence = false",-1,"select");
             }
             @Override
-            public void dataProcess(JSONObject responseData, Object caller) throws JSONException {
+            public JSONObject getUpLoad() {
+                return null;
+            }
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
                 mGoogleMap.clear();
                 mClusterMaker.clerMakerAll();
-                JSONArray result = responseData.getJSONArray("result");
+                JSONArray result = responseData.get(0).getJSONArray("result");
                 if(result.length() == 0) return;
                 for(int i = 0; i < result.length(); i++) {
                     JSONObject data = result.getJSONObject(i);
@@ -311,7 +322,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
                 mClusterMaker.resetCluster();
             }
         };
-        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,null);
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
     }
 
 
@@ -351,18 +362,26 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
 
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
             @Override
-            public JSONObject getDataSend() {
+            public int getSize() {
+                return 1;
+            }
+            @Override
+            public JSONObject getSQLQuery() {
                 return SQLDataService.getDynamicSQLJSONData(sql, mDataQueryGroup, -1, "select");
             }
             @Override
-            public void dataProcess(JSONObject responseData, Object caller) throws JSONException {
+            public JSONObject getUpLoad() {
+                return null;
+            }
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
                 Intent intent = new Intent(getApplicationContext(), ViewArticleActivity.class);
-                intent.putExtra("responseData", responseData.toString());
+                intent.putExtra("responseData", responseData.get(0).toString());
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
             }
         };
-        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, null);
+        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener,ProgressDialog.STYLE_SPINNER, null);
     }
 }
 

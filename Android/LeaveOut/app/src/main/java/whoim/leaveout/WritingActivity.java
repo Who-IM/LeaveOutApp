@@ -56,8 +56,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import whoim.leaveout.Loading.LoadingSQLListener2;
-import whoim.leaveout.Loading.LoadingSQLUploadDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.SingleClick.OnSingleClickListener;
 import whoim.leaveout.User.UserInfo;
@@ -473,14 +473,13 @@ public class WritingActivity extends AppCompatActivity {
 //        bs.close();
     }
 
-//    ArrayList<String> BitmapFomatString = new ArrayList<>();
-
     private String getStringFromBitmap(Bitmap bitmapPicture) {
         String encodedImage;
         ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
         bitmapPicture.compress(Bitmap.CompressFormat.PNG, 100, byteArrayBitmapStream);
         byte[] b = byteArrayBitmapStream.toByteArray();
         encodedImage = Base64.encodeToString(b, Base64.NO_WRAP);
+        try { byteArrayBitmapStream.close(); } catch (IOException e) { e.printStackTrace();}
         return encodedImage;
     }
 
@@ -571,6 +570,17 @@ public class WritingActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        // bitmaap 삭제
+        ArrayList<writing_ListData> arrayList = adapter.getList();
+        for(writing_ListData writing_listData : arrayList) {
+            writing_listData.Image.recycle();
+            writing_listData.Image = null;
+        }
+        super.onDestroy();
+    }
+
     // 완료 및 뒤로가기 버튼
     public void onWriteClicked(View view) {
         switch (view.getId()) {
@@ -586,82 +596,32 @@ public class WritingActivity extends AppCompatActivity {
         }
     }
 
- /*   private void contentUpdateSQLData2() {
-        final UserInfo userInfo = UserInfo.getInstance();
-        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
-            @Override
-            public JSONObject getDataSend() {
-                mDataQueryGroup.clear();
-                mDataQueryGroup.addInt(userInfo.getUserNum());          // 유저 번호
-                mDataQueryGroup.addInt(SecurityRadioChecked());         // 공개여부 값
-                mDataQueryGroup.addBoolean(mSecretCheckBox.isChecked());    // 울타리 체크
-                mDataQueryGroup.addDouble(mCurrentLocation.getLatitude());  // 위도
-                mDataQueryGroup.addDouble(mCurrentLocation.getLongitude()); // 경도
-                mDataQueryGroup.addString(mAddressText.getText().toString());   // 주소
-                JSONObject data = SQLDataService.getDynamicSQLJSONData(mContentUpdateSQL,mDataQueryGroup,0,"update");       // sql 셋팅
-                SQLDataService.putBundleValue(data,"upload","usernum",userInfo.getUserNum());                             // 번들 데이터 더 추가(유저 id)
-                SQLDataService.putBundleValue(data,"upload","path","content");
-                SQLDataService.putBundleValue(data,"upload","text",write_input.getText().toString());        // 번들 데이터 더 추가(내용)
-//                SQLDataService.putBundleValue(data,"upload","context","image");
-                JSONArray jsonArray = new JSONArray();
-                int size = adapter.getCount();
-                for(int i = 0; i < size; i++) {
-                    ArrayList<writing_ListData> arrayList = adapter.getList();
-                    jsonArray.put(getStringFromBitmap(arrayList.get(0).Image));
-                    arrayList.get(0).Image.recycle();
-                    arrayList.get(0).Image = null;
-                    arrayList.remove(0);
-                }
-                SQLDataService.putBundleValue(data,"upload","array",jsonArray);
-//                SQLDataService.putBundleArray(data,"upload", BitmapFomatString);
-                return data;
-            }
-            @Override
-            public void dataProcess(JSONObject responseData, Object caller) throws JSONException {
-                if(!responseData.getString("result").equals("error")) {      // error이 아닐 경우
-                    Toast.makeText(WritingActivity.this,"등록 되었습니다.",Toast.LENGTH_LONG).show();
-//                    test();
-//                    finish();   // 액티비티 종료
-                }
-                else    // 에러 일 경우
-                    Toast.makeText(WritingActivity.this,"잠시 후 다시 시도해 주십시오.",Toast.LENGTH_LONG).show();
-            }
-        };
-        LoadingSQLUploadDialog.SQLSendStart(this, loadingSQLListener, null);
-    }*/
-
     private void contentUpdateSQLData() {
 
-        LoadingSQLListener2 loadingSQLListener = new LoadingSQLListener2() {
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
             @Override
-            public int progressSetting(ProgressDialog progressDialog) {
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);        // 원형
-                progressDialog.setMessage("로딩중입니다..");        // 내용
-                Log.d("ProgressStyle", progressDialog.getProgress() + "");
-                return adapter.getCount()+1;
+            public int getSize() {
+                return adapter.getCount() + 1;
             }
-
             @Override
             public JSONObject getSQLQuery() {
                 return InsertSQLContent();
             }
-
             @Override
             public JSONObject getUpLoad() {
                 return uploadImage();
             }
-
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
-
                 if(responseData != null) {
                     Toast.makeText(WritingActivity.this,"Good",Toast.LENGTH_SHORT).show();
+
                     finish();
                 }
 
             }
         };
-        LoadingSQLUploadDialog.SQLSendStart(this,loadingSQLListener,null);
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_HORIZONTAL,null);
     }
 
     private JSONObject InsertSQLContent() {
@@ -691,50 +651,11 @@ public class WritingActivity extends AppCompatActivity {
         ArrayList<writing_ListData> arrayList = adapter.getList();
         if(arrayList.size() == 0) return null;
         jsonArray.put(getStringFromBitmap(arrayList.get(0).Image));
-        arrayList.get(0).Image.recycle();
-        arrayList.get(0).Image = null;
-        arrayList.remove(0);
         this.imagecount++;
         SQLDataService.putBundleValue(data, "upload", "imagecount", this.imagecount);
         SQLDataService.putBundleValue(data, "upload", "array", jsonArray);
         return data;
     }
-
-
-    /*private void test() {
-        final UserInfo userInfo = UserInfo.getInstance();
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.setTimeout(10000);
-        client.setResponseTimeout(10000);
-        RequestParams params = new RequestParams();
-        params.put("upload","content");
-        params.put("usernum",userInfo.getUserNum());
-        params.put("textfile",write_input.getText().toString());
-
-        client.post("http://192.168.35.91:8080/controll2",params,new ResponseHandler());
-    }
-
-    private InputStream testimage(Bitmap bitmapPicture) {
-        ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
-        bitmapPicture.compress(Bitmap.CompressFormat.PNG, 100, byteArrayBitmapStream);
-        byte[] b = byteArrayBitmapStream.toByteArray();
-        InputStream in = new ByteArrayInputStream(b);
-        return in;
-    }
-
-    class ResponseHandler extends AsyncHttpResponseHandler {
-
-        @Override
-        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-            Toast.makeText(WritingActivity.this,"OK",Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-            Toast.makeText(WritingActivity.this,"Error",Toast.LENGTH_SHORT).show();
-        }
-
-    }*/
 
     // 공개여부 라디오 버튼 체크 된 부분 찾기
     private int SecurityRadioChecked() {

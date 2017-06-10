@@ -67,13 +67,14 @@ public class WritingActivity extends AppCompatActivity {
 
     // 게시글 등록 SQL
     private String mContentUpdateSQL = "insert into content(user_num,reg_time,visibility,fence,loc_x,loc_y,address) " +
-                                       "values(?,now(),?,?,?,?,?)";
+            "values(?,now(),?,?,?,?,?)";
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();
 
     private Toolbar toolbar;
     private TextView mAddressText;          // 주소 이름
     private Location mCurrentLocation;      // GPS 주소 객체
 
+    File storageDir = null;
     ExifInterface exif = null;
     File photoFile = null;
     int orientation;
@@ -88,7 +89,7 @@ public class WritingActivity extends AppCompatActivity {
     //카메라 앨범 변수
     private static final int PICK_FROM_CAMERA = 1; //카메라 촬영으로 사진 가져오기
     private static final int PICK_FROM_ALBUM = 2;  //앨범에서 사진 가져오기
-//    ImageView iv = null;
+    //    ImageView iv = null;
     Uri photoUri;
     Bitmap thumbImage = null;
     private String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -121,6 +122,7 @@ public class WritingActivity extends AppCompatActivity {
     private ImageButton friendtag = null;
     private String tagText = null;
 
+    int count = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,25 +164,12 @@ public class WritingActivity extends AppCompatActivity {
         writing_search_layout.setVisibility(View.GONE);
         check_list_open();
 
-        // 친구태그 테스트중
-        setFriendtag();
-
         Intent tagintent = getIntent();
         tagText = tagintent.getStringExtra("tag");
-        write_input.setText(write_input.getText().toString() + tagText);
-    }
-
-    // 친구태그
-    private void setFriendtag() {
-        // 친구 태그
-        friendtag = (ImageButton) findViewById(R.id.friendtag);
-        friendtag.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), TagFriendListActivity.class);
-                startActivity(it);
-            }
-        });
+        if(tagText != null) {
+            // 여기다 db 내용 + tagText 하면됨
+            write_input.setText(tagText);
+        }
     }
 
     private void setInstance() {
@@ -371,7 +360,7 @@ public class WritingActivity extends AppCompatActivity {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("HHmmss").format(new Date());   //그림저장할때 파일명 지정
         String imageFileName = "IP" + timeStamp + "_";
-        File storageDir = new File(Environment.getExternalStorageDirectory() + "/LeaveOut/"); //LeaveOut라는 경로에 이미지를 저장하기 위함
+        storageDir = new File(Environment.getExternalStorageDirectory() + "/LeaveOut/"); //LeaveOut라는 경로에 이미지를 저장하기 위함
         if (!storageDir.exists()) {
             storageDir.mkdirs();
         }
@@ -401,12 +390,20 @@ public class WritingActivity extends AppCompatActivity {
     public void goToAlbumButton(View v) {
         Intent intent = new Intent(Intent.ACTION_PICK); //ACTION_PICK 즉 사진을 고르겠다!
         intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+
         startActivityForResult(intent, PICK_FROM_ALBUM);     //requestCode가 PICK_FROM_ALBUM으로 이동
     }
 
     //카메라 및 갤러리 기능 활성화
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(count == 20)
+        {
+            Toast.makeText(WritingActivity.this, "이미지 갯수 "+count+"개 초과 더이상 등록할수 없습니다..", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        count++;
+
         //카메라나 갤러리 창을 종료 했을 경우
         if (resultCode != RESULT_OK) {
             Toast.makeText(WritingActivity.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
@@ -440,7 +437,7 @@ public class WritingActivity extends AppCompatActivity {
                 list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
                 thumbImage = null;
 
-            } catch (Exception e) {
+            } catch (Exception e    ) {
                 Log.e("ERROR", e.getMessage().toString());
             }
         }
@@ -448,6 +445,7 @@ public class WritingActivity extends AppCompatActivity {
 
     //이미지 추출
     protected void imageExtraction(int requestCode) throws IOException {
+
         //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
 //        iv = (ImageView) findViewById(R.id.write_input_picture);
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -466,6 +464,14 @@ public class WritingActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        /*else if (requestCode == PICK_FROM_ALBUM){
+            try {
+                exif = new ExifInterface(storageDir.toURI().getPath());
+                orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }*/
 
         // 이미지 돌리기
         thumbImage = rotateBitmap(thumbImage, orientation);
@@ -670,6 +676,12 @@ public class WritingActivity extends AppCompatActivity {
                 return 3;
         }
         return 0;
+    }
+
+    // 친구태그
+    public void tag(View v) {
+        Intent it = new Intent(getApplicationContext(), TagFriendListActivity.class);
+        startActivity(it);
     }
 
     // 폰트 바꾸기

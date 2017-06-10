@@ -12,6 +12,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -110,6 +111,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
             item.add(new SNSInfoMaker(new LatLng(mRandom.nextDouble() * (37.56 - 37.78494009999999) + 37.78494009999999, mRandom.nextDouble() * (126.97 - 127.97) + 127.97), i));
         }
         mClusterMaker.addSNSInfoMakerList(item);*/
+
 
 /*
         LatLng seoul = new LatLng(37.56, 126.97);

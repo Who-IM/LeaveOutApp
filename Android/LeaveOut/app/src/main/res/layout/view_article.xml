@@ -11,7 +11,8 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:src="@drawable/basepicture"/>
 
     <TextView
         android:id="@+id/view_location"
@@ -89,13 +90,21 @@
         android:textSize="20dp"
         android:layout_below="@+id/view_name"
         android:layout_alignStart="@+id/view_name" />
+    <GridView
+        android:id="@+id/view_grid"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentStart="true"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:layout_below="@+id/view_contents" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="#FFabdeff"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/view_contents"
+        android:layout_below="@+id/view_grid"
         android:layout_marginTop="13dp"
         android:orientation="horizontal"
         android:id="@+id/linearLayout2">

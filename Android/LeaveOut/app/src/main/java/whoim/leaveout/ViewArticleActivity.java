@@ -17,6 +17,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -29,6 +30,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import whoim.leaveout.GridAdapter.GridAdapter;
 
 // 글 보기
 public class ViewArticleActivity extends AppCompatActivity
@@ -51,6 +54,9 @@ public class ViewArticleActivity extends AppCompatActivity
     private ArrayList<EditText> view_edit = null;
 
     int menuCount = 0;  //매뉴 옵션 아이템 순서
+
+    private ArrayList<GridView> grid_list = null;
+    private ArrayList<GridAdapter> gridAdapter = null;
 
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -75,6 +81,8 @@ public class ViewArticleActivity extends AppCompatActivity
         view_edit = new ArrayList<EditText>();
         view_adapter = new ArrayList<view_Comment_Adapter>();
 
+        grid_list = new ArrayList<GridView>();
+        gridAdapter = new ArrayList<GridAdapter>();
         // 모아보기 listview 셋팅
         setCollect();
     }
@@ -199,7 +207,35 @@ public class ViewArticleActivity extends AppCompatActivity
         listView.setLayoutParams(params);
         listView.requestLayout();
     }
+    // 리스트뷰 펼처보기(한화면에)
+    public static void setListViewHeightBasedOnChildren(GridView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
 
+        int totalHeight = 0;
+
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
+        int count = listAdapter.getCount();
+        if(count > 2) {
+            count = count/2 + 1;
+        }
+        else {
+            count = 1;
+        }
+        for (int i = 0; i < count; i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+
+        params.height = totalHeight;
+        listView.setLayoutParams(params);
+        listView.requestLayout();
+    }
     // 리스트뷰 홀더
     private class article_ViewHolder {
         public ImageView Image;
@@ -380,7 +416,29 @@ public class ViewArticleActivity extends AppCompatActivity
                     }
                 }
             });
+            // 이미지 처리
+            if(grid_list.size() == position) {  // ArrayList 자원 재활용
+                grid_list.add(position, (GridView) convertView.findViewById(R.id.view_grid));    }
+            else {
+                grid_list.set(position, (GridView) convertView.findViewById(R.id.view_grid));    }
 
+            // 어뎁터 생성 등록
+            if(gridAdapter.size() == position) { // ArrayList 자원 재활용
+                gridAdapter.add(position, new GridAdapter(ViewArticleActivity.this));     }
+            else {
+                gridAdapter.set(position, new GridAdapter(ViewArticleActivity.this));     }
+
+            if(position == 0) {
+                // 데이터는 동적으로 apadter에 저장
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+            } else if(position == 1) {
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+            }
+            grid_list.get(position).setAdapter(gridAdapter.get(position));
+            setListViewHeightBasedOnChildren(grid_list.get(position)); // 펼쳐보기
             return convertView;
         }
     }

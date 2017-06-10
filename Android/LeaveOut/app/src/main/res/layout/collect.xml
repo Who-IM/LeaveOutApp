@@ -91,7 +91,7 @@
         android:textSize="20dp" />
 
     <GridView
-        android:id="@+id/grid_collect"
+        android:id="@+id/collect_grid"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentStart="true"
@@ -106,7 +106,7 @@
         android:background="#FFabdeff"
         android:orientation="horizontal"
         android:layout_marginTop="10dp"
-        android:layout_below="@+id/grid_collect"
+        android:layout_below="@+id/collect_grid"
         android:layout_alignParentStart="true">
 
         <RelativeLayout

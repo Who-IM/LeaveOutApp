@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import java.util.ArrayList;
@@ -521,6 +522,24 @@ public class MainActivity extends MapAPIActivity {
                 toastView.show();
                 break;
             case R.id.main_collect:     // 모아보기 버튼(모아보기 액티비티 이동)
+                LatLng northeastLatLng;
+                LatLng southwestLatLng;
+                double northeastLat;
+                double northeastLng;
+                double southwestLat;
+                double southwestLng;
+                northeastLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.northeast; // 화면 좌측상단부분의 LatLng
+                southwestLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.southwest; // 화면 우측하단부분의 LatLng
+
+                northeastLat = northeastLatLng.latitude; // 화면 좌측상단부분의 위도
+                northeastLng = northeastLatLng.longitude; // 화면 좌측상단부분의 경도
+                southwestLat = southwestLatLng.latitude; //화면 우측하단부분의 위도
+                southwestLng = southwestLatLng.longitude; //화면 우측하단부분의 경도
+
+                Log.e("북동 위도", northeastLat + "");
+                Log.e("북동 경도", northeastLng + "");
+                Log.e("남서 위도", southwestLat + "");
+                Log.e("남서 경도", southwestLng + "");
                 intent = new Intent(getApplicationContext(), CollectActivity.class);
                 startActivity(intent);
                 break;
@@ -659,6 +678,8 @@ public class MainActivity extends MapAPIActivity {
                     mAddressView.setText(MainActivity.super.getCurrentAddress(mCurrentLocation));
                     Log.d(LocationBackground.ACTION_LOCATION_BROADCAST, "mLatitudelocation" + mCurrentLocation.getLatitude());
                     Log.d(LocationBackground.ACTION_LOCATION_BROADCAST, "mLongitudelocation" + mCurrentLocation.getLongitude());
+
+
                 }
             };
         }

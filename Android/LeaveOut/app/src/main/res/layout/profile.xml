@@ -90,6 +90,15 @@
         android:text="글내용"
         android:textSize="20dp" />
 
+    <GridView
+        android:id="@+id/profile_grid"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentStart="true"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:layout_below="@+id/profile_contents" />
+
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
@@ -97,7 +106,7 @@
         android:layout_marginTop="13dp"
         android:background="#FFabdeff"
         android:orientation="horizontal"
-        android:layout_below="@+id/profile_contents"
+        android:layout_below="@+id/profile_grid"
         android:layout_alignParentStart="true">
 
         <RelativeLayout

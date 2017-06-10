@@ -125,6 +125,14 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <!--프로필 화면-->
+        <activity
+            android:name=".CommentActivity"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait">
+        </activity>
+
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"

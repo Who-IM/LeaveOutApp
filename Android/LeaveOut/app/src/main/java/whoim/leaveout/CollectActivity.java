@@ -85,7 +85,7 @@ public class CollectActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.collect_layout);
+        setContentView(R.layout.public_view_article_layout);
 
         comment_list = new ArrayList<ListView>();
         comment_btnlistner = new ArrayList<Button>();
@@ -107,7 +107,7 @@ public class CollectActivity extends AppCompatActivity {
         setCollect();
 
         //tab layout 등록
-        tabLayout = (TabLayout) findViewById(R.id.collect_tab);
+        tabLayout = (TabLayout) findViewById(R.id.public_view_article_tab);
         tab = new profile_tab("전체");
         tab = new profile_tab("맛집");
         tab = new profile_tab("여행지");
@@ -122,7 +122,7 @@ public class CollectActivity extends AppCompatActivity {
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         //viewpager 등록
-        viewPager = (ViewPager) findViewById(R.id.collect_pager);
+        viewPager = (ViewPager) findViewById(R.id.public_view_article_pager);
 
         //tab layout 리스너 등록
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -237,7 +237,7 @@ public class CollectActivity extends AppCompatActivity {
     // 모아보기 listview 셋팅
     private void setCollect() {
         // 메뉴
-        list = (ListView) findViewById(R.id.collect_listview);
+        list = (ListView) findViewById(R.id.public_view_article_listview);
 
         // 어뎁터 생성민 등록
         adapter = new collect_Adapter(this);
@@ -308,7 +308,7 @@ public class CollectActivity extends AppCompatActivity {
         listView.requestLayout();
     }
 
-    // ------------ collect listview -------------
+    // ------------ public_view_article listview -------------
     private class collect_ViewHolder {
         public ImageView Image;
         public TextView name;
@@ -371,15 +371,15 @@ public class CollectActivity extends AppCompatActivity {
                 holder = new collect_ViewHolder();
 
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.collect, null);
+                convertView = inflater.inflate(R.layout.public_view_article, null);
 
-                holder.Image = (ImageView) convertView.findViewById(R.id.collect_Image);
-                holder.name = (TextView) convertView.findViewById(R.id.collect_name);
-                holder.location = (TextView) convertView.findViewById(R.id.collect_location);
-                holder.time = (TextView) convertView.findViewById(R.id.collect_time);
-                holder.recom_num = (TextView) convertView.findViewById(R.id.collect_recom_num);
-                holder.views_num = (TextView) convertView.findViewById(R.id.collect_views_num);
-                holder.contents = (TextView) convertView.findViewById(R.id.collect_contents);
+                holder.Image = (ImageView) convertView.findViewById(R.id.public_view_article_Image);
+                holder.name = (TextView) convertView.findViewById(R.id.public_view_article_name);
+                holder.location = (TextView) convertView.findViewById(R.id.public_view_article_location);
+                holder.time = (TextView) convertView.findViewById(R.id.public_view_article_time);
+                holder.recom_num = (TextView) convertView.findViewById(R.id.public_view_article_recom_num);
+                holder.views_num = (TextView) convertView.findViewById(R.id.public_view_article_views_num);
+                holder.contents = (TextView) convertView.findViewById(R.id.public_view_article_contents);
 
                 convertView.setTag(holder);
             }else{
@@ -405,14 +405,14 @@ public class CollectActivity extends AppCompatActivity {
             holder.contents.setText(mData.contents);
 
             // 글쓰기 이미지
-            ImageView iv = (ImageView) convertView.findViewById(R.id.collect_mycomment_image);
+            ImageView iv = (ImageView) convertView.findViewById(R.id.public_view_article_mycomment_image);
             iv.setImageResource(R.drawable.basepicture);
 
             // 댓글
             if(comment_list.size() == position) {  // ArrayList 자원 재활용
-                comment_list.add(position, (ListView) convertView.findViewById(R.id.collect_comment_list));    }
+                comment_list.add(position, (ListView) convertView.findViewById(R.id.public_view_article_comment_list));    }
             else {
-                comment_list.set(position, (ListView) convertView.findViewById(R.id.collect_comment_list));    }
+                comment_list.set(position, (ListView) convertView.findViewById(R.id.public_view_article_comment_list));    }
 
 
             // 어뎁터 생성 등록
@@ -424,9 +424,9 @@ public class CollectActivity extends AppCompatActivity {
 
             // 댓글 edittext
             if(comment_edit.size() == position) { // ArrayList 자원 재활용
-                comment_edit.add(position, (EditText) convertView.findViewById(R.id.collect_comment_editText));     }
+                comment_edit.add(position, (EditText) convertView.findViewById(R.id.public_view_article_comment_editText));     }
             else {
-                comment_edit.set(position, (EditText) convertView.findViewById(R.id.collect_comment_editText));     }
+                comment_edit.set(position, (EditText) convertView.findViewById(R.id.public_view_article_comment_editText));     }
             comment_edit.get(position).setTag(position);
             comment_edit.get(position).setOnEditorActionListener(new TextView.OnEditorActionListener()
             {
@@ -470,9 +470,9 @@ public class CollectActivity extends AppCompatActivity {
 
             // 커멘드 버튼 클릭시 처리
             if(comment_btnlistner.size() == position) { // ArrayList 자원 재활용
-                comment_btnlistner.add(position, (Button) convertView.findViewById(R.id.collect_comment_btn));    }
+                comment_btnlistner.add(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn));    }
             else {
-                comment_btnlistner.set(position, (Button) convertView.findViewById(R.id.collect_comment_btn));    }
+                comment_btnlistner.set(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn));    }
             comment_btnlistner.get(position).setTag(position); // tag로 listview position 등록
             comment_btnlistner.get(position).setOnClickListener(new View.OnClickListener() { // 댓글 보기 버튼 이벤트
                 @Override
@@ -494,9 +494,9 @@ public class CollectActivity extends AppCompatActivity {
             //추천하기 숫자 올라가기
             if(like_btnlistner.size() == position)
             {
-                like_btnlistner.add(position, (Button) convertView.findViewById(R.id.collect_like_btn));
+                like_btnlistner.add(position, (Button) convertView.findViewById(R.id.public_view_article_like_btn));
             }else{
-                like_btnlistner.set(position, (Button) convertView.findViewById(R.id.collect_like_btn));
+                like_btnlistner.set(position, (Button) convertView.findViewById(R.id.public_view_article_like_btn));
             }
             like_btnlistner.get(position).setTag(position);
             like_btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
@@ -512,9 +512,9 @@ public class CollectActivity extends AppCompatActivity {
 
             // 이미지 처리
             if(grid_list.size() == position) {  // ArrayList 자원 재활용
-                grid_list.add(position, (GridView) convertView.findViewById(R.id.collect_grid));    }
+                grid_list.add(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
             else {
-                grid_list.set(position, (GridView) convertView.findViewById(R.id.collect_grid));    }
+                grid_list.set(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
 
             // 어뎁터 생성 등록
             if(gridAdapter.size() == position) { // ArrayList 자원 재활용
@@ -548,9 +548,9 @@ public class CollectActivity extends AppCompatActivity {
         public String views_num;
         public String contents;
     }
-    // -------------------------------------- End collect listview -----------------------
+    // -------------------------------------- End public_view_article listview -----------------------
 
-    // 여기부터 collect_comment 부분
+    // 여기부터 public_view_article_comment 부분
     private class collect_Comment_ViewHolder {
         public ImageView Image;
         public TextView name;
@@ -603,12 +603,12 @@ public class CollectActivity extends AppCompatActivity {
                 holder = new collect_Comment_ViewHolder();
 
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.collect_comment, null);
+                convertView = inflater.inflate(R.layout.public_view_article_comment, null);
 
-                holder.Image = (ImageView) convertView.findViewById(R.id.collect_comment_image);
-                holder.name = (TextView) convertView.findViewById(R.id.collect_comment_name);
-                holder.comment = (TextView) convertView.findViewById(R.id.collect_comment_text);
-                holder.time = (TextView) convertView.findViewById(R.id.collect_comment_time);
+                holder.Image = (ImageView) convertView.findViewById(R.id.public_view_article_comment_image);
+                holder.name = (TextView) convertView.findViewById(R.id.public_view_article_comment_name);
+                holder.comment = (TextView) convertView.findViewById(R.id.public_view_article_comment_text);
+                holder.time = (TextView) convertView.findViewById(R.id.public_view_article_comment_time);
 
                 convertView.setTag(holder);
             }else{
@@ -632,9 +632,9 @@ public class CollectActivity extends AppCompatActivity {
 
             // 커멘드 버튼 클릭시 처리
             if(collect_comment_btn2.size() == position) { // ArrayList 자원 재활용
-                collect_comment_btn2.add(position, (Button) convertView.findViewById(R.id.collect_comment_btn2));    }
+                collect_comment_btn2.add(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn2));    }
             else {
-                collect_comment_btn2.set(position, (Button) convertView.findViewById(R.id.collect_comment_btn2));    }
+                collect_comment_btn2.set(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn2));    }
             collect_comment_btn2.get(position).setOnClickListener(new View.OnClickListener() { // 댓글 보기 버튼 이벤트
                 @Override
                 public void onClick(View v) {

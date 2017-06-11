@@ -36,7 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import whoim.leaveout.GridAdapter.GridAdapter;
+import whoim.leaveout.Adapter.GridAdapter;
 
 // 환경설정
 public class ProfileActivity extends AppCompatActivity {
@@ -71,6 +71,10 @@ public class ProfileActivity extends AppCompatActivity {
     private ArrayList<GridView> grid_list = null;
     private ArrayList<GridAdapter> gridAdapter = null;
 
+    //like 버튼
+    private ArrayList<Button> like_btnlistner = null;
+    private int like_count = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +92,8 @@ public class ProfileActivity extends AppCompatActivity {
         comment_btnlistner = new ArrayList<Button>();                         // 댓글보기 버튼
         profile_adapter = new ArrayList<profile_Comment_Adapter>();
         profile_edit = new ArrayList<EditText>();
+
+        like_btnlistner = new ArrayList<Button>();
 
         grid_list = new ArrayList<GridView>();
         gridAdapter = new ArrayList<GridAdapter>();
@@ -370,6 +376,10 @@ public class ProfileActivity extends AppCompatActivity {
             return position;
         }
 
+        public void setmListData(int position, String recom_num) {
+            mListData.get(position).recom_num = recom_num;
+        }
+
         // 생성자로 값을 받아 셋팅
         public void addItem(Drawable image, String name, String location, String time, String recom_num, String views_num, String contents) {
             profile_ListData addInfo = null;
@@ -514,6 +524,26 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 }
             });
+
+            //추천하기 숫자 올라가기
+            if(like_btnlistner.size() == position)
+            {
+                like_btnlistner.add(position, (Button) convertView.findViewById(R.id.profile_like_btn));
+            }else{
+                like_btnlistner.set(position, (Button) convertView.findViewById(R.id.profile_like_btn));
+            }
+            like_btnlistner.get(position).setTag(position);
+            like_btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v)
+                {
+                    int pos = (int) v.getTag();
+                    like_count++;
+                    adapter.setmListData(pos, like_count+"");
+                    adapter.notifyDataSetChanged();
+                }
+            });
+
             // 이미지 처리
             if(grid_list.size() == position) {  // ArrayList 자원 재활용
                 grid_list.add(position, (GridView) convertView.findViewById(R.id.profile_grid));    }

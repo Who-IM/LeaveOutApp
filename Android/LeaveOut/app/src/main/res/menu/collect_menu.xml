@@ -5,18 +5,18 @@
     <item
         android:id="@+id/collect_menu_location"
         android:orderInCategory="100"
-        android:name="가까운 위치 글" />
+        android:title="가까운 위치 글" />
     <item
         android:id="@+id/collect_menu_time"
         android:orderInCategory="100"
-        android:name="최신 글" />
+        android:title="최신 글" />
     <item
         android:id="@+id/collect_menu_view"
         android:orderInCategory="100"
-        android:name="조회수" />
+        android:title="조회수" />
 
     <item
         android:id="@+id/collect_menu_recommended"
         android:orderInCategory="100"
-        android:name="추천수" />
+        android:title="추천수" />
 </menu>

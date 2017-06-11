@@ -662,7 +662,6 @@ public class MainActivity extends MapAPIActivity {
                         Toast.makeText(this, "잠시후 다시 시도해 주십시오.", Toast.LENGTH_SHORT).show();
                     else         // GPS 설정 안됬을시
                         showDialogForLocationServiceSetting();      // 설정 하라는 다이얼로그 띄우기
-
                     return;
                 }
                 intent = new Intent(getApplicationContext(), WritingActivity.class);
@@ -683,10 +682,6 @@ public class MainActivity extends MapAPIActivity {
                 double southwestLat = southwestLatLng.latitude; //화면 우측하단부분의 위도
                 double southwestLng = southwestLatLng.longitude; //화면 우측하단부분의 경도
 
-                Log.e("북동 위도", northeastLat + "");
-                Log.e("북동 경도", northeastLng + "");
-                Log.e("남서 위도", southwestLat + "");
-                Log.e("남서 경도", southwestLng + "");
                 intent = new Intent(getApplicationContext(), CollectActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra("northeastLat", northeastLat);

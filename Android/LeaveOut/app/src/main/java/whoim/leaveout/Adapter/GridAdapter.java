@@ -1,4 +1,4 @@
-package whoim.leaveout.GridAdapter;
+package whoim.leaveout.Adapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

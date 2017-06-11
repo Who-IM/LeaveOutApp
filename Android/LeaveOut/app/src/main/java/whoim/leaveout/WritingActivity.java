@@ -623,7 +623,6 @@ public class WritingActivity extends AppCompatActivity {
                     Toast.makeText(WritingActivity.this,"등록 되었습니다.",Toast.LENGTH_SHORT).show();
                     finish();
                 }
-
             }
         };
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_HORIZONTAL,null);

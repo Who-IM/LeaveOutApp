@@ -209,6 +209,12 @@
                 android:layout_marginRight="15dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true" />
+            <Button
+                android:id="@+id/views_like_btn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#00000000"
+                />
         </RelativeLayout>
 
     </LinearLayout>

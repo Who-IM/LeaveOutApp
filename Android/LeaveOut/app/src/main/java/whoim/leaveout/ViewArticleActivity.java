@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
@@ -29,14 +30,15 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
-import whoim.leaveout.GridAdapter.GridAdapter;
+import whoim.leaveout.Adapter.GridAdapter;
 
 // 글 보기
 public class ViewArticleActivity extends AppCompatActivity
 {
-
     private Intent data;        // 데이터
     JSONObject jsondata;      // 제이슨 데이터
 
@@ -52,17 +54,25 @@ public class ViewArticleActivity extends AppCompatActivity
     private ArrayList<Button> view_btnlistener = null;
     private boolean view_flag = true;
     private ArrayList<EditText> view_edit = null;
+    private ArrayList<Button> viewArticle_comment_btn2 = null;
 
     int menuCount = 0;  //매뉴 옵션 아이템 순서
 
     private ArrayList<GridView> grid_list = null;
     private ArrayList<GridAdapter> gridAdapter = null;
 
+    //like 버튼
+    private ArrayList<Button> like_btnlistner = null;
+    private int like_count = 0;
+
+    // tabLayout 및 toobar 이름 수정
+    private TabLayout public_view_article_tab = null;
+    private TextView public_view_article_title = null;
 
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.view_article_layout);
+        setContentView(R.layout.public_view_article_layout);
 
         data = getIntent();
         if(data != null) {
@@ -78,11 +88,20 @@ public class ViewArticleActivity extends AppCompatActivity
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
         getSupportActionBar().setDisplayShowTitleEnabled(false);        //액션바에 표시되는 제목의 표시유무를 설정합니다.
 
+        // tabLayout 및 toobar 이름 수정
+        public_view_article_tab = (TabLayout) findViewById(R.id.public_view_article_tab);
+        public_view_article_tab.setVisibility(View.GONE);
+        public_view_article_title = (TextView) findViewById(R.id.public_view_article_title);
+        public_view_article_title.setText("글 보기");
+
         // 댓글
         view_list = new ArrayList<ListView>();
         view_btnlistener = new ArrayList<Button>();
         view_edit = new ArrayList<EditText>();
         view_adapter = new ArrayList<view_Comment_Adapter>();
+        viewArticle_comment_btn2 = new ArrayList<Button>();
+
+        like_btnlistner = new ArrayList<Button>();
 
         grid_list = new ArrayList<GridView>();
         gridAdapter = new ArrayList<GridAdapter>();
@@ -170,7 +189,7 @@ public class ViewArticleActivity extends AppCompatActivity
     // 모아보기 listview 셋팅
     private void setCollect() {
         // 메뉴
-        list = (ListView) findViewById(R.id.view_listview);
+        list = (ListView) findViewById(R.id.public_view_article_listview);
 
         // 어뎁터 생성민 등록
         adapter = new article_Adapter(this);
@@ -183,9 +202,12 @@ public class ViewArticleActivity extends AppCompatActivity
 
     // 댓글 listview 셋팅
     private void setComment(int position, int image, String name, String comment) {
+        // 실제 데이터 삽입
+        SimpleDateFormat sdfNow = new SimpleDateFormat("MM월 dd일 HH:mm:ss");
+        String time = sdfNow.format(new Date(System.currentTimeMillis()));
 
         // 실제 데이터 삽입
-        view_adapter.get(position).addItem(getResources().getDrawable(image, null), name, comment);
+        view_adapter.get(position).addItem(getResources().getDrawable(image, null), name, comment, time);
     }
 
     // 리스트뷰 펼처보기(한화면에)
@@ -275,6 +297,10 @@ public class ViewArticleActivity extends AppCompatActivity
             return position;
         }
 
+        public void setmListData(int position, String recom_num) {
+            mListData.get(position).recom_num = recom_num;
+        }
+
         // 생성자로 값을 받아 셋팅
         public void addItem(Drawable image, String name, String location, String time, String recom_num, String views_num, String contents) {
             article_ListData addInfo = null;
@@ -297,15 +323,15 @@ public class ViewArticleActivity extends AppCompatActivity
                 holder = new article_ViewHolder();
 
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.view_article, null);
+                convertView = inflater.inflate(R.layout.public_view_article, null);
 
-                holder.Image = (ImageView) convertView.findViewById(R.id.view_Image);
-                holder.name = (TextView) convertView.findViewById(R.id.view_name);
-                holder.location = (TextView) convertView.findViewById(R.id.view_location);
-                holder.time = (TextView) convertView.findViewById(R.id.view_time);
-                holder.recom_num = (TextView) convertView.findViewById(R.id.view_recom_num);
-                holder.views_num = (TextView) convertView.findViewById(R.id.view_views_num);
-                holder.contents = (TextView) convertView.findViewById(R.id.view_contents);
+                holder.Image = (ImageView) convertView.findViewById(R.id.public_view_article_Image);
+                holder.name = (TextView) convertView.findViewById(R.id.public_view_article_name);
+                holder.location = (TextView) convertView.findViewById(R.id.public_view_article_location);
+                holder.time = (TextView) convertView.findViewById(R.id.public_view_article_time);
+                holder.recom_num = (TextView) convertView.findViewById(R.id.public_view_article_recom_num);
+                holder.views_num = (TextView) convertView.findViewById(R.id.public_view_article_views_num);
+                holder.contents = (TextView) convertView.findViewById(R.id.public_view_article_contents);
 
                 convertView.setTag(holder);
             }else{
@@ -323,7 +349,7 @@ public class ViewArticleActivity extends AppCompatActivity
             }
 
             // 글쓰기 이미지
-            ImageView iv = (ImageView) convertView.findViewById(R.id.view_mycomment_image);
+            ImageView iv = (ImageView) convertView.findViewById(R.id.public_view_article_mycomment_image);
             iv.setImageResource(R.drawable.basepicture);
 
             // textView 처리
@@ -336,9 +362,9 @@ public class ViewArticleActivity extends AppCompatActivity
 
             // 댓글
             if(view_list.size() == position) { // ArrayList 자원 재활용
-                view_list.add(position, (ListView) convertView.findViewById(R.id.view_comment_list));
+                view_list.add(position, (ListView) convertView.findViewById(R.id.public_view_article_comment_list));
             } else {
-                view_list.set(position, (ListView) convertView.findViewById(R.id.view_comment_list));
+                view_list.set(position, (ListView) convertView.findViewById(R.id.public_view_article_comment_list));
             }
 
 
@@ -351,9 +377,9 @@ public class ViewArticleActivity extends AppCompatActivity
 
             // 댓글 edittext
             if(view_edit.size() == position) { // ArrayList 자원 재활용
-                view_edit.add(position, (EditText) convertView.findViewById(R.id.view_comment_editText));     }
+                view_edit.add(position, (EditText) convertView.findViewById(R.id.public_view_article_comment_editText));     }
             else {
-                view_edit.set(position, (EditText) convertView.findViewById(R.id.view_comment_editText));     }
+                view_edit.set(position, (EditText) convertView.findViewById(R.id.public_view_article_comment_editText));     }
             view_edit.get(position).setTag(position);
             view_edit.get(position).setOnEditorActionListener(new TextView.OnEditorActionListener()
             {
@@ -398,9 +424,9 @@ public class ViewArticleActivity extends AppCompatActivity
 
             // 커멘드 버튼 클릭시 처리
             if(view_btnlistener.size() == position) { // ArrayList 자원 재활용
-                view_btnlistener.add(position, (Button) convertView.findViewById(R.id.views_comment_btn));
+                view_btnlistener.add(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn));
             } else {
-                view_btnlistener.set(position, (Button) convertView.findViewById(R.id.views_comment_btn));
+                view_btnlistener.set(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn));
             }
             view_btnlistener.get(position).setTag(position); // tag로 listview의 position 등록
             view_btnlistener.get(position).setOnClickListener(new View.OnClickListener() {
@@ -419,11 +445,31 @@ public class ViewArticleActivity extends AppCompatActivity
                     }
                 }
             });
+
+            //추천하기 숫자 올라가기
+            if(like_btnlistner.size() == position)
+            {
+                like_btnlistner.add(position, (Button) convertView.findViewById(R.id.public_view_article_like_btn));
+            }else{
+                like_btnlistner.set(position, (Button) convertView.findViewById(R.id.public_view_article_like_btn));
+            }
+            like_btnlistner.get(position).setTag(position);
+            like_btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v)
+                {
+                    int pos = (int) v.getTag();
+                    like_count++;
+                    adapter.setmListData(pos, like_count+"");
+                    adapter.notifyDataSetChanged();
+                }
+            });
+
             // 이미지 처리
             if(grid_list.size() == position) {  // ArrayList 자원 재활용
-                grid_list.add(position, (GridView) convertView.findViewById(R.id.view_grid));    }
+                grid_list.add(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
             else {
-                grid_list.set(position, (GridView) convertView.findViewById(R.id.view_grid));    }
+                grid_list.set(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
 
             // 어뎁터 생성 등록
             if(gridAdapter.size() == position) { // ArrayList 자원 재활용
@@ -463,6 +509,7 @@ public class ViewArticleActivity extends AppCompatActivity
         public ImageView Image;
         public TextView name;
         public TextView comment;
+        public TextView time;
     }
 
     // 리스트뷰 어뎁터
@@ -491,12 +538,13 @@ public class ViewArticleActivity extends AppCompatActivity
         }
 
         // 생성자로 값을 받아 셋팅
-        public void addItem(Drawable image, String name, String comment) {
+        public void addItem(Drawable image, String name, String comment, String time) {
             view_Comment_ListData addInfo = null;
             addInfo = new view_Comment_ListData();
             addInfo.Image = image;
             addInfo.name = name;
             addInfo.comment = comment;
+            addInfo.time = time;
 
             ListData.add(addInfo);
         }
@@ -508,11 +556,12 @@ public class ViewArticleActivity extends AppCompatActivity
                 holder = new view_Comment_ViewHolder();
 
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.view_article_comment, null);
+                convertView = inflater.inflate(R.layout.public_view_article_comment, null);
 
-                holder.Image = (ImageView) convertView.findViewById(R.id.view_comment_image);
-                holder.name = (TextView) convertView.findViewById(R.id.view_comment_name);
-                holder.comment = (TextView) convertView.findViewById(R.id.view_comment_text);
+                holder.Image = (ImageView) convertView.findViewById(R.id.public_view_article_comment_image);
+                holder.name = (TextView) convertView.findViewById(R.id.public_view_article_comment_name);
+                holder.comment = (TextView) convertView.findViewById(R.id.public_view_article_comment_text);
+                holder.time = (TextView) convertView.findViewById(R.id.public_view_article_comment_time);
 
                 convertView.setTag(holder);
             }else{
@@ -532,6 +581,20 @@ public class ViewArticleActivity extends AppCompatActivity
             // textView 처리
             holder.name.setText(Data.name);
             holder.comment.setText(Data.comment);
+            holder.time.setText(Data.time);
+
+            // 커멘드 버튼 클릭시 처리
+            if(viewArticle_comment_btn2.size() == position) { // ArrayList 자원 재활용
+                viewArticle_comment_btn2.add(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn2));    }
+            else {
+                viewArticle_comment_btn2.set(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn2));    }
+            viewArticle_comment_btn2.get(position).setOnClickListener(new View.OnClickListener() { // 댓글 보기 버튼 이벤트
+                @Override
+                public void onClick(View v) {
+                    Intent temp = new Intent(getApplicationContext(), CommentActivity.class);
+                    startActivity(temp);
+                }
+            });
 
             return convertView;
         }
@@ -542,6 +605,7 @@ public class ViewArticleActivity extends AppCompatActivity
         public Drawable Image;
         public String name;
         public String comment;
+        public String time;
     }
 
     // 뒤로가기

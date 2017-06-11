@@ -1,5 +1,6 @@
 package whoim.leaveout;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -28,11 +29,18 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import whoim.leaveout.GridAdapter.GridAdapter;
+import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.Adapter.GridAdapter;
 
 //모아보기
 public class CollectActivity extends AppCompatActivity {
@@ -50,6 +58,10 @@ public class CollectActivity extends AppCompatActivity {
     private ArrayList<EditText> comment_edit = null;
     private ArrayList<Button> collect_comment_btn2 = null;
 
+    //like 버튼
+    private ArrayList<Button> like_btnlistner = null;
+    private int like_count = 0;
+
     //tab
     private TabLayout tabLayout = null;
     private ViewPager viewPager = null;
@@ -59,17 +71,29 @@ public class CollectActivity extends AppCompatActivity {
     private ArrayList<GridView> grid_list = null;
     private ArrayList<GridAdapter> gridAdapter = null;
 
+    // SQL
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
+    private String mSelectSQL = "select * from content where (loc_x >= ? && loc_x <= ?) AND (loc_y >= ? && loc_y <= ?)";
+
+    // 위도 경도
+    Double northeastLat;  // 화면 좌측상단부분의 위도
+    Double northeastLng;  // 화면 좌측상단부분의 경도
+    Double southwestLat;  //화면 우측하단부분의 위도
+    Double southwestLng;  //화면 우측하단부분의 경도
+
     int menuCount = 0;  //매뉴 옵션 아이템 순서
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.collect_layout);
+        setContentView(R.layout.public_view_article_layout);
 
         comment_list = new ArrayList<ListView>();
         comment_btnlistner = new ArrayList<Button>();
         comment_edit = new ArrayList<EditText>();
         comment_adapter = new ArrayList<collect_Comment_Adapter>();
         collect_comment_btn2 = new ArrayList<Button>();
+
+        like_btnlistner = new ArrayList<Button>();
 
         grid_list = new ArrayList<GridView>();
         gridAdapter = new ArrayList<GridAdapter>();
@@ -83,7 +107,7 @@ public class CollectActivity extends AppCompatActivity {
         setCollect();
 
         //tab layout 등록
-        tabLayout = (TabLayout) findViewById(R.id.collect_tab);
+        tabLayout = (TabLayout) findViewById(R.id.public_view_article_tab);
         tab = new profile_tab("전체");
         tab = new profile_tab("맛집");
         tab = new profile_tab("여행지");
@@ -98,7 +122,7 @@ public class CollectActivity extends AppCompatActivity {
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         //viewpager 등록
-        viewPager = (ViewPager) findViewById(R.id.collect_pager);
+        viewPager = (ViewPager) findViewById(R.id.public_view_article_pager);
 
         //tab layout 리스너 등록
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -114,7 +138,14 @@ public class CollectActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-
+        Intent locationintent = getIntent();
+        if(locationintent != null) {
+            northeastLat = locationintent.getDoubleExtra("northeastLat", 0);  // 화면 좌측상단부분의 위도
+            northeastLng = locationintent.getDoubleExtra("northeastLng", 0);  // 화면 좌측상단부분의 경도
+            southwestLat = locationintent.getDoubleExtra("southwestLat", 0);  //화면 우측하단부분의 위도
+            southwestLng = locationintent.getDoubleExtra("southwestLng", 0);  //화면 우측하단부분의 경도
+            contentsLocationSelectSQLData();
+        }
     }
 
     //옵션 버튼
@@ -206,15 +237,15 @@ public class CollectActivity extends AppCompatActivity {
     // 모아보기 listview 셋팅
     private void setCollect() {
         // 메뉴
-        list = (ListView) findViewById(R.id.collect_listview);
+        list = (ListView) findViewById(R.id.public_view_article_listview);
 
         // 어뎁터 생성민 등록
         adapter = new collect_Adapter(this);
         list.setAdapter(adapter);
 
         // 여기서 db데이터 넣기
-        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
-        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석", "대구 수성구 만촌역", "2017.05.21 20:00","500","1000","ddd");
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12",like_count+"","511","놀러와라");
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석", "대구 수성구 만촌역", "2017.05.21 20:00",like_count+"","1000","ddd");
     }
 
     // 댓글 listview 셋팅
@@ -277,7 +308,7 @@ public class CollectActivity extends AppCompatActivity {
         listView.requestLayout();
     }
 
-    // ------------ collect listview -------------
+    // ------------ public_view_article listview -------------
     private class collect_ViewHolder {
         public ImageView Image;
         public TextView name;
@@ -313,6 +344,10 @@ public class CollectActivity extends AppCompatActivity {
             return position;
         }
 
+        public void setmListData(int position, String recom_num) {
+            mListData.get(position).recom_num = recom_num;
+        }
+
         // 생성자로 값을 받아 셋팅
         public void addItem(Drawable image, String name, String location, String time, String recom_num, String views_num, String contents) {
             collect_ListData addInfo = null;
@@ -336,15 +371,15 @@ public class CollectActivity extends AppCompatActivity {
                 holder = new collect_ViewHolder();
 
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.collect, null);
+                convertView = inflater.inflate(R.layout.public_view_article, null);
 
-                holder.Image = (ImageView) convertView.findViewById(R.id.collect_Image);
-                holder.name = (TextView) convertView.findViewById(R.id.collect_name);
-                holder.location = (TextView) convertView.findViewById(R.id.collect_location);
-                holder.time = (TextView) convertView.findViewById(R.id.collect_time);
-                holder.recom_num = (TextView) convertView.findViewById(R.id.collect_recom_num);
-                holder.views_num = (TextView) convertView.findViewById(R.id.collect_views_num);
-                holder.contents = (TextView) convertView.findViewById(R.id.collect_contents);
+                holder.Image = (ImageView) convertView.findViewById(R.id.public_view_article_Image);
+                holder.name = (TextView) convertView.findViewById(R.id.public_view_article_name);
+                holder.location = (TextView) convertView.findViewById(R.id.public_view_article_location);
+                holder.time = (TextView) convertView.findViewById(R.id.public_view_article_time);
+                holder.recom_num = (TextView) convertView.findViewById(R.id.public_view_article_recom_num);
+                holder.views_num = (TextView) convertView.findViewById(R.id.public_view_article_views_num);
+                holder.contents = (TextView) convertView.findViewById(R.id.public_view_article_contents);
 
                 convertView.setTag(holder);
             }else{
@@ -370,14 +405,14 @@ public class CollectActivity extends AppCompatActivity {
             holder.contents.setText(mData.contents);
 
             // 글쓰기 이미지
-            ImageView iv = (ImageView) convertView.findViewById(R.id.collect_mycomment_image);
+            ImageView iv = (ImageView) convertView.findViewById(R.id.public_view_article_mycomment_image);
             iv.setImageResource(R.drawable.basepicture);
 
             // 댓글
             if(comment_list.size() == position) {  // ArrayList 자원 재활용
-                comment_list.add(position, (ListView) convertView.findViewById(R.id.collect_comment_list));    }
+                comment_list.add(position, (ListView) convertView.findViewById(R.id.public_view_article_comment_list));    }
             else {
-                comment_list.set(position, (ListView) convertView.findViewById(R.id.collect_comment_list));    }
+                comment_list.set(position, (ListView) convertView.findViewById(R.id.public_view_article_comment_list));    }
 
 
             // 어뎁터 생성 등록
@@ -389,9 +424,9 @@ public class CollectActivity extends AppCompatActivity {
 
             // 댓글 edittext
             if(comment_edit.size() == position) { // ArrayList 자원 재활용
-                comment_edit.add(position, (EditText) convertView.findViewById(R.id.collect_comment_editText));     }
+                comment_edit.add(position, (EditText) convertView.findViewById(R.id.public_view_article_comment_editText));     }
             else {
-                comment_edit.set(position, (EditText) convertView.findViewById(R.id.collect_comment_editText));     }
+                comment_edit.set(position, (EditText) convertView.findViewById(R.id.public_view_article_comment_editText));     }
             comment_edit.get(position).setTag(position);
             comment_edit.get(position).setOnEditorActionListener(new TextView.OnEditorActionListener()
             {
@@ -422,7 +457,6 @@ public class CollectActivity extends AppCompatActivity {
                 }
             });
 
-
             // getview 초기화시 셋팅
             if(comment_adapter.get(position).getCount() != 0) {
                 comment_list.get(position).setAdapter(comment_adapter.get(position));
@@ -436,9 +470,9 @@ public class CollectActivity extends AppCompatActivity {
 
             // 커멘드 버튼 클릭시 처리
             if(comment_btnlistner.size() == position) { // ArrayList 자원 재활용
-                comment_btnlistner.add(position, (Button) convertView.findViewById(R.id.collect_comment_btn));    }
+                comment_btnlistner.add(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn));    }
             else {
-                comment_btnlistner.set(position, (Button) convertView.findViewById(R.id.collect_comment_btn));    }
+                comment_btnlistner.set(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn));    }
             comment_btnlistner.get(position).setTag(position); // tag로 listview position 등록
             comment_btnlistner.get(position).setOnClickListener(new View.OnClickListener() { // 댓글 보기 버튼 이벤트
                 @Override
@@ -447,7 +481,7 @@ public class CollectActivity extends AppCompatActivity {
                     comment_flag = false;
 
                     // 리스트뷰에 데이터가 있을시만
-                    if(comment_list.size() != 0) {
+                    if (comment_list.size() != 0) {
                         if (comment_list.get(pos).getVisibility() == View.GONE) {
                             comment_list.get(pos).setVisibility(View.VISIBLE);
                         } else {
@@ -457,11 +491,30 @@ public class CollectActivity extends AppCompatActivity {
                 }
             });
 
+            //추천하기 숫자 올라가기
+            if(like_btnlistner.size() == position)
+            {
+                like_btnlistner.add(position, (Button) convertView.findViewById(R.id.public_view_article_like_btn));
+            }else{
+                like_btnlistner.set(position, (Button) convertView.findViewById(R.id.public_view_article_like_btn));
+            }
+            like_btnlistner.get(position).setTag(position);
+            like_btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v)
+                {
+                    int pos = (int) v.getTag();
+                    like_count++;
+                    adapter.setmListData(pos, like_count+"");
+                    adapter.notifyDataSetChanged();
+                }
+            });
+
             // 이미지 처리
             if(grid_list.size() == position) {  // ArrayList 자원 재활용
-                grid_list.add(position, (GridView) convertView.findViewById(R.id.collect_grid));    }
+                grid_list.add(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
             else {
-                grid_list.set(position, (GridView) convertView.findViewById(R.id.collect_grid));    }
+                grid_list.set(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
 
             // 어뎁터 생성 등록
             if(gridAdapter.size() == position) { // ArrayList 자원 재활용
@@ -495,9 +548,9 @@ public class CollectActivity extends AppCompatActivity {
         public String views_num;
         public String contents;
     }
-    // -------------------------------------- End collect listview -----------------------
+    // -------------------------------------- End public_view_article listview -----------------------
 
-    // 여기부터 collect_comment 부분
+    // 여기부터 public_view_article_comment 부분
     private class collect_Comment_ViewHolder {
         public ImageView Image;
         public TextView name;
@@ -550,12 +603,12 @@ public class CollectActivity extends AppCompatActivity {
                 holder = new collect_Comment_ViewHolder();
 
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.collect_comment, null);
+                convertView = inflater.inflate(R.layout.public_view_article_comment, null);
 
-                holder.Image = (ImageView) convertView.findViewById(R.id.collect_comment_image);
-                holder.name = (TextView) convertView.findViewById(R.id.collect_comment_name);
-                holder.comment = (TextView) convertView.findViewById(R.id.collect_comment_text);
-                holder.time = (TextView) convertView.findViewById(R.id.collect_comment_time);
+                holder.Image = (ImageView) convertView.findViewById(R.id.public_view_article_comment_image);
+                holder.name = (TextView) convertView.findViewById(R.id.public_view_article_comment_name);
+                holder.comment = (TextView) convertView.findViewById(R.id.public_view_article_comment_text);
+                holder.time = (TextView) convertView.findViewById(R.id.public_view_article_comment_time);
 
                 convertView.setTag(holder);
             }else{
@@ -579,9 +632,9 @@ public class CollectActivity extends AppCompatActivity {
 
             // 커멘드 버튼 클릭시 처리
             if(collect_comment_btn2.size() == position) { // ArrayList 자원 재활용
-                collect_comment_btn2.add(position, (Button) convertView.findViewById(R.id.collect_comment_btn2));    }
+                collect_comment_btn2.add(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn2));    }
             else {
-                collect_comment_btn2.set(position, (Button) convertView.findViewById(R.id.collect_comment_btn2));    }
+                collect_comment_btn2.set(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn2));    }
             collect_comment_btn2.get(position).setOnClickListener(new View.OnClickListener() { // 댓글 보기 버튼 이벤트
                 @Override
                 public void onClick(View v) {
@@ -600,6 +653,47 @@ public class CollectActivity extends AppCompatActivity {
         public String name;
         public String comment;
         public String time;
+    }
+
+    // 위도좌측 상단,       위도우측 하단,       경도좌측 상단,       경도우측 하단
+    // Double northeastLat, Double northeastLng, Double southwestLat, Double southwestLng
+    private void contentsLocationSelectSQLData() {
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();        // 초기화
+                mDataQueryGroup.addDouble(southwestLat);
+                mDataQueryGroup.addDouble(northeastLat);
+                mDataQueryGroup.addDouble(southwestLng);
+                mDataQueryGroup.addDouble(northeastLng);
+                return SQLDataService.getDynamicSQLJSONData(mSelectSQL, mDataQueryGroup, -1, "select");             // select SQL 제이슨
+            }
+
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                JSONArray result = responseData.get(0).getJSONArray("result");     // 결과 값 가져오기
+
+//                if (result.length() == 0)        // 데이터베이스에 입력한 ID가 없을경우
+//                    Toast.makeText(CollectActivity.this, "아이디 혹은 비밀번호가 일치하지 않습니다.", Toast.LENGTH_LONG).show();
+//                else if (result.getJSONObject(0).getString("id").equals(mIdEditText.getText().toString())) {     // 데이터베이스에 입력한 ID가 있을경우
+//                    SharedPreferences.Editor LoginSharedEdit = mLoginShared.edit();     // 상태 저장 에디터
+//                    LoginSharedEdit.putInt("user_num", result.getJSONObject(0).getInt("user_num"));      // 유저 id 상태 저장
+//                    LoginSharedEdit.commit();       // commit
+//                    mUserInfo.setUserNum(mLoginShared.getInt("user_num", 0));       //  유저 id 셋팅
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
+
     }
 
     // 뒤로가기

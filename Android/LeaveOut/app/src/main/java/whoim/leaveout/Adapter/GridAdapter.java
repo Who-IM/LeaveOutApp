@@ -1,4 +1,4 @@
-package whoim.leaveout.GridAdapter;
+package whoim.leaveout.Adapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -54,9 +54,9 @@ public class GridAdapter extends BaseAdapter {
             holder = new grid_ViewHolder();
 
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.collect_view_image, null);
+            convertView = inflater.inflate(R.layout.public_view_article_image, null);
 
-            holder.Image = (ImageView) convertView.findViewById(R.id.collect_grid_image);
+            holder.Image = (ImageView) convertView.findViewById(R.id.public_view_article_grid_image);
 
             convertView.setTag(holder);
         }else{

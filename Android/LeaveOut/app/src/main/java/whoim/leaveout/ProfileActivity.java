@@ -34,9 +34,11 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
-import whoim.leaveout.GridAdapter.GridAdapter;
+import whoim.leaveout.Adapter.GridAdapter;
 
 // 환경설정
 public class ProfileActivity extends AppCompatActivity {
@@ -54,6 +56,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ArrayList<Button> comment_btnlistner = null;
     private boolean profile_flag = true;
     private ArrayList<EditText> profile_edit = null;
+    private ArrayList<Button> profile_comment_btn2 = null;
 
     //tab
     private TabLayout tabLayout = null;
@@ -70,6 +73,10 @@ public class ProfileActivity extends AppCompatActivity {
 
     private ArrayList<GridView> grid_list = null;
     private ArrayList<GridAdapter> gridAdapter = null;
+
+    //like 버튼
+    private ArrayList<Button> like_btnlistner = null;
+    private int like_count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +95,9 @@ public class ProfileActivity extends AppCompatActivity {
         comment_btnlistner = new ArrayList<Button>();                         // 댓글보기 버튼
         profile_adapter = new ArrayList<profile_Comment_Adapter>();
         profile_edit = new ArrayList<EditText>();
+        profile_comment_btn2 = new ArrayList<Button>();
+
+        like_btnlistner = new ArrayList<Button>();
 
         grid_list = new ArrayList<GridView>();
         gridAdapter = new ArrayList<GridAdapter>();
@@ -278,7 +288,11 @@ public class ProfileActivity extends AppCompatActivity {
     // 댓글 listview 셋팅
     private void setComment(int position, int image, String name, String comment) {
         // 실제 데이터 삽입
-        profile_adapter.get(position).addItem(getResources().getDrawable(image, null), name, comment);
+        SimpleDateFormat sdfNow = new SimpleDateFormat("MM월 dd일 HH:mm:ss");
+        String time = sdfNow.format(new Date(System.currentTimeMillis()));
+
+        // 실제 데이터 삽입
+        profile_adapter.get(position).addItem(getResources().getDrawable(image, null), name, comment, time);
     }
 
     // 리스트뷰 펼처보기(한화면에)
@@ -370,6 +384,10 @@ public class ProfileActivity extends AppCompatActivity {
             return position;
         }
 
+        public void setmListData(int position, String recom_num) {
+            mListData.get(position).recom_num = recom_num;
+        }
+
         // 생성자로 값을 받아 셋팅
         public void addItem(Drawable image, String name, String location, String time, String recom_num, String views_num, String contents) {
             profile_ListData addInfo = null;
@@ -392,15 +410,15 @@ public class ProfileActivity extends AppCompatActivity {
                 holder = new profile_ViewHolder();
 
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.profile, null);
+                convertView = inflater.inflate(R.layout.public_view_article, null);
 
-                holder.Image = (ImageView) convertView.findViewById(R.id.profile_Image);
-                holder.name = (TextView) convertView.findViewById(R.id.profile_name);
-                holder.location = (TextView) convertView.findViewById(R.id.profile_location);
-                holder.time = (TextView) convertView.findViewById(R.id.profile_time);
-                holder.recom_num = (TextView) convertView.findViewById(R.id.profile_recom_num);
-                holder.views_num = (TextView) convertView.findViewById(R.id.profile_views_num);
-                holder.contents = (TextView) convertView.findViewById(R.id.profile_contents);
+                holder.Image = (ImageView) convertView.findViewById(R.id.public_view_article_Image);
+                holder.name = (TextView) convertView.findViewById(R.id.public_view_article_name);
+                holder.location = (TextView) convertView.findViewById(R.id.public_view_article_location);
+                holder.time = (TextView) convertView.findViewById(R.id.public_view_article_time);
+                holder.recom_num = (TextView) convertView.findViewById(R.id.public_view_article_recom_num);
+                holder.views_num = (TextView) convertView.findViewById(R.id.public_view_article_views_num);
+                holder.contents = (TextView) convertView.findViewById(R.id.public_view_article_contents);
 
                 convertView.setTag(holder);
             }else{
@@ -408,7 +426,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
 
             // 글쓰기 이미지
-            ImageView iv = (ImageView) convertView.findViewById(R.id.profile_mycomment_image);
+            ImageView iv = (ImageView) convertView.findViewById(R.id.public_view_article_mycomment_image);
             iv.setImageResource(R.drawable.basepicture);
 
             profile_ListData mData = mListData.get(position);
@@ -431,9 +449,9 @@ public class ProfileActivity extends AppCompatActivity {
 
             // 댓글
             if(profile_list.size() == position) { // ArrayList 자원 재활용
-                profile_list.add(position, (ListView) convertView.findViewById(R.id.profile_comment_list));
+                profile_list.add(position, (ListView) convertView.findViewById(R.id.public_view_article_comment_list));
             } else {
-                profile_list.set(position, (ListView) convertView.findViewById(R.id.profile_comment_list));
+                profile_list.set(position, (ListView) convertView.findViewById(R.id.public_view_article_comment_list));
             }
 
 
@@ -446,9 +464,9 @@ public class ProfileActivity extends AppCompatActivity {
 
             // 댓글 edittext
             if(profile_edit.size() == position) { // ArrayList 자원 재활용
-                profile_edit.add(position, (EditText) convertView.findViewById(R.id.profile_comment_editText));     }
+                profile_edit.add(position, (EditText) convertView.findViewById(R.id.public_view_article_comment_editText));     }
             else {
-                profile_edit.set(position, (EditText) convertView.findViewById(R.id.profile_comment_editText));     }
+                profile_edit.set(position, (EditText) convertView.findViewById(R.id.public_view_article_comment_editText));     }
             profile_edit.get(position).setTag(position);
             profile_edit.get(position).setOnEditorActionListener(new TextView.OnEditorActionListener()
             {
@@ -493,9 +511,9 @@ public class ProfileActivity extends AppCompatActivity {
 
             // 커멘드 버튼 클릭시 처리
             if(comment_btnlistner.size() == position) { // ArrayList 자원 재활용
-                comment_btnlistner.add(position, (Button) convertView.findViewById(R.id.profile_comment_btn));
+                comment_btnlistner.add(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn));
             } else {
-                comment_btnlistner.set(position, (Button) convertView.findViewById(R.id.profile_comment_btn));
+                comment_btnlistner.set(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn));
             }
             comment_btnlistner.get(position).setTag(position);
             comment_btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
@@ -514,11 +532,31 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 }
             });
+
+            //추천하기 숫자 올라가기
+            if(like_btnlistner.size() == position)
+            {
+                like_btnlistner.add(position, (Button) convertView.findViewById(R.id.public_view_article_like_btn));
+            }else{
+                like_btnlistner.set(position, (Button) convertView.findViewById(R.id.public_view_article_like_btn));
+            }
+            like_btnlistner.get(position).setTag(position);
+            like_btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v)
+                {
+                    int pos = (int) v.getTag();
+                    like_count++;
+                    adapter.setmListData(pos, like_count+"");
+                    adapter.notifyDataSetChanged();
+                }
+            });
+
             // 이미지 처리
             if(grid_list.size() == position) {  // ArrayList 자원 재활용
-                grid_list.add(position, (GridView) convertView.findViewById(R.id.profile_grid));    }
+                grid_list.add(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
             else {
-                grid_list.set(position, (GridView) convertView.findViewById(R.id.profile_grid));    }
+                grid_list.set(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
 
             // 어뎁터 생성 등록
             if(gridAdapter.size() == position) { // ArrayList 자원 재활용
@@ -551,13 +589,14 @@ public class ProfileActivity extends AppCompatActivity {
         public String views_num;
         public String contents;
     }
-    // -------------------------------------- End collect listview -----------------------
+    // -------------------------------------- End public_view_article listview -----------------------
 
-    // 여기부터 collect_comment 부분
+    // 여기부터 public_view_article_comment 부분
     private class profile_Comment_ViewHolder {
         public ImageView Image;
         public TextView name;
         public TextView comment;
+        public TextView time;
     }
 
     // 리스트뷰 어뎁터
@@ -586,12 +625,13 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         // 생성자로 값을 받아 셋팅
-        public void addItem(Drawable image, String name, String comment) {
+        public void addItem(Drawable image, String name, String comment, String time) {
             profile_Comment_ListData addInfo = null;
             addInfo = new profile_Comment_ListData();
             addInfo.Image = image;
             addInfo.name = name;
             addInfo.comment = comment;
+            addInfo.time = time;
 
             ListData.add(addInfo);
         }
@@ -603,11 +643,12 @@ public class ProfileActivity extends AppCompatActivity {
                 holder = new profile_Comment_ViewHolder();
 
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.profile_comment, null);
+                convertView = inflater.inflate(R.layout.public_view_article_comment, null);
 
-                holder.Image = (ImageView) convertView.findViewById(R.id.profile_comment_image);
-                holder.name = (TextView) convertView.findViewById(R.id.profile_comment_name);
-                holder.comment = (TextView) convertView.findViewById(R.id.profile_comment_text);
+                holder.Image = (ImageView) convertView.findViewById(R.id.public_view_article_comment_image);
+                holder.name = (TextView) convertView.findViewById(R.id.public_view_article_comment_name);
+                holder.comment = (TextView) convertView.findViewById(R.id.public_view_article_comment_text);
+                holder.time = (TextView) convertView.findViewById(R.id.public_view_article_comment_time);
 
                 convertView.setTag(holder);
             }else{
@@ -627,6 +668,21 @@ public class ProfileActivity extends AppCompatActivity {
             // textView 처리
             holder.name.setText(Data.name);
             holder.comment.setText(Data.comment);
+            holder.time.setText(Data.time);
+
+            // 커멘드 버튼 클릭시 처리
+            if(profile_comment_btn2.size() == position) { // ArrayList 자원 재활용
+                profile_comment_btn2.add(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn2));    }
+            else {
+                profile_comment_btn2.set(position, (Button) convertView.findViewById(R.id.public_view_article_comment_btn2));    }
+            profile_comment_btn2.get(position).setOnClickListener(new View.OnClickListener() { // 댓글 보기 버튼 이벤트
+                @Override
+                public void onClick(View v) {
+                    Intent temp = new Intent(getApplicationContext(), CommentActivity.class);
+                    startActivity(temp);
+                }
+            });
+
             return convertView;
         }
     }
@@ -636,6 +692,7 @@ public class ProfileActivity extends AppCompatActivity {
         public Drawable Image;
         public String name;
         public String comment;
+        public String time;
     }
 
     /* 초기설정 첫번째는 사진 : db에서

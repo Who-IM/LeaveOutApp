@@ -42,7 +42,7 @@ public class CommentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.comment_layout);
+        setContentView(R.layout.public_recomment_layout);
 
         // 댓글 카운터
         comment_count = (TextView) findViewById(R.id.comment_count);
@@ -152,7 +152,7 @@ public class CommentActivity extends AppCompatActivity {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.comment_item, viewGroup, false);
+            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.public_recomment_item, viewGroup, false);
             return new ViewHolder(view);
         }
 

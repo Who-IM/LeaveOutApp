@@ -459,9 +459,9 @@ public class CollectActivity extends AppCompatActivity {
 
             // 이미지 처리
             if(grid_list.size() == position) {  // ArrayList 자원 재활용
-                grid_list.add(position, (GridView) convertView.findViewById(R.id.grid_collect));    }
+                grid_list.add(position, (GridView) convertView.findViewById(R.id.collect_grid));    }
             else {
-                grid_list.set(position, (GridView) convertView.findViewById(R.id.grid_collect));    }
+                grid_list.set(position, (GridView) convertView.findViewById(R.id.collect_grid));    }
 
             // 어뎁터 생성 등록
             if(gridAdapter.size() == position) { // ArrayList 자원 재활용

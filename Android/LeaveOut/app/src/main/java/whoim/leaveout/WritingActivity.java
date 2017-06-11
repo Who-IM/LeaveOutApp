@@ -1,16 +1,18 @@
 package whoim.leaveout;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.icu.text.SimpleDateFormat;
+import android.location.Location;
 import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,16 +31,23 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,12 +56,23 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.SingleClick.OnSingleClickListener;
+import whoim.leaveout.User.UserInfo;
 
 // 글쓰기
 public class WritingActivity extends AppCompatActivity {
-    Toolbar toolbar;
-    TextView mAddressText;
+
+    // 게시글 등록 SQL
+    private String mContentUpdateSQL = "insert into content(user_num,reg_time,visibility,fence,loc_x,loc_y,address) " +
+            "values(?,now(),?,?,?,?,?)";
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();
+
+    private Toolbar toolbar;
+    private TextView mAddressText;          // 주소 이름
+    private Location mCurrentLocation;      // GPS 주소 객체
 
     File storageDir = null;
     ExifInterface exif = null;
@@ -68,7 +89,7 @@ public class WritingActivity extends AppCompatActivity {
     //카메라 앨범 변수
     private static final int PICK_FROM_CAMERA = 1; //카메라 촬영으로 사진 가져오기
     private static final int PICK_FROM_ALBUM = 2;  //앨범에서 사진 가져오기
-    ImageView iv = null;
+    //    ImageView iv = null;
     Uri photoUri;
     Bitmap thumbImage = null;
     private String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -88,9 +109,14 @@ public class WritingActivity extends AppCompatActivity {
     // 메뉴 관련 인스턴스
     private ListView list;
     write_DataAdapter adapter; // 데이터를 연결할 Adapter
+    private int imagecount;
 
     // 입력공간
-    EditText write_input = null;
+    private EditText write_input;
+
+    // 공개여부
+    private RadioGroup mSecurityRadioGroup;     // 공개여부 그룹
+    private CheckBox mSecretCheckBox;         // 울타리글 체크박스
 
     // 친구태그
     private ImageButton friendtag = null;
@@ -106,7 +132,10 @@ public class WritingActivity extends AppCompatActivity {
 
         Intent data = getIntent();      // 데이터 가져오기
         mAddressText = (TextView) findViewById(R.id.write_address);
-        if (data != null) mAddressText.setText(data.getStringExtra("address"));  // 주소 창 표시
+        if (data != null) {
+            mAddressText.setText(data.getStringExtra("address"));  // 주소 창 표시
+            mCurrentLocation = data.getParcelableExtra("loc");     // GPS 주소 객체
+        }
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
@@ -135,7 +164,6 @@ public class WritingActivity extends AppCompatActivity {
         writing_search_layout.setVisibility(View.GONE);
         check_list_open();
 
-        // tag 데이터 받기
         Intent tagintent = getIntent();
         tagText = tagintent.getStringExtra("tag");
         if(tagText != null) {
@@ -157,6 +185,10 @@ public class WritingActivity extends AppCompatActivity {
 
         // 입력공간 EditText
         write_input = (EditText) findViewById(R.id.write_input);
+
+        // 공개여부 및 울타리글
+        mSecurityRadioGroup = (RadioGroup) findViewById(R.id.write_radioButton);
+        mSecretCheckBox = (CheckBox) findViewById(R.id.check_icon);
     }
 
     // 검색관련 셋팅
@@ -194,13 +226,15 @@ public class WritingActivity extends AppCompatActivity {
             this.mContext = mContext;
         }
 
+        public ArrayList getList() { return mListData; };
+
         @Override
         public int getCount() {
             return mListData.size();
         }
 
         @Override
-        public Object getItem(int position) {
+        public writing_ListData getItem(int position) {
             return mListData.get(position);
         }
 
@@ -247,6 +281,8 @@ public class WritingActivity extends AppCompatActivity {
 
             return convertView;
         }
+
+
     }
 
     // 메뉴의 실제 데이터를 저장할 class
@@ -329,7 +365,7 @@ public class WritingActivity extends AppCompatActivity {
             storageDir.mkdirs();
         }
 
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);    //확장자를 .jpg로 저장
+        File image = File.createTempFile(imageFileName, ".png", storageDir);    //확장자를 .jpg로 저장
         return image;
     }
 
@@ -383,6 +419,7 @@ public class WritingActivity extends AppCompatActivity {
                 imageExtraction(requestCode);  //이미지 추출
                 addWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
                 list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
+                thumbImage = null;
             } catch (Exception e) {
                 Log.e("ERROR", e.getMessage().toString());
             }
@@ -398,6 +435,7 @@ public class WritingActivity extends AppCompatActivity {
                 imageExtraction(requestCode);  //이미지 추출
                 addWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
                 list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
+                thumbImage = null;
 
             } catch (Exception e    ) {
                 Log.e("ERROR", e.getMessage().toString());
@@ -409,10 +447,13 @@ public class WritingActivity extends AppCompatActivity {
     protected void imageExtraction(int requestCode) throws IOException {
 
         //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
-        iv = (ImageView) findViewById(R.id.write_input_picture);
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-        thumbImage = ThumbnailUtils.extractThumbnail(bitmap, 1024, 768);  //사진 크기를 조절
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+//        iv = (ImageView) findViewById(R.id.write_input_picture);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 4;
+        thumbImage= BitmapFactory.decodeStream(getContentResolver().openInputStream(photoUri),null,options);
+//        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
+//        thumbImage = ThumbnailUtils.extractThumbnail(bitmap, 1024, 768);  //사진 크기를 조절
+//        ByteArrayOutputStream bs = new ByteArrayOutputStream();
 
         if (requestCode == PICK_FROM_CAMERA) {
             // 파일 경로 저장
@@ -430,11 +471,22 @@ public class WritingActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }*/ 
+        }*/
 
         // 이미지 돌리기
         thumbImage = rotateBitmap(thumbImage, orientation);
-        thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
+//        thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
+//        bs.close();
+    }
+
+    private String getStringFromBitmap(Bitmap bitmapPicture) {
+        String encodedImage;
+        ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
+        bitmapPicture.compress(Bitmap.CompressFormat.PNG, 100, byteArrayBitmapStream);
+        byte[] b = byteArrayBitmapStream.toByteArray();
+        encodedImage = Base64.encodeToString(b, Base64.NO_WRAP);
+        try { byteArrayBitmapStream.close(); } catch (IOException e) { e.printStackTrace();}
+        return encodedImage;
     }
 
     //공개여부
@@ -524,10 +576,105 @@ public class WritingActivity extends AppCompatActivity {
         }
     }
 
-    // 뒤로가기
-    public void writeBack(View v) {
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(intent);
+    @Override
+    protected void onDestroy() {
+        // bitmaap 삭제
+        ArrayList<writing_ListData> arrayList = adapter.getList();
+        for(writing_ListData writing_listData : arrayList) {
+            writing_listData.Image.recycle();
+            writing_listData.Image = null;
+        }
+        super.onDestroy();
+    }
+
+    // 완료 및 뒤로가기 버튼
+    public void onWriteClicked(View view) {
+        switch (view.getId()) {
+            case R.id.preferences_back_icon:        // 뒤로가기 버튼
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+                break;
+            case R.id.write_commit:                // 게시 버튼
+                contentUpdateSQLData();            // 게시글 업데이트
+                break;
+        }
+    }
+
+    private void contentUpdateSQLData() {
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return adapter.getCount() + 1;
+            }
+            @Override
+            public JSONObject getSQLQuery() {
+                return InsertSQLContent();
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return uploadImage();
+            }
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if(responseData != null) {
+                    Toast.makeText(WritingActivity.this,"등록 되었습니다.",Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_HORIZONTAL,null);
+    }
+
+    private JSONObject InsertSQLContent() {
+        final UserInfo userInfo = UserInfo.getInstance();
+        mDataQueryGroup.clear();
+        mDataQueryGroup.addInt(userInfo.getUserNum());          // 유저 번호
+        mDataQueryGroup.addInt(SecurityRadioChecked());         // 공개여부 값
+        mDataQueryGroup.addBoolean(mSecretCheckBox.isChecked());    // 울타리 체크
+        mDataQueryGroup.addDouble(mCurrentLocation.getLatitude());  // 위도
+        mDataQueryGroup.addDouble(mCurrentLocation.getLongitude()); // 경도
+        mDataQueryGroup.addString(mAddressText.getText().toString());   // 주소
+        JSONObject data = SQLDataService.getDynamicSQLJSONData(mContentUpdateSQL,mDataQueryGroup,0,"update");       // sql 셋팅
+        SQLDataService.putBundleValue(data, "upload", "usernum", userInfo.getUserNum());                 // 번들 데이터 더 추가(유저 id)
+        SQLDataService.putBundleValue(data, "upload", "path", "content");
+        SQLDataService.putBundleValue(data,"upload","context","text");
+        SQLDataService.putBundleValue(data, "upload", "text", write_input.getText().toString());        // 번들 데이터 더 추가(내용)
+        return data;
+    }
+
+    private JSONObject uploadImage() {
+        final UserInfo userInfo = UserInfo.getInstance();
+        JSONObject data = new JSONObject();
+        SQLDataService.putBundleValue(data, "upload", "usernum", userInfo.getUserNum());                 // 번들 데이터 더 추가(유저 id)
+        SQLDataService.putBundleValue(data, "upload", "path", "content");
+        SQLDataService.putBundleValue(data,"upload","context","image");
+        JSONArray jsonArray = new JSONArray();
+        ArrayList<writing_ListData> arrayList = adapter.getList();
+        if(arrayList.size() == 0) return null;
+        jsonArray.put(getStringFromBitmap(arrayList.get(0).Image));
+        this.imagecount++;
+        SQLDataService.putBundleValue(data, "upload", "imagecount", this.imagecount);
+        SQLDataService.putBundleValue(data, "upload", "array", jsonArray);
+        return data;
+    }
+
+    // 공개여부 라디오 버튼 체크 된 부분 찾기
+    private int SecurityRadioChecked() {
+        int id = mSecurityRadioGroup.getCheckedRadioButtonId();     // 라디오버튼에 체크된 값 id
+        RadioButton rb = (RadioButton) findViewById(id);            // 가져오기
+        switch (rb.getId()) {       // 공개 여부
+            case R.id.write_public_button:      // 전체
+                return 1;
+            case R.id.write_friend_button:      // 친구
+                return 2;
+            case R.id.write_private_button:     // 비공개
+                return 3;
+        }
+        return 0;
     }
 
     // 친구태그

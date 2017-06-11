@@ -25,7 +25,7 @@
             android:layout_alignParentTop="true"
             android:layout_margin="9dp"
             android:background="#00000000"
-            android:onClick="writeBack"
+            android:onClick="onWriteClicked"
             app:srcCompat="@drawable/public_back" />
 
         <!--StamLine에 게시-->
@@ -54,7 +54,8 @@
             android:text="게시"
             app:font="custom1"
             android:textColor="#77FFFFFF"
-            android:textSize="27dp" />
+            android:textSize="27dp"
+            android:onClick="onWriteClicked"/>
 
     </android.support.v7.widget.Toolbar>
 
@@ -133,7 +134,8 @@
         <LinearLayout
             android:id="@+id/write_search_layout"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            tools:visibility="gone">
 
             <ListView
                 android:id="@+id/write_search_list"

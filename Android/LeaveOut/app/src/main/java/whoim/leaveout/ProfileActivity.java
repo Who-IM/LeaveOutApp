@@ -23,6 +23,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -34,6 +35,8 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import whoim.leaveout.GridAdapter.GridAdapter;
 
 // 환경설정
 public class ProfileActivity extends AppCompatActivity {
@@ -65,6 +68,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     int menuCount = 0;  //매뉴 옵션 아이템 순서
 
+    private ArrayList<GridView> grid_list = null;
+    private ArrayList<GridAdapter> gridAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +88,10 @@ public class ProfileActivity extends AppCompatActivity {
         comment_btnlistner = new ArrayList<Button>();                         // 댓글보기 버튼
         profile_adapter = new ArrayList<profile_Comment_Adapter>();
         profile_edit = new ArrayList<EditText>();
+
+        grid_list = new ArrayList<GridView>();
+        gridAdapter = new ArrayList<GridAdapter>();
+
         header = getLayoutInflater().inflate(R.layout.profile_header, null);  // 프로필 위의 지도(listview header지정하여 스크롤 가능하게함)
 
         // 모아보기 listview 셋팅
@@ -295,6 +304,36 @@ public class ProfileActivity extends AppCompatActivity {
         listView.requestLayout();
     }
 
+    // 리스트뷰 펼처보기(한화면에)
+    public static void setListViewHeightBasedOnChildren(GridView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
+        int count = listAdapter.getCount();
+        if(count > 2) {
+            count = count/2 + 1;
+        }
+        else {
+            count = 1;
+        }
+        for (int i = 0; i < count; i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+
+        params.height = totalHeight;
+        listView.setLayoutParams(params);
+        listView.requestLayout();
+    }
+
     // ------------ profile listview -------------
     private class profile_ViewHolder {
         public ImageView Image;
@@ -475,6 +514,29 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 }
             });
+            // 이미지 처리
+            if(grid_list.size() == position) {  // ArrayList 자원 재활용
+                grid_list.add(position, (GridView) convertView.findViewById(R.id.profile_grid));    }
+            else {
+                grid_list.set(position, (GridView) convertView.findViewById(R.id.profile_grid));    }
+
+            // 어뎁터 생성 등록
+            if(gridAdapter.size() == position) { // ArrayList 자원 재활용
+                gridAdapter.add(position, new GridAdapter(ProfileActivity.this));     }
+            else {
+                gridAdapter.set(position, new GridAdapter(ProfileActivity.this));     }
+
+            if(position == 0) {
+                // 데이터는 동적으로 apadter에 저장
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+            } else if(position == 1) {
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+            }
+            grid_list.get(position).setAdapter(gridAdapter.get(position));
+            setListViewHeightBasedOnChildren(grid_list.get(position)); // 펼쳐보기
             return convertView;
         }
     }
@@ -565,7 +627,6 @@ public class ProfileActivity extends AppCompatActivity {
             // textView 처리
             holder.name.setText(Data.name);
             holder.comment.setText(Data.comment);
-
             return convertView;
         }
     }

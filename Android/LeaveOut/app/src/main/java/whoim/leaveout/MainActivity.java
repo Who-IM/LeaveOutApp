@@ -677,7 +677,7 @@ public class MainActivity extends MapAPIActivity {
             case R.id.main_collect:     // 모아보기 버튼(모아보기 액티비티 이동)
                 LatLng northeastLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.northeast; // 화면 좌측상단부분의 LatLng
                 LatLng southwestLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.southwest; // 화면 우측하단부분의 LatLng
-                double northeastLat = northeastLatLng.latitude; // 화면 좌측상단부분의 위도
+                double northeastLat = northeastLatLng.latitude; // 화면 좌측상단부분의 위도v
                 double northeastLng = northeastLatLng.longitude; // 화면 좌측상단부분의 경도
                 double southwestLat = southwestLatLng.latitude; //화면 우측하단부분의 위도
                 double southwestLng = southwestLatLng.longitude; //화면 우측하단부분의 경도

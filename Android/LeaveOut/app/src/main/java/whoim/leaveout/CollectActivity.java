@@ -28,7 +28,9 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import whoim.leaveout.GridAdapter.GridAdapter;
 
@@ -46,11 +48,13 @@ public class CollectActivity extends AppCompatActivity {
     private ArrayList<Button> comment_btnlistner = null;
     private boolean comment_flag = true;
     private ArrayList<EditText> comment_edit = null;
+    private ArrayList<Button> collect_comment_btn2 = null;
 
     //tab
     private TabLayout tabLayout = null;
     private ViewPager viewPager = null;
     profile_tab tab;
+
 
     private ArrayList<GridView> grid_list = null;
     private ArrayList<GridAdapter> gridAdapter = null;
@@ -65,6 +69,7 @@ public class CollectActivity extends AppCompatActivity {
         comment_btnlistner = new ArrayList<Button>();
         comment_edit = new ArrayList<EditText>();
         comment_adapter = new ArrayList<collect_Comment_Adapter>();
+        collect_comment_btn2 = new ArrayList<Button>();
 
         grid_list = new ArrayList<GridView>();
         gridAdapter = new ArrayList<GridAdapter>();
@@ -215,7 +220,10 @@ public class CollectActivity extends AppCompatActivity {
     // 댓글 listview 셋팅
     private void setComment(int position, int image, String name, String comment) {
         // 실제 데이터 삽입
-        comment_adapter.get(position).addItem(getResources().getDrawable(image, null), name, comment);
+        SimpleDateFormat sdfNow = new SimpleDateFormat("MM월 dd일 HH:mm:ss");
+        String time = sdfNow.format(new Date(System.currentTimeMillis()));
+
+        comment_adapter.get(position).addItem(getResources().getDrawable(image, null), name, comment, time);
     }
 
     // 리스트뷰 펼처보기(한화면에)
@@ -227,16 +235,14 @@ public class CollectActivity extends AppCompatActivity {
         }
 
         int totalHeight = 0;
-
-        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
         for (int i = 0; i < listAdapter.getCount(); i++) {
             View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            listItem.measure(0, 0);
             totalHeight += listItem.getMeasuredHeight();
         }
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
 
-        params.height = totalHeight;
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
         listView.setLayoutParams(params);
         listView.requestLayout();
     }
@@ -496,6 +502,7 @@ public class CollectActivity extends AppCompatActivity {
         public ImageView Image;
         public TextView name;
         public TextView comment;
+        public TextView time;
     }
 
     // 리스트뷰 어뎁터
@@ -524,12 +531,13 @@ public class CollectActivity extends AppCompatActivity {
         }
 
         // 생성자로 값을 받아 셋팅
-        public void addItem(Drawable image, String name, String comment) {
+        public void addItem(Drawable image, String name, String comment, String time) {
             collect_Comment_ListData addInfo = null;
             addInfo = new collect_Comment_ListData();
             addInfo.Image = image;
             addInfo.name = name;
             addInfo.comment = comment;
+            addInfo.time = time;
 
             ListData.add(addInfo);
         }
@@ -547,6 +555,7 @@ public class CollectActivity extends AppCompatActivity {
                 holder.Image = (ImageView) convertView.findViewById(R.id.collect_comment_image);
                 holder.name = (TextView) convertView.findViewById(R.id.collect_comment_name);
                 holder.comment = (TextView) convertView.findViewById(R.id.collect_comment_text);
+                holder.time = (TextView) convertView.findViewById(R.id.collect_comment_time);
 
                 convertView.setTag(holder);
             }else{
@@ -566,6 +575,20 @@ public class CollectActivity extends AppCompatActivity {
             // textView 처리
             holder.name.setText(Data.name);
             holder.comment.setText(Data.comment);
+            holder.time.setText(Data.time);
+
+            // 커멘드 버튼 클릭시 처리
+            if(collect_comment_btn2.size() == position) { // ArrayList 자원 재활용
+                collect_comment_btn2.add(position, (Button) convertView.findViewById(R.id.collect_comment_btn2));    }
+            else {
+                collect_comment_btn2.set(position, (Button) convertView.findViewById(R.id.collect_comment_btn2));    }
+            collect_comment_btn2.get(position).setOnClickListener(new View.OnClickListener() { // 댓글 보기 버튼 이벤트
+                @Override
+                public void onClick(View v) {
+                    Intent temp = new Intent(getApplicationContext(), CommentActivity.class);
+                    startActivity(temp);
+                }
+            });
 
             return convertView;
         }
@@ -576,6 +599,7 @@ public class CollectActivity extends AppCompatActivity {
         public Drawable Image;
         public String name;
         public String comment;
+        public String time;
     }
 
     // 뒤로가기

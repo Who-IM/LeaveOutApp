@@ -3,6 +3,7 @@ package whoim.leaveout.MapAPI;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
@@ -11,7 +12,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -24,15 +24,25 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterManager;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
+import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.R;
+import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.StartSetting.Permission;
+import whoim.leaveout.ViewArticleActivity;
 
 /**
  * 구글 맵에 있는 기능 들은 MapAPIActivity 클래스에 인터페이스 구현을 하도록 한다.
@@ -40,7 +50,11 @@ import whoim.leaveout.StartSetting.Permission;
 public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallback,
                                GoogleApiClient.ConnectionCallbacks,
                                GoogleApiClient.OnConnectionFailedListener,
-                                GoogleMap.OnMyLocationButtonClickListener {
+                                GoogleMap.OnMyLocationButtonClickListener,
+                                ClusterManager.OnClusterClickListener<SNSInfoMaker>,
+                                ClusterManager.OnClusterItemClickListener<SNSInfoMaker>{
+
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();
 
     protected static final int GPS_ENABLE_REQUEST_CODE = 1000;      // GPS 서비스 요청 코드
 
@@ -73,6 +87,8 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         this.mGoogleMap = googleMap;
         updateLocationUI();     // 구글맵 자신 GPS UI 셋팅
         mClusterMaker = new ClusterMaker(this, mGoogleMap); // 클러스터 기능 관리 및 제공 객체
+        mClusterMaker.setOnClusterClickListener(this);          // 클러스터링 클릭시 리스너 셋팅
+        mClusterMaker.setOnClusterItemClickListener(this);          // 마커 클릭시 리스너
 
         if(mCameraPosition != null)     // 카메라 위치 정보가 있을경우
             mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));      // 초기 화면 셋팅
@@ -84,14 +100,16 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
 //            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
 
-       // 테스트 중(마커 생성)
+        ContentMarkerSQLData();             // 미커 데이터베이스 SQL 문
+
+       /*// 테스트 중(마커 생성)
         mClusterMaker.clerMakerAll();
         Random mRandom = new Random(1984);
         List<SNSInfoMaker> item = new ArrayList<>();
         for(int i = 0; i< 100; i++) {
-            item.add(new SNSInfoMaker(new LatLng(mRandom.nextDouble() * (37.56 - 37.78494009999999) + 37.78494009999999, mRandom.nextDouble() * (126.97 - 127.97) + 127.97)));
+            item.add(new SNSInfoMaker(new LatLng(mRandom.nextDouble() * (37.56 - 37.78494009999999) + 37.78494009999999, mRandom.nextDouble() * (126.97 - 127.97) + 127.97), i));
         }
-        mClusterMaker.addSNSInfoMakerList(item);
+        mClusterMaker.addSNSInfoMakerList(item);*/
 
 
 /*
@@ -108,6 +126,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         */
 
     }
+
 
 /*    // LocationListener 의 함수(구현 중)
     // 로케이션 정보를 얻을 때 콜백 메소드
@@ -144,10 +163,12 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public boolean onMyLocationButtonClick() {
         // GPS 위치 서비스 활성화 안 될시 하라는 화면 표시
-        if (!checkLocationServicesStatus()) showDialogForLocationServiceSetting();
+        if (!checkLocationServicesStatus()) {
+            showDialogForLocationServiceSetting();
+            return true;        // 취소
+        }
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
         Toast.makeText(this,"버튼 누름",Toast.LENGTH_SHORT).show();
-
         return false;
     }
 
@@ -219,7 +240,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
     }
 
     // GPS 활성화를 위한 화면 표시
-    private void showDialogForLocationServiceSetting() {
+    protected void showDialogForLocationServiceSetting() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("위치 서비스 비활성화");
         builder.setMessage("앱을 사용하기 위해서는 위치 서비스가 필요합니다.\n 위치 설정을 수정하실래요?");
@@ -261,10 +282,107 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
             return "주소 미발견";
         } else {
             Address address = addresses.get(0);
-            return address.getAddressLine(0).toString();
+            return addressToken(address.getAddressLine(0).toString());
         }
     }
 
+    // 주소 토큰
+    private String addressToken(String address) {
+        String token1 = "대한민국 ";
+        return address.substring(token1.length());
+    }
+
+    // 게시글 마커 지도에 표시
+    private void ContentMarkerSQLData() {
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+            @Override
+            public JSONObject getSQLQuery() {
+                return SQLDataService.getSQLJSONData("select content_num,loc_x,loc_y from content where visibility = 1 and fence = false",-1,"select");
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                mGoogleMap.clear();
+                mClusterMaker.clerMakerAll();
+                JSONArray result = responseData.get(0).getJSONArray("result");
+                if(result.length() == 0) return;
+                for(int i = 0; i < result.length(); i++) {
+                    JSONObject data = result.getJSONObject(i);
+                    int contentnum =  data.getInt("content_num");
+                    double locX = data.getDouble("loc_x");
+                    double locY = data.getDouble("loc_y");
+                    mClusterMaker.addSNSInfoMaker(new SNSInfoMaker(new LatLng(locX,locY),contentnum));
+                }
+                mClusterMaker.resetCluster();
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
+    }
+
+
+    // 클러스링 된 마커 클릭한 경우 리스너
+    @Override
+    public boolean onClusterClick(Cluster<SNSInfoMaker> cluster) {
+        String query = SQLDataService.getDynamicQuery(cluster.getSize());       // ? string 만들기
+
+        mDataQueryGroup.clear();
+        Iterator iterator = cluster.getItems().iterator();      // 클러스터링 아이템(마커) 배열 꺼내기
+        while (iterator.hasNext()) {
+            SNSInfoMaker snsInfoMaker = (SNSInfoMaker) iterator.next();     // 한개씩 가져오기
+            mDataQueryGroup.addInt(snsInfoMaker.getContentNum());
+        }
+        selectContentSQL(query);        //  마커 클릭시 이동
+        return true;
+    }
+
+    // 일반 마커 클릭한 경우 리스너
+    @Override
+    public boolean onClusterItemClick(SNSInfoMaker snsInfoMaker) {
+        String query = SQLDataService.getDynamicQuery(1);       // ? string 만들기
+        mDataQueryGroup.clear();
+        mDataQueryGroup.addInt(snsInfoMaker.getContentNum());
+        selectContentSQL(query);        //  마커 클릭시 이동
+        return true;
+    }
+
+    private void selectContentSQL(String query) {
+
+        final String sql = "select name, view_cnt, rec_cnt, reg_time,address,files " +
+                "from content inner join user " +
+                "on content.user_num = user.user_num " +
+                "where content_num in (" + query + ")";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+            @Override
+            public JSONObject getSQLQuery() {
+                JSONObject data = SQLDataService.getDynamicSQLJSONData(sql, mDataQueryGroup, -1, "select");
+                return SQLDataService.putBundleValue(data,"download","context","files");
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                Intent intent = new Intent(getApplicationContext(), ViewArticleActivity.class);
+                intent.putExtra("responseData", responseData.get(0).toString());
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener,ProgressDialog.STYLE_SPINNER, null);
+    }
 }
 
 

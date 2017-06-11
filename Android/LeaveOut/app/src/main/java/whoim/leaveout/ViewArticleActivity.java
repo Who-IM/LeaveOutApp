@@ -26,6 +26,9 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 import whoim.leaveout.GridAdapter.GridAdapter;
@@ -33,6 +36,10 @@ import whoim.leaveout.GridAdapter.GridAdapter;
 // 글 보기
 public class ViewArticleActivity extends AppCompatActivity
 {
+
+    private Intent data;        // 데이터
+    JSONObject jsondata;      // 제이슨 데이터
+
     // 글보기 리스트 뷰
     private ListView list = null;
     private article_Adapter adapter = null;
@@ -51,10 +58,20 @@ public class ViewArticleActivity extends AppCompatActivity
     private ArrayList<GridView> grid_list = null;
     private ArrayList<GridAdapter> gridAdapter = null;
 
+
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_article_layout);
+
+        data = getIntent();
+        if(data != null) {
+            try {
+                jsondata = new JSONObject(data.getStringExtra("responseData"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게

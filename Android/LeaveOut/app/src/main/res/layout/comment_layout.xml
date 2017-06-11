@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:paddingStart="10dp"
+        android:padding="5dp"
+        android:text="댓글 수    : "
+        android:id="@+id/textView" />
+
+    <TextView
+        android:id="@+id/comment_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:paddingStart="5dp"
+        android:padding="5dp"
+        android:text="0"
+        android:layout_toEndOf="@+id/textView" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/comment_item_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/comment_edit_layout"
+        android:layout_below="@id/comment_count">
+
+    </android.support.v7.widget.RecyclerView>
+
+
+    <RelativeLayout
+        android:id="@+id/comment_edit_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/public_bar"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_alignParentBottom="true">
+
+        <ImageView
+            android:id="@+id/comment_edit_image"
+            android:layout_width="35dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp" />
+
+        <EditText
+            android:id="@+id/comment_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/public_search"
+            android:inputType="text"
+            android:hint="댓글을 입력하시오.."
+            android:padding="5dp"
+            android:layout_alignBottom="@+id/comment_edit_image"
+            android:layout_toEndOf="@+id/comment_edit_image"
+            android:layout_alignTop="@+id/comment_edit_image" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

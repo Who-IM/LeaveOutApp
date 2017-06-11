@@ -7,6 +7,11 @@
 <title>Insert title here</title>
 </head>
 <body>
+<%
+	out.print("request.getRequestURL():"+request.getRequestURL()+"..<br />");
+	out.print("request.getRequestURI():"+request.getRequestURI()+"..<br />");
+	out.print(request.getRequestURL().toString().replace(request.getRequestURI(),"/"));
+%>
 
 </body>
 </html>

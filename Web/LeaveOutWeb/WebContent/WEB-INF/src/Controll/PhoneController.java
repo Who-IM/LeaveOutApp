@@ -16,7 +16,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import DBSQLServer.DBSQL;
-import FileSystem.FileManagement;
+import FileSystem.FileDownLoad;
+import FileSystem.FileUpload;
 
 import javax.naming.*;
 
@@ -146,12 +147,21 @@ public class PhoneController extends HttpServlet {
 			if(data.get("upload") != null) {		// 서브 데이터가 있을경우(현재 테스트중)
 				JSONObject jsonupload = (JSONObject) data.get("upload");
 				if(jsonupload.get("context") != null) {
-					FileManagement fileManagement = new FileManagement(jsonupload, request);
+					FileUpload fileupload = new FileUpload(jsonupload, request);
 					if(jsonupload.get("context").equals("text"))	// 파일 (text) 업로드
-						resJSON = fileManagement.fileTextUpload();
+						resJSON = fileupload.fileTextUpload();
 
 					if(jsonupload.get("context").equals("image"))
-						resJSON = fileManagement.fileImageUpload();			// 이미지 업로드
+						resJSON = fileupload.fileImageUpload();			// 이미지 업로드
+				}
+			}
+			if(data.get("download") != null && resJSON != null) {			// 다운로드가 있을경우
+				JSONObject jsondownload = (JSONObject) data.get("download");
+				if(jsondownload.get("context") != null) {
+					FileDownLoad filedownload = new FileDownLoad(resJSON, request);
+					if(jsondownload.get("context").equals("files")) {							
+						filedownload.filesDownLoad(jsondownload);						// 파일 다운로드(text 는 string image는 uri로 가져오기)
+					}
 				}
 			}
 			return resJSON;

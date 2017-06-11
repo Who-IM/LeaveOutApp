@@ -689,6 +689,10 @@ public class MainActivity extends MapAPIActivity {
                 Log.e("남서 경도", southwestLng + "");
                 intent = new Intent(getApplicationContext(), CollectActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra("northeastLat", northeastLat);
+                intent.putExtra("northeastLng", northeastLng);
+                intent.putExtra("southwestLat", southwestLat);
+                intent.putExtra("southwestLng", southwestLng);
                 startActivity(intent);
                 break;
         }

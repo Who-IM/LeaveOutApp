@@ -1,5 +1,6 @@
 package whoim.leaveout;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -28,10 +29,17 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.Adapter.GridAdapter;
 
 //모아보기
@@ -62,6 +70,16 @@ public class CollectActivity extends AppCompatActivity {
 
     private ArrayList<GridView> grid_list = null;
     private ArrayList<GridAdapter> gridAdapter = null;
+
+    // SQL
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
+    private String mSelectSQL = "select * from content where (loc_x >= ? && loc_x <= ?) AND (loc_y >= ? && loc_y <= ?)";
+
+    // 위도 경도
+    Double northeastLat;  // 화면 좌측상단부분의 위도
+    Double northeastLng;  // 화면 좌측상단부분의 경도
+    Double southwestLat;  //화면 우측하단부분의 위도
+    Double southwestLng;  //화면 우측하단부분의 경도
 
     int menuCount = 0;  //매뉴 옵션 아이템 순서
     @Override
@@ -120,7 +138,14 @@ public class CollectActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-
+        Intent locationintent = getIntent();
+        if(locationintent != null) {
+            northeastLat = locationintent.getDoubleExtra("northeastLat", 0);  // 화면 좌측상단부분의 위도
+            northeastLng = locationintent.getDoubleExtra("northeastLng", 0);  // 화면 좌측상단부분의 경도
+            southwestLat = locationintent.getDoubleExtra("southwestLat", 0);  //화면 우측하단부분의 위도
+            southwestLng = locationintent.getDoubleExtra("southwestLng", 0);  //화면 우측하단부분의 경도
+            contentsLocationSelectSQLData();
+        }
     }
 
     //옵션 버튼
@@ -628,6 +653,47 @@ public class CollectActivity extends AppCompatActivity {
         public String name;
         public String comment;
         public String time;
+    }
+
+    // 위도좌측 상단,       위도우측 하단,       경도좌측 상단,       경도우측 하단
+    // Double northeastLat, Double northeastLng, Double southwestLat, Double southwestLng
+    private void contentsLocationSelectSQLData() {
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();        // 초기화
+                mDataQueryGroup.addDouble(southwestLat);
+                mDataQueryGroup.addDouble(northeastLat);
+                mDataQueryGroup.addDouble(southwestLng);
+                mDataQueryGroup.addDouble(northeastLng);
+                return SQLDataService.getDynamicSQLJSONData(mSelectSQL, mDataQueryGroup, -1, "select");             // select SQL 제이슨
+            }
+
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                JSONArray result = responseData.get(0).getJSONArray("result");     // 결과 값 가져오기
+
+//                if (result.length() == 0)        // 데이터베이스에 입력한 ID가 없을경우
+//                    Toast.makeText(CollectActivity.this, "아이디 혹은 비밀번호가 일치하지 않습니다.", Toast.LENGTH_LONG).show();
+//                else if (result.getJSONObject(0).getString("id").equals(mIdEditText.getText().toString())) {     // 데이터베이스에 입력한 ID가 있을경우
+//                    SharedPreferences.Editor LoginSharedEdit = mLoginShared.edit();     // 상태 저장 에디터
+//                    LoginSharedEdit.putInt("user_num", result.getJSONObject(0).getInt("user_num"));      // 유저 id 상태 저장
+//                    LoginSharedEdit.commit();       // commit
+//                    mUserInfo.setUserNum(mLoginShared.getInt("user_num", 0));       //  유저 id 셋팅
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
+
     }
 
     // 뒤로가기

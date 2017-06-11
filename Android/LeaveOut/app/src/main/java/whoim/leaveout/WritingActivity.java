@@ -620,8 +620,7 @@ public class WritingActivity extends AppCompatActivity {
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
                 if(responseData != null) {
-                    Toast.makeText(WritingActivity.this,"Good",Toast.LENGTH_SHORT).show();
-
+                    Toast.makeText(WritingActivity.this,"등록 되었습니다.",Toast.LENGTH_SHORT).show();
                     finish();
                 }
 

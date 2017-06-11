@@ -12,7 +12,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -340,7 +339,6 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
             mDataQueryGroup.addInt(snsInfoMaker.getContentNum());
         }
         selectContentSQL(query);        //  마커 클릭시 이동
-        Toast.makeText(this,"클러스터링 클릭",Toast.LENGTH_SHORT).show();
         return true;
     }
 
@@ -351,7 +349,6 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         mDataQueryGroup.clear();
         mDataQueryGroup.addInt(snsInfoMaker.getContentNum());
         selectContentSQL(query);        //  마커 클릭시 이동
-        Toast.makeText(this,"마커 클릭",Toast.LENGTH_SHORT).show();
         return true;
     }
 
@@ -369,7 +366,8 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
             }
             @Override
             public JSONObject getSQLQuery() {
-                return SQLDataService.getDynamicSQLJSONData(sql, mDataQueryGroup, -1, "select");
+                JSONObject data = SQLDataService.getDynamicSQLJSONData(sql, mDataQueryGroup, -1, "select");
+                return SQLDataService.putBundleValue(data,"download","context","files");
             }
             @Override
             public JSONObject getUpLoad() {

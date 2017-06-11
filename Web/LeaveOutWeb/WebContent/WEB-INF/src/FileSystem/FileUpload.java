@@ -17,7 +17,7 @@ import java.util.Base64;
 
 import DBSQLServer.DBSQL;
 
-public class FileManagement {
+public class FileUpload {
 
 	private JSONObject jsonupload;
 	private HttpServletRequest request;
@@ -31,12 +31,12 @@ public class FileManagement {
 	private String path;		// 저장 할 실제 이름(어디서 저장됬는지 확인)
 	private int pathnum;		// 실제 저장 할곳의 데이터베이스 번호
 
-	public FileManagement(JSONObject jsonupload, HttpServletRequest request) {
+	public FileUpload(JSONObject jsonupload, HttpServletRequest request) {
 		this.jsonupload = jsonupload;
 		this.request = request;
 		init();
 	}
-
+ 
 	// 초기화
 	public void init() {
 		usernum = ((Long)jsonupload.get("usernum")).intValue();

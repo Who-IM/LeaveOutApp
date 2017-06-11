@@ -58,6 +58,7 @@ public class ViewArticleActivity extends AppCompatActivity
     private ArrayList<GridView> grid_list = null;
     private ArrayList<GridAdapter> gridAdapter = null;
 
+
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -67,7 +68,9 @@ public class ViewArticleActivity extends AppCompatActivity
         if(data != null) {
             try {
                 jsondata = new JSONObject(data.getStringExtra("responseData"));
-            } catch (JSONException e) { e.printStackTrace(); }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정

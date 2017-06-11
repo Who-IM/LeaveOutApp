@@ -56,7 +56,7 @@ public class DBSQL {
 			while(rs.next()) {
 				JSONObject data = new JSONObject();
 				for(int i = 1; i <= size; i++) {		// 가져올 데이터 제이슨에 집어넣기
-					if(rs.getObject(i) instanceof Timestamp) {
+					if(rs.getObject(i) instanceof Timestamp) {		// 시간 방식 객체이면 String 가져오기 
 						data.put(resultmeta.getColumnLabel(i), rs.getString(i));
 						continue;
 					}

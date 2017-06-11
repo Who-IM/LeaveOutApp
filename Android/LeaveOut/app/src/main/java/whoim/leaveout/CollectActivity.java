@@ -37,10 +37,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import whoim.leaveout.GridAdapter.GridAdapter;
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.Adapter.GridAdapter;
 
 //모아보기
 public class CollectActivity extends AppCompatActivity {
@@ -57,6 +57,10 @@ public class CollectActivity extends AppCompatActivity {
     private boolean comment_flag = true;
     private ArrayList<EditText> comment_edit = null;
     private ArrayList<Button> collect_comment_btn2 = null;
+
+    //like 버튼
+    private ArrayList<Button> like_btnlistner = null;
+    private int like_count = 0;
 
     //tab
     private TabLayout tabLayout = null;
@@ -88,6 +92,8 @@ public class CollectActivity extends AppCompatActivity {
         comment_edit = new ArrayList<EditText>();
         comment_adapter = new ArrayList<collect_Comment_Adapter>();
         collect_comment_btn2 = new ArrayList<Button>();
+
+        like_btnlistner = new ArrayList<Button>();
 
         grid_list = new ArrayList<GridView>();
         gridAdapter = new ArrayList<GridAdapter>();
@@ -238,8 +244,8 @@ public class CollectActivity extends AppCompatActivity {
         list.setAdapter(adapter);
 
         // 여기서 db데이터 넣기
-        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
-        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석", "대구 수성구 만촌역", "2017.05.21 20:00","500","1000","ddd");
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12",like_count+"","511","놀러와라");
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석", "대구 수성구 만촌역", "2017.05.21 20:00",like_count+"","1000","ddd");
     }
 
     // 댓글 listview 셋팅
@@ -336,6 +342,10 @@ public class CollectActivity extends AppCompatActivity {
         @Override
         public long getItemId(int position) {
             return position;
+        }
+
+        public void setmListData(int position, String recom_num) {
+            mListData.get(position).recom_num = recom_num;
         }
 
         // 생성자로 값을 받아 셋팅
@@ -447,7 +457,6 @@ public class CollectActivity extends AppCompatActivity {
                 }
             });
 
-
             // getview 초기화시 셋팅
             if(comment_adapter.get(position).getCount() != 0) {
                 comment_list.get(position).setAdapter(comment_adapter.get(position));
@@ -472,13 +481,32 @@ public class CollectActivity extends AppCompatActivity {
                     comment_flag = false;
 
                     // 리스트뷰에 데이터가 있을시만
-                    if(comment_list.size() != 0) {
+                    if (comment_list.size() != 0) {
                         if (comment_list.get(pos).getVisibility() == View.GONE) {
                             comment_list.get(pos).setVisibility(View.VISIBLE);
                         } else {
                             comment_list.get(pos).setVisibility(View.GONE);
                         }
                     }
+                }
+            });
+
+            //추천하기 숫자 올라가기
+            if(like_btnlistner.size() == position)
+            {
+                like_btnlistner.add(position, (Button) convertView.findViewById(R.id.collect_like_btn));
+            }else{
+                like_btnlistner.set(position, (Button) convertView.findViewById(R.id.collect_like_btn));
+            }
+            like_btnlistner.get(position).setTag(position);
+            like_btnlistner.get(position).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v)
+                {
+                    int pos = (int) v.getTag();
+                    like_count++;
+                    adapter.setmListData(pos, like_count+"");
+                    adapter.notifyDataSetChanged();
                 }
             });
 

@@ -19,7 +19,8 @@
             android:layout_alignParentTop="true"
             android:layout_marginBottom="15dp"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp" />
+            android:layout_marginTop="10dp"
+            android:src="@drawable/basepicture"/>
 
         <TextView
             android:id="@+id/collect_comment_name"

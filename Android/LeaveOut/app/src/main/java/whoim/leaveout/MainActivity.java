@@ -1,5 +1,6 @@
 package whoim.leaveout;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -7,13 +8,13 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -36,12 +37,21 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.MapAPI.LocationBackground;
 import whoim.leaveout.MapAPI.MapAPIActivity;
+import whoim.leaveout.MapAPI.SNSInfoMaker;
+import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.StartSetting.Permission;
+import whoim.leaveout.User.UserInfo;
 
 public class MainActivity extends MapAPIActivity {
 
@@ -85,6 +95,9 @@ public class MainActivity extends MapAPIActivity {
     View header = null;
     View footer = null;
     ImageButton friend_open_list;
+
+    // SQL
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -543,6 +556,13 @@ public class MainActivity extends MapAPIActivity {
     }
 
     @Override
+    protected void onStop() {
+        mGoogleMap.clear();
+        mClusterMaker.clearMakerAll();
+        super.onStop();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
 /*        // 백그라운드 브로드 캐스트 죽일때 사용
@@ -627,7 +647,6 @@ public class MainActivity extends MapAPIActivity {
 
     // 브로드 캐스트 만들기(로케이션)
     private void registerReceiver() {
-
         // 이미 브로드캐스트 수신 설정 했으면 안하기
         if(mBroadcastCheck == true) return;
 
@@ -636,14 +655,31 @@ public class MainActivity extends MapAPIActivity {
             mBroadcastLocation = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    MainActivity.super.mCurrentLocation = intent.getExtras().getParcelable(LocationBackground.EXTRA_CURRENT_LOCATION);
-                    mAddressView.setText(MainActivity.super.getCurrentAddress(mCurrentLocation));
-                    Log.d(LocationBackground.ACTION_LOCATION_BROADCAST, "mLatitudelocation" + mCurrentLocation.getLatitude());
-                    Log.d(LocationBackground.ACTION_LOCATION_BROADCAST, "mLongitudelocation" + mCurrentLocation.getLongitude());
+                    Location tempLocation = intent.getExtras().getParcelable(LocationBackground.EXTRA_CURRENT_LOCATION);        // 주소 가져오기
+                    if (mCurrentLocation.getLatitude() != tempLocation.getLatitude() || mCurrentLocation.getLongitude() != tempLocation.getLongitude()) {   // 전과 후의 위치가 다르면 바꾸기
+                        MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
+                        circleSet();        // 원그리기
+                        mAddressView.setText(MainActivity.super.getCurrentAddress(mCurrentLocation));       // View에 주소 표시
 
-
-                }
-            };
+                        if(mClusterMaker.getmFenceList().size() == 0) {     // 전에 울타리글 마커가 없었을 경우
+                            fenceSQLStart();        // 울타리글 가져와서 마커 추가하기
+                        }
+                        else {  // 전에 있었을 경우
+                            // 만약 마커 표시된 울타리글이 현재 위치에서 거리가 멀어진경우 지우고 다시 셋팅
+                            for (SNSInfoMaker snsInfoMaker : mClusterMaker.getmFenceList()) {
+                                Location fenceLocation = new Location("snsInfo");
+                                fenceLocation.setLatitude(snsInfoMaker.getPosition().latitude);
+                                fenceLocation.setLongitude(snsInfoMaker.getPosition().longitude);
+                                if (distance < mCurrentLocation.distanceTo(fenceLocation)) {        // 설정한 반경 100m 안에 울타리글이 벗어나면 다시 울타리글 만들기
+                                    mClusterMaker.removeFenceAll();     // 울타리글 마커 지우기
+                                    fenceSQLStart();        // 울타리글 가져와서 마커 추가하기
+                                    break;
+                                }   // sub if -- END --
+                            }   // for -- END --
+                        }
+                    }   //if -- END --
+                }   // onReceive -- END --
+            };  // new BroadcastReceiver -- END --
         }
         // 사용자 위치 정보 브로드캐스트 수신 설정
         if(mBroadcastLocation != null) {
@@ -651,6 +687,12 @@ public class MainActivity extends MapAPIActivity {
             mBroadcastCheck = true; // 브로드캐스트 설정 완료
         }
     }
+
+    @Override
+    protected void UiSet() {
+        mAddressView.setText(MainActivity.super.getCurrentAddress(mCurrentLocation));
+    }
+
 
     // 글쓰기, 체크, 모아보기 메뉴 onClick 메소드
     public void nextActivityButton(View v) {
@@ -662,7 +704,6 @@ public class MainActivity extends MapAPIActivity {
                         Toast.makeText(this, "잠시후 다시 시도해 주십시오.", Toast.LENGTH_SHORT).show();
                     else         // GPS 설정 안됬을시
                         showDialogForLocationServiceSetting();      // 설정 하라는 다이얼로그 띄우기
-
                     return;
                 }
                 intent = new Intent(getApplicationContext(), WritingActivity.class);
@@ -672,38 +713,143 @@ public class MainActivity extends MapAPIActivity {
                 startActivity(intent);
                 break;
             case R.id.main_check:       // 체크 버튼(토스트 출력)
-                Toast toastView = Toast.makeText(getApplicationContext(), "체크되었습니다.", Toast.LENGTH_LONG);
-                toastView.show();
+                checkSelectAndInsertSQL();
                 break;
             case R.id.main_collect:     // 모아보기 버튼(모아보기 액티비티 이동)
-                LatLng northeastLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.northeast; // 화면 좌측상단부분의 LatLng
-                LatLng southwestLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.southwest; // 화면 우측하단부분의 LatLng
-                double northeastLat = northeastLatLng.latitude; // 화면 좌측상단부분의 위도
-                double northeastLng = northeastLatLng.longitude; // 화면 좌측상단부분의 경도
-                double southwestLat = southwestLatLng.latitude; //화면 우측하단부분의 위도
-                double southwestLng = southwestLatLng.longitude; //화면 우측하단부분의 경도
-
-                Log.e("북동 위도", northeastLat + "");
-                Log.e("북동 경도", northeastLng + "");
-                Log.e("남서 위도", southwestLat + "");
-                Log.e("남서 경도", southwestLng + "");
-                intent = new Intent(getApplicationContext(), CollectActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra("northeastLat", northeastLat);
-                intent.putExtra("northeastLng", northeastLng);
-                intent.putExtra("southwestLat", southwestLat);
-                intent.putExtra("southwestLng", southwestLng);
-                startActivity(intent);
+                contentsLocationSelectSQLData();
                 break;
         }
     }
 
-    //글보기 임시버튼(테스트)
-    public void view_button(View v)
-    {
-        Intent intent = new Intent(getApplicationContext(), ViewArticleActivity.class);
-        startActivity(intent);
+    private void checkSelectAndInsertSQL() {
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+            @Override
+            public JSONObject getSQLQuery() {
+                String sql = "select chk_x, chk_y, expare_date from checks where user_num = ?";
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if(responseData.get(0).getJSONArray("result").length() < 3) {
+                    checkInsertSQLData();
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "최대 3개 까지만 가능합니다.", Toast.LENGTH_LONG).show();
+                }
+            }
+        };
+
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
     }
+
+    private void checkInsertSQLData() {
+
+        final String sql = "insert into checks(user_num,chk_x,chk_y,expare_date) values(?,?,?,curdate())";
+        mDataQueryGroup.clear();
+        mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+        mDataQueryGroup.addDouble(mCurrentLocation.getLatitude());
+        mDataQueryGroup.addDouble(mCurrentLocation.getLongitude());
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if(responseData.get(0).getInt("result") == 1)
+                    Toast.makeText(getApplicationContext(), "체크되었습니다.", Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(getApplicationContext(), "잠시후 다시 시도해 주십시오.", Toast.LENGTH_LONG).show();
+            }
+        };
+
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
+    }
+
+    // 위도좌측 상단,       위도우측 하단,       경도좌측 상단,       경도우측 하단
+    // Double northeastLat, Double northeastLng, Double southwestLat, Double southwestLng
+    private void contentsLocationSelectSQLData() {
+        LatLng northeastLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.northeast; // 화면 좌측상단부분의 LatLng
+        LatLng southwestLatLng = mGoogleMap.getProjection().getVisibleRegion().latLngBounds.southwest; // 화면 우측하단부분의 LatLng
+        final double northeastLat = northeastLatLng.latitude; // 화면 좌측상단부분의 위도
+        final double northeastLng = northeastLatLng.longitude; // 화면 좌측상단부분의 경도
+        final double southwestLat = southwestLatLng.latitude; //화면 우측하단부분의 위도
+        final double southwestLng = southwestLatLng.longitude; //화면 우측하단부분의 경도
+        mDataQueryGroup.clear();        // 초기화
+        mDataQueryGroup.addDouble(southwestLat);
+        mDataQueryGroup.addDouble(northeastLat);
+        mDataQueryGroup.addDouble(southwestLng);
+        mDataQueryGroup.addDouble(northeastLng);
+
+        int count = 0;
+        for(SNSInfoMaker snsInfoMaker : mClusterMaker.getmFenceList()) {
+            count++;
+            mDataQueryGroup.addInt(snsInfoMaker.getContentNum());
+        }
+        if(count == 0) {
+            count = 1;
+            mDataQueryGroup.addInt(0);
+        }
+        String query = SQLDataService.getDynamicQuery(count);       // sql 동적으로 ? 만들기
+
+        final String mSelectSQL = "select name, view_cnt, rec_cnt, reg_time,address,files " +
+                "from content inner join user " +
+                "on content.user_num = user.user_num " +
+                "where (loc_x >= ? && loc_x <= ?) AND (loc_y >= ? && loc_y <= ?) AND (fence = false OR content_num in ("+ query +"))";     // 모아보기 sql
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+            @Override
+            public JSONObject getSQLQuery() {
+                JSONObject data = SQLDataService.getDynamicSQLJSONData(mSelectSQL, mDataQueryGroup, -1, "select");             // select SQL 제이슨
+                SQLDataService.putBundleValue(data,"download","context","files");
+                return data;
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                JSONArray result = responseData.get(0).getJSONArray("result");     // 결과 값 가져오기
+                if(result.length() == 0) {
+                    Toast.makeText(MainActivity.this,"자료가 없습니다.",Toast.LENGTH_LONG).show();
+                    return;
+                }
+                Intent intent = new Intent(getApplicationContext(), CollectActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra("result",result.toString());
+                startActivity(intent);
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
+    }
+
 
     // 폰트 바꾸기
     @Override

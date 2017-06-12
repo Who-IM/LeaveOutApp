@@ -18,7 +18,7 @@ import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
-import java.util.Collection;
+import java.util.ArrayList;
 
 import whoim.leaveout.R;
 
@@ -30,6 +30,7 @@ public class ClusterMaker {
     private Context mContext;
     private GoogleMap mGoogleMap;
     private ClusterManager<SNSInfoMaker> mClusterManager;       // 클러스터 관리 객체
+    private ArrayList<SNSInfoMaker> mFenceList = new ArrayList();        // 울타리글 리스트
 
     // 생성자
     public ClusterMaker(Context mContext, GoogleMap mGoogleMap) {
@@ -51,15 +52,30 @@ public class ClusterMaker {
     public void setOnClusterItemClickListener(ClusterManager.OnClusterItemClickListener<SNSInfoMaker> onClusterItemClickListener) {mClusterManager.setOnClusterItemClickListener(onClusterItemClickListener);}
 
     // 한개 마커 추가
-    public void addSNSInfoMaker(SNSInfoMaker snsInfoMaker) { mClusterManager.addItem(snsInfoMaker); }
-
-    // 리스트로 만든것을 마커 추가
-    public void addSNSInfoMakerList(Collection<SNSInfoMaker> snsInfoMaker) { mClusterManager.addItems(snsInfoMaker); }
+    public void addSNSInfoMaker(SNSInfoMaker snsInfoMaker) {
+        if(snsInfoMaker.isFence()) mFenceList.add(snsInfoMaker);
+        mClusterManager.addItem(snsInfoMaker);
+    }
 
     // 마커들 전부 삭제
-    public void clerMakerAll() { mClusterManager.clearItems(); }
+    public void clearMakerAll() {
+        mClusterManager.clearItems();           // 클러스터링 마커 아이템 삭제
+        mFenceList.clear();                     // 울타리 리스트 아이템 삭제
+    }
 
-    public void resetCluster() { mClusterManager.cluster(); }
+    public void resetCluster() {mClusterManager.cluster(); }
+
+    public void removeFenceAll() {
+        for(SNSInfoMaker snsInfoMaker : mFenceList) {
+            mClusterManager.removeItem(snsInfoMaker);
+        }
+        mFenceList.clear();
+        mClusterManager.cluster();
+    }
+
+    public ArrayList<SNSInfoMaker> getmFenceList() {
+        return mFenceList;
+    }
 
     /**
     * 클러스터링 마커 랜더링 기능 제공 객체
@@ -78,7 +94,7 @@ public class ClusterMaker {
         // 클러스터링 아닌 일반 마커 랜더링
         @Override
         protected void onBeforeClusterItemRendered(SNSInfoMaker item, MarkerOptions markerOptions) {
-            setContentImage(false);     // 말풍선 이미지 올리기
+            setContentImage(item.isFence());     // 말풍선 이미지 올리기(true : 빨간 풍선(울타리글) false : 일반 풍선(일반 게시글))
             mTextMarker.setText("1");     // 클러스터링 갯수 TextView 출력
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(createBitmap(mMakerView)));       // 마커 아이콘 올리기
         }
@@ -86,7 +102,14 @@ public class ClusterMaker {
         // 클러터링 하는 마커 랜더링
         @Override
         protected void onBeforeClusterRendered(Cluster<SNSInfoMaker> cluster, MarkerOptions markerOptions) {
-            setContentImage(false);                     // 말풍선 이미지 올리기
+            boolean fence = false;
+            for (SNSInfoMaker snsInfoMaker : cluster.getItems()) {
+                if (snsInfoMaker.isFence()) {
+                    fence = true;
+                    break;
+                }
+            }
+            setContentImage(fence);                     // 말풍선 이미지 올리기
             mTextMarker.setText(String.valueOf(cluster.getSize()));     // 클러스터링 갯수 TextView 출력
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(createBitmap(mMakerView)));       // 마커 아이콘 올리기
         }

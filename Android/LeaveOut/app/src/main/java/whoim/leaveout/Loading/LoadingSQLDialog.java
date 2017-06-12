@@ -29,7 +29,7 @@ public final class LoadingSQLDialog extends AsyncTask<Void,Integer,Void> {
     private int size;
     private int uploadsize;
 
-    private ExecutorService mEexecutorService;        // 스레드 풀 시스템
+    private ExecutorService mExecutorService;        // 스레드 풀 시스템
     private SQLWeb sqlWeb;                      // WebSQL 접속 객체
     private ArrayList<JSONObject> responseData = new ArrayList();            // 응답받은 데이터
     private int mCompleteCount;
@@ -47,7 +47,7 @@ public final class LoadingSQLDialog extends AsyncTask<Void,Integer,Void> {
         mContext = context;
         mAsyncDialog = new ProgressDialog(mContext);
         mAsyncDialog.setCancelable(false);
-        mEexecutorService = Executors.newCachedThreadPool();
+        mExecutorService = Executors.newCachedThreadPool();
         mCaller = caller;
         this.style = style;
     }
@@ -79,7 +79,7 @@ public final class LoadingSQLDialog extends AsyncTask<Void,Integer,Void> {
             JSONObject sqldata = mLoadingSqlListener.getSQLQuery();
             if(sqldata != null) {
                 sqlWeb = new SQLWeb(sqldata);
-                responseData.add(mEexecutorService.submit(sqlWeb).get());       // 통신 시작
+                responseData.add(mExecutorService.submit(sqlWeb).get());       // 통신 시작
                 if(responseData.get(responseData.size()-1) == null) return null;
                 uploadsize = size - 1;
             }
@@ -88,7 +88,7 @@ public final class LoadingSQLDialog extends AsyncTask<Void,Integer,Void> {
                 JSONObject UploadData = mLoadingSqlListener.getUpLoad();   // 업로드 셋팅
                 if (UploadData != null) {
                     sqlWeb = new SQLWeb(UploadData);   // 업로드 셋팅 성공하면
-                    responseData.add(mEexecutorService.submit(sqlWeb).get());       // 통신 시작
+                    responseData.add(mExecutorService.submit(sqlWeb).get());       // 통신 시작
                     if (responseData.get(responseData.size() - 1) == null) return null;
                     if (style == ProgressDialog.STYLE_HORIZONTAL) publishProgress(100 / (uploadsize));
                 }
@@ -97,7 +97,7 @@ public final class LoadingSQLDialog extends AsyncTask<Void,Integer,Void> {
                     return null;
                 }
             }
-            Thread.sleep(1000);
+            if(style == ProgressDialog.STYLE_HORIZONTAL) Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {

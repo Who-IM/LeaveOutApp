@@ -105,7 +105,6 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
         });
     }
 
-
     public void setItem(String text) {
         adapter.addItem(text);
     }

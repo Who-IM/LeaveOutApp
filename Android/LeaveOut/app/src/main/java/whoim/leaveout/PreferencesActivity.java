@@ -13,9 +13,12 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import whoim.leaveout.Server.SQLDataService;
+
 // 환경설정
 public class PreferencesActivity extends AppCompatActivity {
     Switch login;
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance(); // sql에 필요한 데이터 그룹
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +71,10 @@ public class PreferencesActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     PreferencesActivity.this.finish();
+//                    IDDeleteSQLData(); //계정삭제
                     Toast.makeText(PreferencesActivity.this, "계정 탈퇴 실행.", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getApplicationContext(), loginActivity.class);
+                    startActivity(intent);
                 }
             });
 
@@ -93,4 +99,35 @@ public class PreferencesActivity extends AppCompatActivity {
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
+
+
+    //계정삭제 foreign키 걸림
+   /* private void IDDeleteSQLData() {
+
+        final String sql = "delete from user where user_num = ?;";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
+    }*/
 }

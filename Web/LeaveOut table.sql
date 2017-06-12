@@ -45,8 +45,8 @@ profile varchar(60)
 Create table Checks(
 check_num int primary key not null auto_increment,
 user_num int not null,
-chk_x int,
-chk_y int,
+chk_x double,
+chk_y double,
 expare_date date,
 constraint fk_checks_user_num 
 	foreign key(user_num) references User(user_num)

@@ -56,8 +56,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.SingleClick.OnSingleClickListener;
 import whoim.leaveout.User.UserInfo;
@@ -449,8 +449,19 @@ public class WritingActivity extends AppCompatActivity {
         //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
 //        iv = (ImageView) findViewById(R.id.write_input_picture);
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = 4;
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
+        if (bitmap.getWidth() >= 5000 || bitmap.getHeight() >= 2600) {
+            options.inSampleSize = 4;
+        } else if ((bitmap.getWidth() < 5000 && bitmap.getWidth() >= 3750) ||
+                (bitmap.getHeight() < 2600 && bitmap.getHeight() >= 1950)) {
+            options.inSampleSize = 3;
+        } else if ((bitmap.getWidth() < 3750 && bitmap.getWidth() >= 2500) ||
+                (bitmap.getHeight() < 1950 && bitmap.getHeight() >= 1300)) {
+            options.inSampleSize = 2;
+        }
+        bitmap.recycle();
         thumbImage= BitmapFactory.decodeStream(getContentResolver().openInputStream(photoUri),null,options);
+
 //        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
 //        thumbImage = ThumbnailUtils.extractThumbnail(bitmap, 1024, 768);  //사진 크기를 조절
 //        ByteArrayOutputStream bs = new ByteArrayOutputStream();

@@ -75,8 +75,8 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
     }
 
     // 아이템 셋팅
-    public void setItem(String text) {
-        adapter.addItem(text);
+    public void setItem(String text, int number) {
+        adapter.addItem(text, number);
     }
 
     // 리스트뷰 홀더
@@ -110,10 +110,11 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
         }
 
         // 생성자로 값을 받아 셋팅
-        public void addItem(String name) {
+        public void addItem(String name, int number) {
             Preferences_ListData addInfo = null;
             addInfo = new Preferences_ListData();
             addInfo.name = name;
+            addInfo.number = number;
 
             mListData.add(addInfo);
         }
@@ -155,6 +156,8 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     int pos = (int) v.getTag();
 
+                    checkDeleteSQLData(mListData.get(pos).number);
+
                     // 아이템 삭제
                     mListData.remove(pos);
 
@@ -167,8 +170,6 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
                     // listview 갱신.
                     adapter.notifyDataSetChanged();
 
-                    checkDeleteSQLData();
-
                 }
             });
 
@@ -179,6 +180,7 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
     // 메뉴의 실제 데이터를 저장할 class
     class Preferences_ListData {
         public String name;
+        public int number;
     }
 
     // 뒤로가기
@@ -221,19 +223,15 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
                     chk_n = j.getInt("check_num");
                     location.setLatitude(x);
                     location.setLongitude(y);
-                    setItem(getCurrentAddress(location));
+                    setItem(getCurrentAddress(location), chk_n);
                 }
                 check_delete_lv.setAdapter(adapter);
-
             }
         };
-
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
     }
 
-
-//    지금 재대로 안됨
-    private void checkDeleteSQLData() {
+    private void checkDeleteSQLData(final int number) {
 
         final String sql = "delete from checks where check_num = ? and user_num = ?;";
 
@@ -247,7 +245,7 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
             @Override
             public JSONObject getSQLQuery() {
                 mDataQueryGroup.clear();
-                mDataQueryGroup.addInt(chk_n);
+                mDataQueryGroup.addInt(number);
                 mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
             }
@@ -269,10 +267,7 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
         List<Address> addresses;
 
         try {
-            addresses = geocoder.getFromLocation(
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    1);
+            addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
         } catch (IOException ioException) {
             //네트워크 문제
             Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();

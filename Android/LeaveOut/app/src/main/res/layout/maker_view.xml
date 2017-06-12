@@ -9,8 +9,7 @@
         android:layout_height="wrap_content"
         android:paddingLeft="10dp"
         android:paddingRight="5dp"
-        android:gravity="center"
-        android:layout_marginLeft="30dp"/>
+        android:gravity="center"/>
 
 
 </FrameLayout>

@@ -1,4 +1,7 @@
-﻿/* 댓글 테이블 */
+﻿Create database leaveout;
+use leaveout;
+SET FOREIGN_KEY_CHECKS=0;
+/* 댓글 테이블 */
 Create table comment (
   comm_num int primary key not null auto_increment,
   content_num int not null,
@@ -15,7 +18,7 @@ content_num int primary key not null auto_increment,
 user_num int not null,
 view_cnt int default 0,
 rec_cnt int default 0,
-reg_time date,
+reg_time datetime,
 visibility int default 1,
 fence boolean default false,
 loc_x double,
@@ -42,8 +45,8 @@ profile varchar(60)
 Create table Checks(
 check_num int primary key not null auto_increment,
 user_num int not null,
-chk_x int,
-chk_y int,
+chk_x double,
+chk_y double,
 expare_date date,
 constraint fk_checks_user_num 
 	foreign key(user_num) references User(user_num)

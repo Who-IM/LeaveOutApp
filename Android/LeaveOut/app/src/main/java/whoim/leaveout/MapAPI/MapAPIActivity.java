@@ -6,12 +6,14 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -23,6 +25,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
@@ -47,7 +51,7 @@ import whoim.leaveout.ViewArticleActivity;
 /**
  * 구글 맵에 있는 기능 들은 MapAPIActivity 클래스에 인터페이스 구현을 하도록 한다.
  */
-public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallback,
+public abstract class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallback,
                                GoogleApiClient.ConnectionCallbacks,
                                GoogleApiClient.OnConnectionFailedListener,
                                 GoogleMap.OnMyLocationButtonClickListener,
@@ -69,11 +73,19 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
     protected Intent mLocationIntent;               // 로케이션 백그라운드 서비스
 
     protected Location mCurrentLocation;            // 디바이스 위치
-    protected CameraPosition mCameraPosition;       // 지도 카메라 위치 정보(상태 저장용)
+    protected CameraPosition mCameraPosition;       // 지도  카메라 위치 정보(상태 저장용)
 
     private LocationManager mLocationManager;       // 로케이션 매니저(GPS 활성화 여부를 위해 사용)
 
+    protected int distance = 100;                     // 제한 거리(울타리 용)
     protected ClusterMaker mClusterMaker;           // 클러스터 기능 관리 및 제공 객체
+    private Circle mCircle;                         // 울타리글에 필요한 원그리기
+
+    private String mFenceSQL = "select content_num,loc_x,loc_y,fence,visibility," +
+            "Cast((6371*acos(cos(radians(?))*cos(radians(loc_x))*cos(radians(loc_y) - radians(?))+sin(radians(?))*sin(radians(loc_x)))*1000) as signed integer) AS distance " +
+            "from content " +
+            "where visibility = 1 and fence = true " +
+            "Having distance <= 100";        // 울타리글 sql
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,11 +111,12 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(37.56, 126.97),16));
 //            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
-
         ContentMarkerSQLData();             // 미커 데이터베이스 SQL 문
+        circleSet();
+        fenceSQLStart();
 
        /*// 테스트 중(마커 생성)
-        mClusterMaker.clerMakerAll();
+        mClusterMaker.clearMakerAll();
         Random mRandom = new Random(1984);
         List<SNSInfoMaker> item = new ArrayList<>();
         for(int i = 0; i< 100; i++) {
@@ -169,7 +182,23 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         }
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
         Toast.makeText(this,"버튼 누름",Toast.LENGTH_SHORT).show();
+        circleSet();
         return false;
+    }
+
+    // 울타리글 전용 원그리기
+    protected void circleSet() {
+        if(mCurrentLocation == null) return;
+        if(mCircle != null) mCircle.remove();
+        // 반경 1KM원
+        CircleOptions circle1KM = new CircleOptions().center(new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude())) //원점
+                .radius(100)      //반지름 단위 : m
+                .strokeWidth(0f)  //선너비 0f : 선없음
+                .fillColor(Color.parseColor("#880000ff")); //배경색
+        mCircle = mGoogleMap.addCircle(circle1KM);
+        Log.e("mCircle",mCircle.getCenter().toString());
+        Log.e("mCircle",mCircle.getRadius()+"");
+
     }
 
     // GPS 권한 확인
@@ -206,7 +235,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
     private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);           // 업데이트 되는 주기(ms 단위)
-        mLocationRequest.setFastestInterval(5000);  // 위치 획득 후 업데이트 되는 주기(ms 단위)
+        mLocationRequest.setFastestInterval(3000);  // 위치 획득 후 업데이트 되는 주기(ms 단위)
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY); // 정확도
     }
 
@@ -229,15 +258,27 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
             mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
             mGoogleMap.setOnMyLocationButtonClickListener(null);
         }
+        mGoogleMap.getUiSettings().setRotateGesturesEnabled(false);
+        mGoogleMap.getUiSettings().setCompassEnabled(false);
     }
 
+    @SuppressWarnings("MissingPermission")
     // GPS 위치 서비스 활성화 되어있는지 확인
     protected boolean checkLocationServicesStatus() {
         if (mLocationManager == null) mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        boolean checkLocation = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);       // GPS 서비스 확인
 
-        return mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                || mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
+        if (checkLocation && mCurrentLocation != null) {
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 16));       // 초기 화면 셋팅
+            UiSet();
+        }
+
+        return checkLocation;
     }
+
+    protected abstract void UiSet();
 
     // GPS 활성화를 위한 화면 표시
     protected void showDialogForLocationServiceSetting() {
@@ -292,16 +333,33 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
         return address.substring(token1.length());
     }
 
-    // 게시글 마커 지도에 표시
+    // 울타리글 마커 확인 및 마커 추가 SQL
+    protected void fenceSQLStart() {
+        if(mCurrentLocation == null) return;
+        mDataQueryGroup.clear();
+        mDataQueryGroup.addDouble(mCurrentLocation.getLatitude());
+        mDataQueryGroup.addDouble(mCurrentLocation.getLongitude());
+        mDataQueryGroup.addDouble(mCurrentLocation.getLatitude());
+
+        FenceThread fenceThread = new FenceThread(new FenceThread.FenceUIListener() {
+            @Override
+            public void FenceUI(JSONObject result) throws JSONException {
+                addMarkerList(result.getJSONArray("result"));
+            }
+        });
+        fenceThread.execute(SQLDataService.getDynamicSQLJSONData(mFenceSQL,mDataQueryGroup,5,"select"));
+    }
+
+    // 게시글 마커 지도에 표시 및 체크 한 것 가져오기
     private void ContentMarkerSQLData() {
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
             @Override
             public int getSize() {
-                return 1;
+                return 2;
             }
             @Override
             public JSONObject getSQLQuery() {
-                return SQLDataService.getSQLJSONData("select content_num,loc_x,loc_y from content where visibility = 1 and fence = false",-1,"select");
+                return SQLDataService.getSQLJSONData("select content_num,loc_x,loc_y,fence,visibility from content where visibility = 1 and fence = false",-1,"select");
             }
             @Override
             public JSONObject getUpLoad() {
@@ -309,21 +367,25 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
             }
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
-                mGoogleMap.clear();
-                mClusterMaker.clerMakerAll();
                 JSONArray result = responseData.get(0).getJSONArray("result");
-                if(result.length() == 0) return;
-                for(int i = 0; i < result.length(); i++) {
-                    JSONObject data = result.getJSONObject(i);
-                    int contentnum =  data.getInt("content_num");
-                    double locX = data.getDouble("loc_x");
-                    double locY = data.getDouble("loc_y");
-                    mClusterMaker.addSNSInfoMaker(new SNSInfoMaker(new LatLng(locX,locY),contentnum));
-                }
-                mClusterMaker.resetCluster();
+                if(result.length() == 0) return;        // 마커가 없을경우 리턴
+                addMarkerList(result);      // 마커 표시
             }
         };
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
+    }
+
+    protected void addMarkerList(JSONArray result) throws JSONException {
+        for(int i = 0; i < result.length(); i++) {
+            JSONObject data = result.getJSONObject(i);
+            int contentnum =  data.getInt("content_num");
+            double locX = data.getDouble("loc_x");
+            double locY = data.getDouble("loc_y");
+            boolean fence = data.getBoolean("fence");
+            int visibility = data.getInt("visibility");
+            mClusterMaker.addSNSInfoMaker(new SNSInfoMaker(new LatLng(locX,locY),contentnum, fence, visibility));
+        }
+        mClusterMaker.resetCluster();
     }
 
 
@@ -377,6 +439,7 @@ public class MapAPIActivity extends AppCompatActivity implements OnMapReadyCallb
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
                 Intent intent = new Intent(getApplicationContext(), ViewArticleActivity.class);
                 intent.putExtra("responseData", responseData.get(0).toString());
+                Log.e("responseData",responseData.get(0).toString());
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
             }

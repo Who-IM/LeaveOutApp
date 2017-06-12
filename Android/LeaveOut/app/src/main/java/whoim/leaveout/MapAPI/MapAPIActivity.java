@@ -268,10 +268,10 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
         if (mLocationManager == null) mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         boolean checkLocation = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);       // GPS 서비스 확인
 
-        if(checkLocation) {
-            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
+        if (checkLocation && mCurrentLocation != null) {
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),16));       // 초기 화면 셋팅
+                    new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 16));       // 초기 화면 셋팅
             UiSet();
         }
 
@@ -335,6 +335,7 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
 
     // 울타리글 마커 확인 및 마커 추가 SQL
     protected void fenceSQLStart() {
+        if(mCurrentLocation == null) return;
         mDataQueryGroup.clear();
         mDataQueryGroup.addDouble(mCurrentLocation.getLatitude());
         mDataQueryGroup.addDouble(mCurrentLocation.getLongitude());

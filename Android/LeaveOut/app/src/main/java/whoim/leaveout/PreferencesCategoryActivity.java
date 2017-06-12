@@ -1,5 +1,6 @@
 package whoim.leaveout;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,7 +21,16 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+
+import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.User.UserInfo;
 
 //카테고리
 public class PreferencesCategoryActivity extends AppCompatActivity {
@@ -29,9 +39,13 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
     String inputValue = null;
     Button plus_button = null;
     Button delete_all_button = null;    //삭제 버튼
-    ImageButton X_button = null;
+    ArrayList<ImageButton> X_button = null;
     ArrayList<ImageButton> delete_button = null;
     boolean delete_flag = true;
+
+    int cate_seq;
+
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance(); // sql에 필요한 데이터 그룹
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,9 +53,11 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
         check_lv = (ListView) findViewById(R.id.category_listview);
         plus_button = (Button) findViewById(R.id.category_plus_button);
         delete_all_button = (Button) findViewById(R.id.category_delete_button);
+        X_button = new ArrayList<>();
 
         delete_button = new ArrayList<ImageButton>();
         adapter = new Preferences_Adapter(PreferencesCategoryActivity.this);
+        selectCategorySQLData();
 
         plus_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,14 +76,22 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
                         inputValue = etEdit.getText().toString();
-                        if (inputValue.equals("")) {    //다이얼로그에 아무것도 입력하지 않았을 경우
-                            Toast.makeText(PreferencesCategoryActivity.this, "아무것도 입력하지 않았습니다.", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        Toast.makeText(PreferencesCategoryActivity.this, inputValue, Toast.LENGTH_SHORT).show();
+                        if(inputValue.length() <= 10) {
+                            if (inputValue.equals("")) {    //다이얼로그에 아무것도 입력하지 않았을 경우
+                                Toast.makeText(PreferencesCategoryActivity.this, "아무것도 입력하지 않았습니다.", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            Toast.makeText(PreferencesCategoryActivity.this, inputValue, Toast.LENGTH_SHORT).show();
 
-                        setItem(inputValue);
-                        check_lv.setAdapter(adapter);
+                            select_seq_CategorySQLData();
+                            setItem(inputValue, cate_seq);
+                            check_lv.setAdapter(adapter);
+
+                            insertCategorySQLData(inputValue);
+                        }
+                        else {
+                            Toast.makeText(PreferencesCategoryActivity.this, "10자 이하로 입력하세요", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
                 // Cancel 버튼 이벤트
@@ -90,12 +114,12 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
                     return;
                 }
                 else if (delete_flag) {
-                    for (int i = 0; i <= count; i++) {
+                    for (int i = 0; i < count; i++) {
                         delete_button.get(i).setVisibility(View.VISIBLE);
                     }
                     delete_flag = false;
                 } else {
-                    for (int i = 0; i <= count; i++) {
+                    for (int i = 0; i < count; i++) {
                         delete_button.get(i).setVisibility(View.INVISIBLE);
                     }
                     delete_flag = true;
@@ -105,9 +129,8 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
         });
     }
 
-
-    public void setItem(String text) {
-        adapter.addItem(text);
+    public void setItem(String text, int cate_number) {
+        adapter.addItem(text, cate_number);
     }
 
     private class Preferences_ViewHolder {
@@ -140,11 +163,11 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
         }
 
         // 생성자로 값을 받아 셋팅
-        public void addItem(String name) {
+        public void addItem(String name, int cate_number) {
             Preferences_ListData addInfo = null;
             addInfo = new Preferences_ListData();
             addInfo.name = name;
-
+            addInfo.cate_number = cate_number;
             mListData.add(addInfo);
         }
 
@@ -172,17 +195,24 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
             holder.name.setText(mData.name);
 
             //X버튼 눌렀을 경우 체크 삭제
-            X_button = (ImageButton) convertView.findViewById(R.id.category_delete);
-            X_button.setOnClickListener(new View.OnClickListener() {
+            if(X_button.size() == position) {
+                X_button.add(position, (ImageButton) convertView.findViewById(R.id.category_delete));
+            }
+            else {
+                X_button.set(position, (ImageButton) convertView.findViewById(R.id.category_delete));
+            }
+            X_button.get(position).setTag(position);
+            X_button.get(position).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int count;
-                    count = adapter.getCount();
+                    int count = adapter.getCount();
+                    int pos = (int) v.getTag();
 
                     if (count > 0) {
+                        deleteCategorySQLData(mListData.get(pos).cate_number);
 
                         // 아이템 삭제
-                        mListData.remove(position);
+                        mListData.remove(pos);
 
                         // listview 선택 초기화.
                         check_lv.clearChoices();
@@ -200,6 +230,135 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
     // 메뉴의 실제 데이터를 저장할 class
     class Preferences_ListData {
         public String name;
+        public int cate_number;
+    }
+    private void insertCategorySQLData(final String text) {
+
+        final String sql = "insert into category(user_num, cate_text) values(?, ?);";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+                mDataQueryGroup.addString(text);
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
+    }
+
+    private void selectCategorySQLData() {
+
+        final String sql = "select * " +
+                "from category " +
+                "where (user_num = ?)";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                JSONArray jspn = responseData.get(0).getJSONArray("result");
+                for (int i = 0; i < jspn.length(); i++) {
+                    JSONObject j = jspn.getJSONObject(i);
+                    int cate_number = j.getInt("cate_seq");
+                    String text = j.getString("cate_text");
+                    setItem(text, cate_number);
+                }
+                check_lv.setAdapter(adapter);
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
+    }
+
+
+    private void deleteCategorySQLData(final int number) {
+
+        final String sql = "delete from category where cate_seq = ? and user_num = ?;";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(number);
+                mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
+    }
+
+
+    private void select_seq_CategorySQLData() {
+
+        final String sql = "select max(cate_seq) from category;";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                JSONArray jspn = responseData.get(0).getJSONArray("result");
+                cate_seq = jspn.getJSONObject(0).getInt("cate_seq");
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
     }
 
     // 뒤로가기

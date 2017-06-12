@@ -202,6 +202,8 @@ public class loginActivity extends AppCompatActivity {
         return true;
     }
 
+
+    /*"select user_num,id from user where id = ? and password = ?"*/
     private void loginSelectSQLData() {
         if (editCheckAll()) {
             LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {

@@ -656,7 +656,9 @@ public class MainActivity extends MapAPIActivity {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     Location tempLocation = intent.getExtras().getParcelable(LocationBackground.EXTRA_CURRENT_LOCATION);        // 주소 가져오기
-                    if (mCurrentLocation.getLatitude() != tempLocation.getLatitude() || mCurrentLocation.getLongitude() != tempLocation.getLongitude()) {   // 전과 후의 위치가 다르면 바꾸기
+                    if(mCurrentLocation == null)
+                        MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
+                    else if (mCurrentLocation.getLatitude() != tempLocation.getLatitude() || mCurrentLocation.getLongitude() != tempLocation.getLongitude()) {   // 전과 후의 위치가 다르면 바꾸기
                         MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
                         circleSet();        // 원그리기
                         mAddressView.setText(MainActivity.super.getCurrentAddress(mCurrentLocation));       // View에 주소 표시

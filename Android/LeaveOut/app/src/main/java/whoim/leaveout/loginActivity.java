@@ -318,6 +318,10 @@ public class loginActivity extends AppCompatActivity {
                 }
                 @Override
                 public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                    if(responseData == null) {
+                        Toast.makeText(loginActivity.this, "잠시후 다시 시도해주십시오.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
                     JSONArray result = responseData.get(0).getJSONArray("result");     // 결과 값 가져오기
                     if (result.length() == 0)        // 데이터베이스에 입력한 ID가 없을경우
                         Toast.makeText(loginActivity.this, "아이디 혹은 비밀번호가 일치하지 않습니다.", Toast.LENGTH_LONG).show();

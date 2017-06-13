@@ -1,7 +1,7 @@
 package whoim.leaveout.Adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +37,7 @@ public class GridAdapter extends BaseAdapter {
     }
 
     // 생성자로 값을 받아 셋팅
-    public void addItem(Drawable image) {
+    public void addItem(Bitmap image) {
         grid_ListData addInfo = null;
         addInfo = new grid_ListData();
         addInfo.Image = image;
@@ -68,7 +68,8 @@ public class GridAdapter extends BaseAdapter {
         // 이미지 처리
         if (mData.Image != null) {
             holder.Image.setVisibility(View.VISIBLE);
-            holder.Image.setImageDrawable(mData.Image);
+            holder.Image.setImageBitmap(mData.Image);
+//            holder.Image.setImageDrawable(mData.Image);
         }else{
             holder.Image.setVisibility(View.GONE);
         }
@@ -82,6 +83,6 @@ public class GridAdapter extends BaseAdapter {
     }
 
     class grid_ListData {
-        public Drawable Image;
+        public Bitmap Image;
     }
 }

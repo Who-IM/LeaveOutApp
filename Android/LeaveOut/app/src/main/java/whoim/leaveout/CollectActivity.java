@@ -3,6 +3,7 @@ package whoim.leaveout;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -503,12 +504,12 @@ public class CollectActivity extends AppCompatActivity {
 
             if(position == 0) {
                 // 데이터는 동적으로 apadter에 저장
-                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
-                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
-                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+                gridAdapter.get(position).addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.basepicture, null)).getBitmap());
+                gridAdapter.get(position).addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.basepicture, null)).getBitmap());
+                gridAdapter.get(position).addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.basepicture, null)).getBitmap());
             } else if(position == 1) {
-                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
-                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
+                gridAdapter.get(position).addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.basepicture, null)).getBitmap());
+                gridAdapter.get(position).addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.basepicture, null)).getBitmap());
             }
             grid_list.get(position).setAdapter(gridAdapter.get(position));
             setListViewHeightBasedOnChildren(grid_list.get(position)); // 펼쳐보기

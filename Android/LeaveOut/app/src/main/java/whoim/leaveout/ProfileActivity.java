@@ -47,12 +47,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
 import whoim.leaveout.Adapter.GridAdapter;
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
-import whoim.leaveout.Server.ImageDownLoad;
+import whoim.leaveout.Server.ImageDownLoad2;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.Services.FomatService;
 import whoim.leaveout.User.UserInfo;
@@ -99,14 +98,9 @@ public class ProfileActivity extends AppCompatActivity {
     private int like_count = 0;
 
     UserInfo userInfo = UserInfo.getInstance();     // 유저 정보
+    Bitmap bitmap = userInfo.getProfile();
 
     HashMap<Integer,ArrayList<Bitmap>> mImageMap = new HashMap<>();     // 이미지 해시맵
-    Handler handler = new Handler(){                    // 핸들러
-        @Override
-        public void handleMessage(Message msg) {
-            mImageMap.put(msg.arg1, (ArrayList<Bitmap>) msg.obj);
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +117,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         if(userInfo.getFacebookId() != null) mProfileSetImage.setVisibility(View.GONE);     // 페이스북 일 경우 이미지변경 버튼 없애기
 
-        Bitmap bitmap = userInfo.getProfile();
         if(bitmap == null)  // 프로필 사진이 없을 경우
             bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.basepicture)).getBitmap();      // 기본값
 
@@ -286,8 +279,8 @@ public class ProfileActivity extends AppCompatActivity {
         list.setAdapter(adapter);
 
         // 여기서 db데이터 넣기
-        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
-        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석", "대구 수성구 만촌역", "2017.05.21 20:00","500","1000","ddd");
+/*        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
+        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석", "대구 수성구 만촌역", "2017.05.21 20:00","500","1000","ddd");*/
     }
 
     // 댓글 listview 셋팅
@@ -394,7 +387,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         // 생성자로 값을 받아 셋팅
-        public void addItem(Drawable image, String name, String location, String time, String recom_num, String views_num, String contents) {
+        public void addItem(Bitmap image, String name, String location, String time, String recom_num, String views_num, String contents) {
             profile_ListData addInfo = null;
             addInfo = new profile_ListData();
             addInfo.Image = image;
@@ -439,7 +432,7 @@ public class ProfileActivity extends AppCompatActivity {
             // 이미지 처리
             if (mData.Image != null) {
                 holder.Image.setVisibility(View.VISIBLE);
-                holder.Image.setImageDrawable(mData.Image);
+                holder.Image.setImageBitmap(mData.Image);
             }else{
                 holder.Image.setVisibility(View.GONE);
             }
@@ -558,18 +551,19 @@ public class ProfileActivity extends AppCompatActivity {
             });
 
             // 이미지 처리
-            if(grid_list.size() == position) {  // ArrayList 자원 재활용
-                grid_list.add(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
-            else {
-                grid_list.set(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
+            if(grid_list.size() == position && mImageMap.get(position) != null) {  // ArrayList 자원 재활용
+                grid_list.add((GridView) convertView.findViewById(R.id.public_view_article_grid));
+                gridAdapter.add(new GridAdapter(ProfileActivity.this));
+                grid_list.get(position).setAdapter(gridAdapter.get(position));
+                for(Bitmap bitmap: mImageMap.get(position)) {
+                    gridAdapter.get(position).addItem(bitmap);
+                }
+                if(mImageMap.get(position).size() != 0) setListViewHeightBasedOnChildren(grid_list.get(position)); // 펼쳐보기
 
-            // 어뎁터 생성 등록
-            if(gridAdapter.size() == position) { // ArrayList 자원 재활용
-                gridAdapter.add(position, new GridAdapter(ProfileActivity.this));     }
-            else {
-                gridAdapter.set(position, new GridAdapter(ProfileActivity.this));     }
+            }
 
-            if(position == 0) {
+
+/*            if(position == 0) {
                 // 데이터는 동적으로 apadter에 저장
                 gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
                 gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
@@ -577,16 +571,16 @@ public class ProfileActivity extends AppCompatActivity {
             } else if(position == 1) {
                 gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
                 gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
-            }
-            grid_list.get(position).setAdapter(gridAdapter.get(position));
-            setListViewHeightBasedOnChildren(grid_list.get(position)); // 펼쳐보기
+            }*/
+/*            grid_list.get(position).setAdapter(gridAdapter.get(position));
+            setListViewHeightBasedOnChildren(grid_list.get(position)); // 펼쳐보기*/
             return convertView;
         }
     }
 
     // 메뉴의 실제 데이터를 저장할 class
     class profile_ListData {
-        public Drawable Image;
+        public Bitmap Image;
         public String name;
         public String location;
         public String time;
@@ -835,13 +829,31 @@ public class ProfileActivity extends AppCompatActivity {
                 if(responseData.get(0) != null) {
                     JSONArray resultData = responseData.get(0).getJSONArray("result");
                     for (int i = 0; i < resultData.length(); i++) {
+                        JSONObject data = resultData.getJSONObject(i);
+                        String name = data.getString("name");
+                        String address = data.getString("address");
+                        String reg_time = data.getString("reg_time");
+                        String rec_cnt = data.getString("rec_cnt");
+                        String view_cnt = data.getString("view_cnt");
+                        String text = data.getString("text");
+                        adapter.addItem(bitmap,name, address, reg_time,rec_cnt,view_cnt,text);
                         contetntImageDownLoad(resultData.getJSONObject(i).getJSONArray("image"), i);
                     }
+                    handler.sendEmptyMessage(0);
                 }
             }
         };
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
     }
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            adapter.notifyDataSetChanged();
+            for(GridAdapter grid : gridAdapter) {
+                grid.notifyDataSetChanged();
+            }
+        }
+    };
 
     private void contetntImageDownLoad(final JSONArray imagedata, final int num) {
 
@@ -851,18 +863,10 @@ public class ProfileActivity extends AppCompatActivity {
                 try {
                     ArrayList<Bitmap> bitmaps = new ArrayList();
                     for(int i = 0; i < imagedata.length(); i++) {
-                        bitmaps.add(new ImageDownLoad().execute(imagedata.getString(i)).get());
-                        if (bitmaps.size() != 0) {
-                            Message message = new Message();
-                            message = Message.obtain(handler,0,num,0, bitmaps);
-                            handler.sendMessage(message);
-                        }
+                        bitmaps.add(ImageDownLoad2.imageDownLoad(imagedata.getString(i)));
                     }
+                        mImageMap.put(num,bitmaps);
                 } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
                     e.printStackTrace();
                 }
             }

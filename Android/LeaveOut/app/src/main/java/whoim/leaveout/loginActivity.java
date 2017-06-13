@@ -362,6 +362,11 @@ public class loginActivity extends AppCompatActivity {
             }
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if(responseData == null){
+                    Toast.makeText(loginActivity.this, "다시 시작해 주십시오", Toast.LENGTH_LONG).show();     // 없을경우
+                    finish();
+                    return;
+                }
                 JSONArray result = responseData.get(0).getJSONArray("result");     // 결과 값 가져오기
                 if (result.length() == 0) {
                     Toast.makeText(loginActivity.this, "다시 로그인 해주십시오.", Toast.LENGTH_LONG).show();     // 없을경우

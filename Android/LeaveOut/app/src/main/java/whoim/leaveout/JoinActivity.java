@@ -243,7 +243,10 @@ public class JoinActivity extends AppCompatActivity {
             }
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
-                Log.d("responseData", responseData.toString());
+                if(responseData == null) {
+                    Toast.makeText(getApplicationContext(),"다시 시도해 주십시오.",Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (caller instanceof View) {
                     View v = (View) caller;
                     if (responseData.get(0).getJSONArray("result").length() != 0) {

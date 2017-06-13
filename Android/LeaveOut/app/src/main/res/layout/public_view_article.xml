@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -97,7 +98,8 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/public_view_article_contents"
         android:numColumns="auto_fit"
-        android:stretchMode="columnWidth"/>
+        android:stretchMode="columnWidth"
+        tools:visibility="visible"/>
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -199,7 +201,8 @@
         android:layout_height="match_parent"
         android:alwaysDrawnWithCache="true"
         android:layout_below="@+id/linearLayout2"
-        android:background="@drawable/public_open_list" />
+        android:background="@drawable/public_open_list"
+        tools:visibility="gone"/>
 
 
     <RelativeLayout

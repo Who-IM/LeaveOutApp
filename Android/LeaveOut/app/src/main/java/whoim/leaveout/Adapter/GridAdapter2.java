@@ -12,14 +12,17 @@ import java.util.ArrayList;
 
 import whoim.leaveout.R;
 
-public class GridAdapter extends BaseAdapter {
-    Context context;
-    private ArrayList<grid_ListData> mListData = new ArrayList<grid_ListData>();
+public class GridAdapter2 extends BaseAdapter {
 
-
-    public GridAdapter(Context context){
-        this.context = context;
+    private class GridViewHolder {
+        public ImageView Image;
     }
+
+    public class GridItem {
+        public Bitmap Image;
+    }
+
+    private ArrayList<GridItem> mListData = new ArrayList();
 
     @Override
     public int getCount() {
@@ -28,61 +31,48 @@ public class GridAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return mListData.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
     // 생성자로 값을 받아 셋팅
     public void addItem(Bitmap image) {
-        grid_ListData addInfo = null;
-        addInfo = new grid_ListData();
+        GridItem addInfo = new GridItem();
         addInfo.Image = image;
-
         mListData.add(addInfo);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView imageView;
-        grid_ViewHolder holder = null;
+        GridViewHolder holder = null;
 
         if (convertView == null) {
-            holder = new grid_ViewHolder();
-
+            holder = new GridViewHolder();
+            Context context = parent.getContext();
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.public_view_article_image, null);
+            convertView = inflater.inflate(R.layout.public_view_article_image, parent, false);
 
             holder.Image = (ImageView) convertView.findViewById(R.id.public_view_article_grid_image);
 
             convertView.setTag(holder);
         }else{
-            holder = (grid_ViewHolder) convertView.getTag();
+            holder = (GridViewHolder) convertView.getTag();
         }
 
-        final grid_ListData mData = mListData.get(position);
+        GridItem mData = mListData.get(position);
 
         // 이미지 처리
         if (mData.Image != null) {
             holder.Image.setVisibility(View.VISIBLE);
             holder.Image.setImageBitmap(mData.Image);
-//            holder.profile.setImageDrawable(mData.profile);
         }else{
             holder.Image.setVisibility(View.GONE);
         }
 
         return convertView;
-    }
-
-    // ------------ grid listview -------------
-    private class grid_ViewHolder {
-        public ImageView Image;
-    }
-
-    class grid_ListData {
-        public Bitmap Image;
     }
 }

@@ -32,11 +32,11 @@ public class PreferencesActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked == true)
                 {
-                    Toast.makeText(PreferencesActivity.this, "스위치 ON", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(PreferencesActivity.this, "스위치 ON", Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
-                    Toast.makeText(PreferencesActivity.this, "스위치 OFF", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(PreferencesActivity.this, "스위치 OFF", Toast.LENGTH_SHORT).show();
                 }
             }
         });

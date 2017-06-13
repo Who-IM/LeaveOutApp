@@ -298,8 +298,6 @@ public class WritingActivity extends AppCompatActivity {
 
             return convertView;
         }
-
-
     }
 
     // 메뉴의 실제 데이터를 저장할 class

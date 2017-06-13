@@ -5,20 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:weightSum="1"
     tools:ignore="missingPrefix">
 
-    <!-- 툴바 -->
+    <!--툴바-->
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/public_toobar">
+        android:background="@drawable/public_toobar"
+        app:contentInsetStart="0dp"
+        app:contentInsetEnd="0dp">
 
         <!--뒤로가기-->
         <ImageButton
             android:id="@+id/preferences_back_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/toolbar"
+            android:layout_alignParentTop="true"
             android:layout_margin="9dp"
             android:background="#00000000"
             android:onClick="Back"
@@ -34,7 +39,6 @@
             android:textSize="35dp"
             app:font="custom1" />
     </android.support.v7.widget.Toolbar>
-
 
     <!-- 프로필 -->
     <TextView
@@ -72,14 +76,14 @@
         android:id="@+id/preferences_check_delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.05"
-        android:textSize="30dp"
-        android:onClick="preferencesOnclick"
-        android:text="체크 보기"
         android:layout_marginLeft="20dp"
+        android:layout_weight="0.05"
         android:background="#00000000"
         android:gravity="left|center"
-        app:font="custom2"/>
+        android:onClick="preferencesOnclick"
+        android:text="체크"
+        android:textSize="30dp"
+        app:font="custom2" />
 
     <!--추후 다시 만들 예정-->
     <!--&lt;!&ndash;설정&ndash;&gt;-->
@@ -134,7 +138,7 @@
         android:id="@+id/preferences_autologin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.05"
+        android:layout_weight="0.1"
         android:text="자동 로그인"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"

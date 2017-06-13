@@ -77,7 +77,7 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
 
     private LocationManager mLocationManager;       // 로케이션 매니저(GPS 활성화 여부를 위해 사용)
 
-    protected int distance = 100;                     // 제한 거리(울타리 용)
+    protected int distance = 250;                     // 제한 거리(울타리 용)
     protected ClusterMaker mClusterMaker;           // 클러스터 기능 관리 및 제공 객체
     private Circle mCircle;                         // 울타리글에 필요한 원그리기
 
@@ -192,9 +192,9 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
         if(mCircle != null) mCircle.remove();
         // 반경 1KM원
         CircleOptions circle1KM = new CircleOptions().center(new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude())) //원점
-                .radius(100)      //반지름 단위 : m
+                .radius(distance)      //반지름 단위 : m
                 .strokeWidth(0f)  //선너비 0f : 선없음
-                .fillColor(Color.parseColor("#880000ff")); //배경색
+                .fillColor(Color.parseColor("#886e6efc")); //배경색
         mCircle = mGoogleMap.addCircle(circle1KM);
         Log.e("mCircle",mCircle.getCenter().toString());
         Log.e("mCircle",mCircle.getRadius()+"");
@@ -268,10 +268,10 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
         if (mLocationManager == null) mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         boolean checkLocation = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);       // GPS 서비스 확인
 
-        if(checkLocation) {
-            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
+        if (checkLocation && mCurrentLocation != null) {
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),16));       // 초기 화면 셋팅
+                    new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 16));       // 초기 화면 셋팅
             UiSet();
         }
 
@@ -335,6 +335,7 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
 
     // 울타리글 마커 확인 및 마커 추가 SQL
     protected void fenceSQLStart() {
+        if(mCurrentLocation == null) return;
         mDataQueryGroup.clear();
         mDataQueryGroup.addDouble(mCurrentLocation.getLatitude());
         mDataQueryGroup.addDouble(mCurrentLocation.getLongitude());

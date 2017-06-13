@@ -187,6 +187,7 @@ public class JoinActivity extends AppCompatActivity {
         return true;
     }
 
+
     // sql 업데이트
     private void updateSQLData() {
         if (editCheckAll()) {

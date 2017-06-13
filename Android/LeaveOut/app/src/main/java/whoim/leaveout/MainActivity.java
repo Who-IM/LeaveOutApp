@@ -253,11 +253,11 @@ public class MainActivity extends MapAPIActivity {
         @Override
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
             switch (position) {
-                case 0:
-                    // 임시
-                    button = new Intent(getApplicationContext(), ViewArticleActivity.class);
-                    startActivity(button);
-                    break;
+//                case 0:
+//                    // 임시
+//                    button = new Intent(getApplicationContext(), ViewArticleActivity.class);
+//                    startActivity(button);
+//                    break;
                 case 1:
                     button = new Intent(getApplicationContext(), ProfileActivity.class);
                     startActivity(button);
@@ -403,7 +403,6 @@ public class MainActivity extends MapAPIActivity {
             if(position == 0) {  // 매뉴 프로필 email
                 holder.email.setText(mData.email);
             }
-
             return convertView;
         }
     }

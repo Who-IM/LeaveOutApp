@@ -4,14 +4,14 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- 툴바 -->
+    <!--툴바-->
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/public_toobar">
+        android:background="@drawable/public_toobar"
+        app:contentInsetStart="0dp"
+        app:contentInsetEnd="0dp">
 
         <!--뒤로가기-->
         <ImageButton
@@ -62,7 +62,10 @@
         android:layout_height="wrap_content"
         android:text="카테고리 추가"
         android:textSize="25dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:layout_below="@+id/category_listview"
+        android:background="@drawable/public_button3"
         app:font="custom2" />
 
 </RelativeLayout>

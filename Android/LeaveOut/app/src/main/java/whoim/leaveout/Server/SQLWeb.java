@@ -30,7 +30,8 @@ public class SQLWeb implements Callable<JSONObject> {
     public JSONObject call() throws Exception {
         try {
 
-            URL url = new URL("http://172.19.3.74:8080/controll"); // URL화 한다.
+            URL url = new URL("http://192.168.0.100:8080/controll"); // URL화 한다.
+
 
             mCon = (HttpURLConnection) url.openConnection();                 // 접속 객체 생성
 //            mCon.setRequestProperty("Content-Type", "application/json");      // 타입설정(application/json) 형식으로 전송

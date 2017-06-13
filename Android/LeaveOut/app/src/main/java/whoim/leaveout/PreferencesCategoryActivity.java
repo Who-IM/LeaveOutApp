@@ -47,12 +47,12 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.preferences_category_layout);
         check_lv = (ListView) findViewById(R.id.category_listview);
         plus_button = (Button) findViewById(R.id.category_plus_button);
         delete_all_button = (Button) findViewById(R.id.category_delete_button);
         X_button = new ArrayList<>();
-
         delete_button = new ArrayList<ImageButton>();
         adapter = new Preferences_Adapter(PreferencesCategoryActivity.this);
 
@@ -61,6 +61,8 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
         plus_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
                 if(adapter.getCount() >= 5) {
                     Toast.makeText(PreferencesCategoryActivity.this, "카테고리는 5개 이상 등록할수 없습니다.", Toast.LENGTH_SHORT).show();
                     return;
@@ -70,21 +72,21 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
                 dialog.setTitle("카테고리 추가");
                 dialog.setView(etEdit);
 
-                //다이얼로그 키보드 바로 띄우기
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                //키보드 바로 띄우기//키보드 띄우기
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 
                 // OK 버튼 이벤트
                 dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-
+                        //키보드 내리기
+                        imm.hideSoftInputFromWindow(etEdit.getWindowToken(), 0);
                         inputValue = etEdit.getText().toString();
                         if(inputValue.length() <= 10) {
                             if (inputValue.equals("")) {    //다이얼로그에 아무것도 입력하지 않았을 경우
                                 Toast.makeText(PreferencesCategoryActivity.this, "아무것도 입력하지 않았습니다.", Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            Toast.makeText(PreferencesCategoryActivity.this, inputValue, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(PreferencesCategoryActivity.this, inputValue, Toast.LENGTH_SHORT).show();
 
                             insertCategorySQLData(inputValue);
 
@@ -98,6 +100,8 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
                 // Cancel 버튼 이벤트
                 dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
+                        //키보드 내리기
+                        imm.hideSoftInputFromWindow(etEdit.getWindowToken(), 0);
                         dialog.cancel();
                     }
                 });

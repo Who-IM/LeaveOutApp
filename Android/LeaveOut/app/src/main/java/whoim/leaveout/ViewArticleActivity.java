@@ -465,7 +465,7 @@ public class ViewArticleActivity extends AppCompatActivity
                 }
             });
 
-            // 이미지 처리
+            /*// 이미지 처리
             if(grid_list.size() == position) {  // ArrayList 자원 재활용
                 grid_list.add(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
             else {
@@ -487,7 +487,7 @@ public class ViewArticleActivity extends AppCompatActivity
                 gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
             }
             grid_list.get(position).setAdapter(gridAdapter.get(position));
-            setListViewHeightBasedOnChildren(grid_list.get(position)); // 펼쳐보기
+            setListViewHeightBasedOnChildren(grid_list.get(position)); // 펼쳐보기*/
             return convertView;
         }
     }

@@ -90,6 +90,17 @@
             android:textColor="#FF000000"
             android:layout_below="@+id/profile_title_name"
             android:layout_alignStart="@+id/profile_title_name" />
+
+        <ImageView
+            android:id="@+id/profile_friend_plus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/public_friend_plus"
+            android:layout_marginEnd="15dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="15dp"
+            android:visibility="gone"/>
+
     </RelativeLayout>
 
     <ListView

@@ -45,21 +45,17 @@ public class PreferencesActivity extends AppCompatActivity {
     // 버튼
     public void preferencesOnclick(View v) {
         if (v.getId() == R.id.preferences_category) {        //카테고리
-            Toast.makeText(this, "카테고리 실행.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getApplicationContext(), PreferencesCategoryActivity.class);
             startActivity(intent);
         } else if (v.getId() == R.id.preferences_check_delete) {      //체크 삭제
-            Toast.makeText(this, "체크 삭제 실행.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getApplicationContext(), PreferencesCheckViewActivity.class);
             startActivity(intent);
 
-        } else if (v.getId() == R.id.preferences_notice) {        //알림
-            Toast.makeText(this, "알림 실행.", Toast.LENGTH_SHORT).show();
+        } /*else if (v.getId() == R.id.preferences_notice) {        //알림
             Intent intent = new Intent(getApplicationContext(), PreferencesNoticeActivity.class);
             startActivity(intent);
 
-        } else if (v.getId() == R.id.preferences_logout) {       //로그아웃
-            Toast.makeText(this, "로그아웃 실행.", Toast.LENGTH_SHORT).show();
+        }*/ else if (v.getId() == R.id.preferences_logout) {       //로그아웃
             Intent intent = new Intent(getApplicationContext(), loginActivity.class);
             startActivity(intent);
         } else if (v.getId() == R.id.preferences_id_delete) {        //계정 탈퇴

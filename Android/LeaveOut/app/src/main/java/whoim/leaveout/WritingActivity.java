@@ -10,6 +10,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.icu.text.SimpleDateFormat;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
@@ -29,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
@@ -55,6 +58,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
@@ -69,6 +73,7 @@ public class WritingActivity extends AppCompatActivity {
     private String mContentUpdateSQL = "insert into content(user_num,reg_time,visibility,fence,loc_x,loc_y,address) " +
             "values(?,now(),?,?,?,?,?)";
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();
+    private int chk_n;
 
     private Toolbar toolbar;
     private TextView mAddressText;          // 주소 이름
@@ -122,7 +127,10 @@ public class WritingActivity extends AppCompatActivity {
     private ImageButton friendtag = null;
     private String tagText = null;
 
+    ArrayList<String> product = null;
+
     int count = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -178,10 +186,19 @@ public class WritingActivity extends AppCompatActivity {
         writing_searchList = (ListView) findViewById(R.id.write_search_list);
         writing_inputSearch = (ImageButton) findViewById(R.id.open_list);
         writing_search_layout = (LinearLayout) findViewById(R.id.write_search_layout);
-        String products[] = {"대구 수성구", "대구 동구", "대구 남구" };
+
+        product = new ArrayList<>();
+        checkInsertSQLData();
 
         // 검색 리스트 뷰
-        writing_adapter_search = new ArrayAdapter<String>(this, R.layout.main_search_item, R.id.product_name, products);
+        writing_adapter_search = new ArrayAdapter<String>(this, R.layout.main_search_item, R.id.product_name, product);
+
+        writing_searchList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mAddressText.setText(writing_adapter_search.getItem(position));
+            }
+        });
 
         // 입력공간 EditText
         write_input = (EditText) findViewById(R.id.write_input);
@@ -691,6 +708,75 @@ public class WritingActivity extends AppCompatActivity {
     public void tag(View v) {
         Intent it = new Intent(getApplicationContext(), TagFriendListActivity.class);
         startActivity(it);
+    }
+
+    private void checkInsertSQLData() {
+
+        final String sql = "select * " +
+                "from checks " +
+                "where (user_num = ?);";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                JSONArray jspn = responseData.get(0).getJSONArray("result");
+                Location location = new Location("checks");
+                for(int i =0; i < jspn.length(); i++) {
+                    JSONObject j = jspn.getJSONObject(i);
+                    double x = j.getDouble("chk_x");
+                    double y = j.getDouble("chk_y");
+                    chk_n = j.getInt("check_num");
+                    location.setLatitude(x);
+                    location.setLongitude(y);
+                    product.add(getCurrentAddress(location));
+                }
+                list.setAdapter(adapter);
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
+    }
+
+    // GPS를 주소로 변환
+    public String getCurrentAddress(Location location){
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses;
+
+        try {
+            addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+        } catch (IOException ioException) {
+            //네트워크 문제
+            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
+            return "지오코더 서비스 사용불가";
+        }
+        if (addresses == null || addresses.size() == 0) {
+            Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
+            return "주소 미발견";
+        } else {
+            Address address = addresses.get(0);
+            return addressToken(address.getAddressLine(0).toString());
+        }
+    }
+
+    // 주소 토큰
+    private String addressToken(String address) {
+        String token1 = "대한민국 ";
+        return address.substring(token1.length());
     }
 
     // 폰트 바꾸기

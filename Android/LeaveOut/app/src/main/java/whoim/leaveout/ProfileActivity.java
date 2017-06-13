@@ -1,5 +1,6 @@
 package whoim.leaveout;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -32,6 +33,10 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -39,6 +44,10 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import whoim.leaveout.Adapter.GridAdapter;
+import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.User.UserInfo;
 
 // 환경설정
 public class ProfileActivity extends AppCompatActivity {
@@ -78,6 +87,8 @@ public class ProfileActivity extends AppCompatActivity {
     private ArrayList<Button> like_btnlistner = null;
     private int like_count = 0;
 
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance(); // sql에 필요한 데이터 그룹
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,21 +120,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         // tab layout 설정
         tabLayout = (TabLayout) findViewById(R.id.profile_tab);
-        tab = new profile_tab("전체");
-        tab = new profile_tab("맛집");
-        tab = new profile_tab("여행지");
-        tab = new profile_tab("서울");
-        tab = new profile_tab("대구");
-        tab = new profile_tab("전체");
-        tab = new profile_tab("맛집");
-        tab = new profile_tab("여행지");
-        tab = new profile_tab("서울");
-        tab = new profile_tab("대구");
-        tab = new profile_tab("전체");
-        tab = new profile_tab("맛집");
-        tab = new profile_tab("여행지");
-        tab = new profile_tab("서울");
-        tab = new profile_tab("대구");
+        selectCategorySQLData();
 
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
@@ -722,5 +719,41 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
+    }
+
+    private void selectCategorySQLData() {
+
+        final String sql = "select * " +
+                "from category " +
+                "where (user_num = ?)";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                JSONArray jspn = responseData.get(0).getJSONArray("result");
+                tab = new profile_tab("전체");
+                for (int i = 0; i < jspn.length(); i++) {
+                    JSONObject j = jspn.getJSONObject(i);
+                    tab = new profile_tab(j.getString("cate_text"));
+                }
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
     }
 }

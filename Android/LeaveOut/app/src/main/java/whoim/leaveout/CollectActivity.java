@@ -1,7 +1,9 @@
 package whoim.leaveout;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -9,7 +11,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,11 +30,21 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 import whoim.leaveout.Adapter.GridAdapter;
+import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Server.ImageDownLoad;
+import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.User.UserInfo;
 
 //모아보기
 public class CollectActivity extends AppCompatActivity {
@@ -64,6 +75,9 @@ public class CollectActivity extends AppCompatActivity {
     private ArrayList<GridView> grid_list = null;
     private ArrayList<GridAdapter> gridAdapter = null;
 
+    ArrayList<Bitmap> bitmap = null;
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
+
     int menuCount = 0;  //매뉴 옵션 아이템 순서
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +94,7 @@ public class CollectActivity extends AppCompatActivity {
 
         grid_list = new ArrayList<GridView>();
         gridAdapter = new ArrayList<GridAdapter>();
+        bitmap= new ArrayList<>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
@@ -115,15 +130,35 @@ public class CollectActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
         });
 
-        Intent data = getIntent();
-        if(data != null) {
-            Log.d("result",data.getStringExtra("result"));
+        final Intent data = getIntent();
+        if (data != null) {
+            try {
+                final JSONArray jsondata;
+                jsondata = new JSONArray(data.getStringExtra("result"));
+                for (int i = 0; i < jsondata.length(); i++) {
+                    JSONObject jdata = jsondata.getJSONObject(i);
+                    String name = jdata.getString("name"); // 이름
+                    String rec_cnt = jdata.getString("rec_cnt"); // 추천 -> 댓글수로 변경 해야됨
+                    String view_cnt = jdata.getString("view_cnt"); // 조화수
+                    String reg_time = jdata.getString("reg_time"); // 시간
+                    String address = jdata.getString("address"); // 주소
+                    String text = jdata.getString("text"); // 텍스트 내용
+                    int content_num = jdata.getInt("content_num");
+
+                    adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null), name, address, reg_time, view_cnt, rec_cnt, text, content_num);
+                }
+                list.setAdapter(adapter);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -221,10 +256,6 @@ public class CollectActivity extends AppCompatActivity {
         // 어뎁터 생성민 등록
         adapter = new collect_Adapter(this);
         list.setAdapter(adapter);
-
-        // 여기서 db데이터 넣기
-        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12",like_count+"","511","놀러와라");
-        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석", "대구 수성구 만촌역", "2017.05.21 20:00",like_count+"","1000","ddd");
     }
 
     // 댓글 listview 셋팅
@@ -328,7 +359,7 @@ public class CollectActivity extends AppCompatActivity {
         }
 
         // 생성자로 값을 받아 셋팅
-        public void addItem(Drawable image, String name, String location, String time, String recom_num, String views_num, String contents) {
+        public void addItem(Drawable image, String name, String location, String time, String recom_num, String views_num, String contents, int content_num) {
             collect_ListData addInfo = null;
             addInfo = new collect_ListData();
             addInfo.Image = image;
@@ -338,6 +369,7 @@ public class CollectActivity extends AppCompatActivity {
             addInfo.recom_num = recom_num;
             addInfo.views_num = views_num;
             addInfo.contents = contents;
+            addInfo.content_num = content_num;
 
             mListData.add(addInfo);
         }
@@ -424,6 +456,9 @@ public class CollectActivity extends AppCompatActivity {
                             setListViewHeightBasedOnChildren(comment_list.get(pos)); // 리스트뷰 펼처보기(한화면에)
                             comment_edit.get(pos).setText("");   // 내용 초기화
 
+                            collect_ListData mData = mListData.get(pos);
+                            comment_InsertSQLData(mData.content_num, comment_edit.get(pos).getText().toString());
+
                             // 입력했는데 감춰져있으면 보이게 셋팅
                             if (comment_list.get(pos).getVisibility() == View.GONE) {
                                 comment_flag = false;
@@ -489,29 +524,12 @@ public class CollectActivity extends AppCompatActivity {
                 }
             });
 
-            // 이미지 처리
+            /*// 이미지 처리
             if(grid_list.size() == position) {  // ArrayList 자원 재활용
-                grid_list.add(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
-            else {
-                grid_list.set(position, (GridView) convertView.findViewById(R.id.public_view_article_grid));    }
-
-            // 어뎁터 생성 등록
-            if(gridAdapter.size() == position) { // ArrayList 자원 재활용
-                gridAdapter.add(position, new GridAdapter(CollectActivity.this));     }
-            else {
-                gridAdapter.set(position, new GridAdapter(CollectActivity.this));     }
-
-            if(position == 0) {
-                // 데이터는 동적으로 apadter에 저장
-                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
-                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
-                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
-            } else if(position == 1) {
-                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
-                gridAdapter.get(position).addItem(getResources().getDrawable(R.drawable.basepicture, null));
-            }
-            grid_list.get(position).setAdapter(gridAdapter.get(position));
-            setListViewHeightBasedOnChildren(grid_list.get(position)); // 펼쳐보기
+                grid_list.add((GridView) convertView.findViewById(R.id.public_view_article_grid));
+                gridAdapter.add(new GridAdapter(CollectActivity.this));
+                content_number_SelectSQLData(mData.content_num, position);
+            }*/
 
             return convertView;
         }
@@ -526,6 +544,7 @@ public class CollectActivity extends AppCompatActivity {
         public String recom_num;
         public String views_num;
         public String contents;
+        public int content_num;
     }
     // -------------------------------------- End public_view_article listview -----------------------
 
@@ -632,6 +651,122 @@ public class CollectActivity extends AppCompatActivity {
         public String name;
         public String comment;
         public String time;
+    }
+
+    private void comment_InsertSQLData(final int content_num, final String text) {
+        final String mSelectSQL = "insert into comment(content_num, user_name, reg_time) " +
+                                   "values(?, ?, now());";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();        // 초기화
+                mDataQueryGroup.addInt(content_num);
+                mDataQueryGroup.addString("이름");
+                JSONObject data = SQLDataService.getDynamicSQLJSONData(mSelectSQL, mDataQueryGroup, 0, "update");             // select SQL 제이슨
+                SQLDataService.putBundleValue(data, "upload", "usernum", UserInfo.getInstance().getUserNum());                 // 번들 데이터 더 추가(유저 id)
+                SQLDataService.putBundleValue(data, "upload", "path", "comment");
+                SQLDataService.putBundleValue(data, "upload","context","text");
+                SQLDataService.putBundleValue(data, "upload", "text", text);        // 번들 데이터 더 추가(내용)
+                return data;
+            }
+
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
+    }
+
+
+    private void content_number_SelectSQLData(final int content_num, final int position) {
+        final String mSelectSQL = "select files from content where content_num = ?";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();        // 초기화
+                mDataQueryGroup.addInt(content_num);
+                JSONObject data = SQLDataService.getDynamicSQLJSONData(mSelectSQL, mDataQueryGroup, -1, "select");             // select SQL 제이슨
+                SQLDataService.putBundleValue(data, "download", "context", "files");
+                return data;
+            }
+
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if (!responseData.get(0).getJSONArray("result").equals("error")) {
+                    JSONArray result = responseData.get(0).getJSONArray("result");     // 결과 값 가져오기
+                    for (int i = 0; i < result.length(); i++) {
+                        JSONObject fileObject = result.getJSONObject(i);
+                        String image = fileObject.getString("image");
+                        JSONArray fileArray = new JSONArray(image);
+
+                        if (fileArray.length() != 0) {
+                            selectThread th = new selectThread();
+                            th.init(fileArray, position);
+                            th.start();
+                        }
+                    }
+
+                }
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
+    }
+
+    public class selectThread extends Thread {
+        ImageDownLoad down = new ImageDownLoad();
+        JSONArray fileArray;
+        int position;
+
+        public void init(JSONArray fileArray, int position) {
+            this.fileArray = fileArray;
+            this.position = position;
+        }
+
+        public void run() {
+            for (int j = 0; j < fileArray.length(); j++) {
+                try {
+                    Bitmap bitmap = down.execute(fileArray.getString(j)).get();
+                    gridAdapter.get(position).addItem(bitmap);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    grid_list.get(position).setAdapter(gridAdapter.get(position));
+                    setListViewHeightBasedOnChildren(grid_list.get(position)); // 펼쳐보기
+                }
+            });
+        }
     }
 
     // 뒤로가기

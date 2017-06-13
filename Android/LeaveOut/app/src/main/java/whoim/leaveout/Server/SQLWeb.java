@@ -29,6 +29,7 @@ public class SQLWeb implements Callable<JSONObject> {
     @Override
     public JSONObject call() throws Exception {
         try {
+
             URL url = new URL("http://172.19.3.74:8080/controll"); // URL화 한다.
 
             mCon = (HttpURLConnection) url.openConnection();                 // 접속 객체 생성

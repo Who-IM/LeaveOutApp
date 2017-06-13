@@ -38,7 +38,7 @@ public class FileDownLoad {
 				filedirstring = (String) data.get(jsondownload.get("context"));		// 데이터베이스에서 만든 경로 가져오기
 				
 				if(filedirstring == null) return;			// 경로가 없으면 리턴
-				data.remove(jsondownload.get("context"));	// 제이슨에서 만든 경로 데이터 삭제
+//				data.remove(jsondownload.get("context"));	// 제이슨에서 만든 경로 데이터 삭제
 				
 				filedir = request.getServletContext().getRealPath(filedirstring);		// 실제 경로 + 폴더
 				File dir = new File(filedir);				// 디렉토리 폴더 불러오기

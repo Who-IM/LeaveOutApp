@@ -49,6 +49,10 @@ public class FileUpload {
 			pathnum = (int) ((JSONObject)array.get(0)).get("content_num");
 			filedirstring = "/leaveout/files/" + usernum + "/" + path + "/" + pathnum;
 		}
+		else if(path.equals("user")) {	// 유저 프로필
+			filedirstring = "/leaveout/files/" + usernum + "/profile";
+		}
+			
 		filedir = request.getServletContext().getRealPath(filedirstring);		// 실제 경로
 		File dir = new File(filedir);
 		if(!dir.exists()) dir.mkdirs();		// 폴더가 없을경우 만들기
@@ -87,7 +91,6 @@ public class FileUpload {
 	@SuppressWarnings("unchecked")
 	public JSONObject fileImageUpload() {
 		JSONObject resJSON = null; // 응답용 데이터
-		
 		int imagecount = ((Long)jsonupload.get("imagecount")).intValue(); 
 		JSONArray imagearray = (JSONArray) jsonupload.get("array");
 		byte[] decoded = null;		// 디코딩
@@ -114,7 +117,11 @@ public class FileUpload {
 	public JSONObject updateFilesPath() {
 		JSONObject jsonObject = null;
 		if(path.equals("content")) {	// 게시글
-			sql = "update content set files = \"" + filedirstring + "\" where content_num = " + pathnum + "&& files is null";
+			sql = "update content set files = \"" + filedirstring + "\" where content_num = " + pathnum;
+			jsonObject = dbsql.getPhoneUpdate(sql);
+		}
+		else if(path.equals("user")) {
+			sql = "update user set profile = \"" + filedirstring + "\" where user_num = " + usernum;
 			jsonObject = dbsql.getPhoneUpdate(sql);
 		}
 		return jsonObject;

@@ -209,7 +209,7 @@ public class JoinActivity extends AppCompatActivity {
                     return SQLDataService.getDynamicSQLJSONData(mInsertSQL, mDataQueryGroup, 0, "update");     // update SQL 제이슨
                 }
                 @Override
-                public JSONObject getUpLoad() {
+                public JSONObject getUpLoad(JSONObject resultSQL) {
                     return null;
                 }
                 @Override
@@ -238,7 +238,7 @@ public class JoinActivity extends AppCompatActivity {
                 return SQLDataService.getDynamicSQLJSONData(mSelectSQL.toString(), mDataQueryGroup,-1,"select");     // select SQL 제이슨
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
             @Override

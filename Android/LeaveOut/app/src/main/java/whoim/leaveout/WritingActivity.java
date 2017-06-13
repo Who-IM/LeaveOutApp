@@ -22,7 +22,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,7 +48,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,6 +57,7 @@ import java.util.List;
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.Services.FomatService;
 import whoim.leaveout.SingleClick.OnSingleClickListener;
 import whoim.leaveout.User.UserInfo;
 
@@ -490,15 +489,6 @@ public class WritingActivity extends AppCompatActivity {
 //        bs.close();
     }
 
-    private String getStringFromBitmap(Bitmap bitmapPicture) {
-        String encodedImage;
-        ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
-        bitmapPicture.compress(Bitmap.CompressFormat.PNG, 100, byteArrayBitmapStream);
-        byte[] b = byteArrayBitmapStream.toByteArray();
-        encodedImage = Base64.encodeToString(b, Base64.NO_WRAP);
-        try { byteArrayBitmapStream.close(); } catch (IOException e) { e.printStackTrace();}
-        return encodedImage;
-    }
 
     //공개여부
     public void whether_open_button()
@@ -625,7 +615,7 @@ public class WritingActivity extends AppCompatActivity {
                 return InsertSQLContent();
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return uploadImage();
             }
             @Override
@@ -665,7 +655,7 @@ public class WritingActivity extends AppCompatActivity {
         JSONArray jsonArray = new JSONArray();
         ArrayList<writing_ListData> arrayList = adapter.getList();
         if(arrayList.size() == 0) return null;
-        jsonArray.put(getStringFromBitmap(arrayList.get(0).Image));
+        jsonArray.put(FomatService.getStringFromBitmap(arrayList.get(0).Image));
         this.imagecount++;
         SQLDataService.putBundleValue(data, "upload", "imagecount", this.imagecount);
         SQLDataService.putBundleValue(data, "upload", "array", jsonArray);

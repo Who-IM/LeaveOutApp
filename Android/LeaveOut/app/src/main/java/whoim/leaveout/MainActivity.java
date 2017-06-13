@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -34,6 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
@@ -50,6 +53,7 @@ import whoim.leaveout.MapAPI.LocationBackground;
 import whoim.leaveout.MapAPI.MapAPIActivity;
 import whoim.leaveout.MapAPI.SNSInfoMaker;
 import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.Services.FomatService;
 import whoim.leaveout.StartSetting.Permission;
 import whoim.leaveout.User.UserInfo;
 
@@ -96,6 +100,9 @@ public class MainActivity extends MapAPIActivity {
     View footer = null;
     ImageButton friend_open_list;
 
+    UserInfo userInfo = UserInfo.getInstance();     // 유저 정보
+    Bitmap profile = null;      // 프로파일
+
     // SQL
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
 
@@ -121,7 +128,7 @@ public class MainActivity extends MapAPIActivity {
         setSerach();
 
         // 메뉴 셋팅
-        setMenuCustom();
+//        setMenuCustom();
 
         // 검색 리스트뷰 숨기기
         search_layout.setVisibility(View.GONE);
@@ -144,7 +151,7 @@ public class MainActivity extends MapAPIActivity {
             }
         });
 
-        // 메뉴화면켯을때 빈화면 클릭시
+/*        // 메뉴화면켯을때 빈화면 클릭시
         Drawer.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -153,7 +160,7 @@ public class MainActivity extends MapAPIActivity {
                 Drawer.closeDrawer(GravityCompat.START); // 펼치기
                 return true;
             }
-        });
+        });*/
     }
 
     // 인스턴스 셋팅
@@ -237,10 +244,17 @@ public class MainActivity extends MapAPIActivity {
         list.setAdapter(adapter);
 
         // 여기서 db데이터 넣기
-        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "gjtjdans123@naver.com");
-        adapter.addItem(getResources().getDrawable(R.drawable.profile_icon, null),"프로필", null);
-        adapter.addItem(getResources().getDrawable(R.drawable.friends_icon, null),"친구목록", null);
-        adapter.addItem(getResources().getDrawable(R.drawable.preferences_icon, null),"환경설정", null);
+//        adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.basepicture, null)).getBitmap(),"허성문", "gjtjdans123@naver.com");
+
+        if(userInfo.getProfile() != null)     // 프로필 사진이 있을경우
+            profile = userInfo.getProfile();
+        else      // 없을 경우
+            profile = ((BitmapDrawable)getResources().getDrawable(R.drawable.basepicture, null)).getBitmap();
+
+        adapter.addItem(profile, userInfo.getName(), userInfo.getEmail());
+        adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.profile_icon, null)).getBitmap(),"프로필", null);
+        adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.friends_icon, null)).getBitmap(),"친구목록", null);
+        adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.preferences_icon, null)).getBitmap(),"환경설정", null);
     }
 
     /* 매뉴 눌렀을 시 이벤트 처리
@@ -253,21 +267,24 @@ public class MainActivity extends MapAPIActivity {
         @Override
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
             switch (position) {
-                case 0:
+/*                case 0:
                     // 임시
                     button = new Intent(getApplicationContext(), ViewArticleActivity.class);
                     startActivity(button);
-                    break;
-                case 1:
+                    break;*/
+                case 1:     // 프로필으로 이동
                     button = new Intent(getApplicationContext(), ProfileActivity.class);
+                    button.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(button);
                     break;
                 case 2: // 친구목록으로 이동
                     button = new Intent(getApplicationContext(), FriendListActivity.class);
+                    button.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(button);
                     break;
                 case 3: // 환경설정으로 이동
                     button = new Intent(getApplicationContext(), PreferencesActivity.class);
+                    button.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(button);
                     break;
             }
@@ -309,8 +326,10 @@ public class MainActivity extends MapAPIActivity {
             return position;
         }
 
+        public ArrayList<menu_ListData> getListData() {return mListData;}
+
         // 생성자로 값을 받아 셋팅
-        public void addItem(Drawable image, String name, String email) {
+        public void addItem(Bitmap image, String name, String email) {
             menu_ListData addInfo = null;
             addInfo = new menu_ListData();
             addInfo.Image = image;
@@ -393,7 +412,7 @@ public class MainActivity extends MapAPIActivity {
             // 이미지 처리
             if (mData.Image != null) {
                 holder.Image.setVisibility(View.VISIBLE);
-                holder.Image.setImageDrawable(mData.Image);
+                holder.Image.setImageBitmap(mData.Image);
             }else{
                 holder.Image.setVisibility(View.GONE);
             }
@@ -410,7 +429,7 @@ public class MainActivity extends MapAPIActivity {
 
     // 메뉴의 실제 데이터를 저장할 class
     class menu_ListData {
-        public Drawable Image;
+        public Bitmap Image;
         public String name;
         public String email;
     }
@@ -548,17 +567,22 @@ public class MainActivity extends MapAPIActivity {
 
     @Override
     protected void onResume() {
-        super.onResume();
+        // 메뉴 셋팅
+        setMenuCustom();
+
         this.registerReceiver();        // 사용자 위치 브로드 캐스트 수신 설정
-/*        if(super.mGoogleApiClient.isConnected()) {
+
+        // GPS 위치 가져오는 서비스 켜기
+        if(super.mGoogleApiClient.isConnected()) {
             getDeviceLocation();
-        }*/
+        }
+        super.onResume();
     }
 
     @Override
     protected void onStop() {
-        mGoogleMap.clear();
-        mClusterMaker.clearMakerAll();
+        if(mGoogleMap != null) mGoogleMap.clear();
+        if(mClusterMaker != null) mClusterMaker.clearMakerAll();
         super.onStop();
     }
 
@@ -571,17 +595,23 @@ public class MainActivity extends MapAPIActivity {
             mBroadcastCheck = false;
         }*/
 
-/*        // 다른 액티비티로 넘어가거나 액티비티 종료시 버리기
+        // 다른 액티비티로 넘어가거나 액티비티 종료시 버리기
         if(super.mGoogleApiClient.isConnected()) {
 //            PendingIntent LocationIntent = PendingIntent.getService(this, 0, new Intent(this, LocationBackground.class), PendingIntent.FLAG_UPDATE_CURRENT);   // 다른 컴포넌트에게 인텐트 권한 주기
             LocationServices.FusedLocationApi.removeLocationUpdates(super.mGoogleApiClient, super.mLocationPendingIntent);
-        }*/
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        Toast.makeText(this,"종료",Toast.LENGTH_SHORT).show();
+        for(menu_ListData menu_listData : adapter.getListData()) {
+            if(menu_listData.Image != null) menu_listData.Image.recycle();
+        }
+/*        moveTaskToBack(true);
+        finish();
+        android.os.Process.killProcess(android.os.Process.myPid());*/
+
         unregisterReceiver(mBroadcastLocation);     // 브로드캐스트 종료
     }
 
@@ -624,6 +654,7 @@ public class MainActivity extends MapAPIActivity {
                 if (Permission.verifyPermission(grantResults)) {
                     super.mLocationPermissionGranted = true;
                     Toast.makeText(this, "GPS 승인 완료", Toast.LENGTH_SHORT).show();
+                    getDeviceLocation();
                 }
                 else Toast.makeText(this, "GPS 승인 거부", Toast.LENGTH_SHORT).show();
 
@@ -656,12 +687,18 @@ public class MainActivity extends MapAPIActivity {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     Location tempLocation = intent.getExtras().getParcelable(LocationBackground.EXTRA_CURRENT_LOCATION);        // 주소 가져오기
-                    if(mCurrentLocation == null)
+                    if(mCurrentLocation == null) {
                         MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
+                        circleSet();        // 원그리기
+                        mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(),mCurrentLocation));       // View에 주소 표시
+                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 16));       // 초기 화면 셋팅
+                        fenceSQLStart();
+                    }
                     else if (mCurrentLocation.getLatitude() != tempLocation.getLatitude() || mCurrentLocation.getLongitude() != tempLocation.getLongitude()) {   // 전과 후의 위치가 다르면 바꾸기
                         MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
                         circleSet();        // 원그리기
-                        mAddressView.setText(MainActivity.super.getCurrentAddress(mCurrentLocation));       // View에 주소 표시
+                        mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(),mCurrentLocation));       // View에 주소 표시
 
                         if(mClusterMaker.getmFenceList().size() == 0) {     // 전에 울타리글 마커가 없었을 경우
                             fenceSQLStart();        // 울타리글 가져와서 마커 추가하기
@@ -690,35 +727,26 @@ public class MainActivity extends MapAPIActivity {
         }
     }
 
-    @Override
-    protected void UiSet() {
-        mAddressView.setText(MainActivity.super.getCurrentAddress(mCurrentLocation));
-    }
-
-
     // 글쓰기, 체크, 모아보기 메뉴 onClick 메소드
     public void nextActivityButton(View v) {
         Intent intent = null;
         switch (v.getId()) {
             case R.id.main_write:       // 글쓰기 버튼(글쓰기 액티비티 이동)
-                if(mCurrentLocation == null)  {
-                    if(checkLocationServicesStatus())   // GPS 설정됬을 시
-                        Toast.makeText(this, "잠시후 다시 시도해 주십시오.", Toast.LENGTH_SHORT).show();
-                    else         // GPS 설정 안됬을시
-                        showDialogForLocationServiceSetting();      // 설정 하라는 다이얼로그 띄우기
-                    return;
+                if(GPSCheck()) {        // GPS서비스 확인
+                    intent = new Intent(getApplicationContext(), WritingActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.putExtra("address", mAddressView.getText().toString());           // 주소 이름
+                    intent.putExtra("loc", mCurrentLocation);                                // 주소 값 (위도,경도)
+                    startActivity(intent);
                 }
-                intent = new Intent(getApplicationContext(), WritingActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra("address",mAddressView.getText().toString());           // 주소 이름
-                intent.putExtra("loc",mCurrentLocation);                                // 주소 값 (위도,경도)
-                startActivity(intent);
                 break;
             case R.id.main_check:       // 체크 버튼(토스트 출력)
-                checkSelectAndInsertSQL();
+                if(GPSCheck())          // GPS서비스 확인
+                    checkSelectAndInsertSQL();
                 break;
             case R.id.main_collect:     // 모아보기 버튼(모아보기 액티비티 이동)
-                contentsLocationSelectSQLData();
+                if(GPSCheck())          // GPS서비스 확인
+                    contentsLocationSelectSQLData();
                 break;
         }
     }
@@ -737,7 +765,7 @@ public class MainActivity extends MapAPIActivity {
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
 
@@ -774,7 +802,7 @@ public class MainActivity extends MapAPIActivity {
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
 
@@ -833,7 +861,7 @@ public class MainActivity extends MapAPIActivity {
                 return data;
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
             @Override

@@ -1,13 +1,17 @@
 package whoim.leaveout;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -24,6 +28,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -32,16 +37,31 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 import whoim.leaveout.Adapter.GridAdapter;
+import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Server.ImageDownLoad;
+import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.Services.FomatService;
+import whoim.leaveout.User.UserInfo;
 
 // 환경설정
 public class ProfileActivity extends AppCompatActivity {
+
+    // 프로필 이미지 변경
+    private ImageButton mProfileSetImage;
 
     // list
     private ListView list = null;
@@ -78,6 +98,16 @@ public class ProfileActivity extends AppCompatActivity {
     private ArrayList<Button> like_btnlistner = null;
     private int like_count = 0;
 
+    UserInfo userInfo = UserInfo.getInstance();     // 유저 정보
+
+    HashMap<Integer,ArrayList<Bitmap>> mImageMap = new HashMap<>();     // 이미지 해시맵
+    Handler handler = new Handler(){                    // 핸들러
+        @Override
+        public void handleMessage(Message msg) {
+            mImageMap.put(msg.arg1, (ArrayList<Bitmap>) msg.obj);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,8 +118,17 @@ public class ProfileActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
         getSupportActionBar().setDisplayShowTitleEnabled(false);        //액션바에 표시되는 제목의 표시유무를 설정합니다.
 
+
+        mProfileSetImage = (ImageButton) findViewById(R.id.profile_set_Image);
+
+        if(userInfo.getFacebookId() != null) mProfileSetImage.setVisibility(View.GONE);     // 페이스북 일 경우 이미지변경 버튼 없애기
+
+        Bitmap bitmap = userInfo.getProfile();
+        if(bitmap == null)  // 프로필 사진이 없을 경우
+            bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.basepicture)).getBitmap();      // 기본값
+
         // 초기설정 (db필요)
-        init(R.drawable.basepicture, "허성문", "gjtjdans123@naver.com");
+        init(bitmap, userInfo.getName(), userInfo.getEmail());
 
         profile_list = new ArrayList<ListView>();                              // profile listview
         comment_btnlistner = new ArrayList<Button>();                         // 댓글보기 버튼
@@ -147,42 +186,8 @@ public class ProfileActivity extends AppCompatActivity {
 
             }
         });
-    }
 
-    //갤러리 불러오기
-    public void profileAddImage(View v)
-    {
-        Intent intent = new Intent(Intent.ACTION_PICK); //ACTION_PICK 즉 사진을 고르겠다!
-        intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
-        startActivityForResult(intent, 1);
-    }
-
-    //갤러리 기능 활성화
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //갤러리 창을 종료 했을 경우
-        if (resultCode != RESULT_OK) {
-            Toast.makeText(ProfileActivity.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
-        }
-
-        if(data==null){
-            return;
-        }
-        photoUri = data.getData();
-        try {
-            imageExtraction();
-        } catch (Exception e) {}
-    }
-
-    //이미지 추출
-    protected void imageExtraction() throws IOException {
-        //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
-        iv = (ImageView) findViewById(R.id.profile_title_image);
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-        thumbImage = ThumbnailUtils.extractThumbnail(bitmap, 100, 100);  //사진 크기를 조절
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
-        profile_image.setImageBitmap(thumbImage);
+        meContentData();
     }
 
     //옵션 버튼
@@ -698,10 +703,10 @@ public class ProfileActivity extends AppCompatActivity {
     /* 초기설정 첫번째는 사진 : db에서
                 두번째는 이름 : db에서
                 세번째는 이메일 : db에서  */
-    public void init(int image, String name, String email) {
+    public void init(Bitmap image, String name, String email) {
         // 프로필 사진
         profile_image = (ImageView) findViewById(R.id.profile_title_image);
-        profile_image.setImageResource(image);
+        profile_image.setImageBitmap(image);
 
         // 프로필 이름
         TextView tx1 = (TextView) findViewById(R.id.profile_title_name);
@@ -715,7 +720,154 @@ public class ProfileActivity extends AppCompatActivity {
     // 뒤로가기
     public void Back(View v) {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        finish();
         startActivity(intent);
+    }
+
+    //갤러리 불러오기
+    public void profileAddImage(View v) {
+        Intent intent = new Intent(Intent.ACTION_PICK); //ACTION_PICK 즉 사진을 고르겠다!
+        intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+        startActivityForResult(intent, 1);
+    }
+
+    //갤러리 기능 활성화
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //갤러리 창을 종료 했을 경우
+        if (resultCode != RESULT_OK) {
+            Toast.makeText(ProfileActivity.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+        }
+
+        if(data==null){
+            return;
+        }
+        photoUri = data.getData();
+        try {
+            imageExtraction();
+        } catch (Exception e) {}
+    }
+
+    //이미지 추출
+    protected void imageExtraction() throws IOException {
+        if(thumbImage != null) thumbImage.recycle();
+        ((BitmapDrawable) profile_image.getDrawable()).getBitmap().recycle();
+
+        //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
+        iv = (ImageView) findViewById(R.id.profile_title_image);
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
+        thumbImage = ThumbnailUtils.extractThumbnail(bitmap, 600, 400);  //사진 크기를 조절
+        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+        thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
+
+        profile_image.setImageBitmap(thumbImage);
+        bs.close();
+        bitmap.recycle();
+        bitmap = null;
+
+        profileUpload();
+    }
+
+    private void profileUpload() {
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+            @Override
+            public JSONObject getSQLQuery() {
+                return null;
+            }
+            @Override
+            public JSONObject getUpLoad(JSONObject resultSQL) {
+                return profileImageJson();
+            }
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if(responseData != null) {
+                    Toast.makeText(getApplicationContext(),"등록 되었습니다.",Toast.LENGTH_SHORT).show();
+                    userInfo.setProfile(thumbImage);
+                }
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
+    }
+
+    private JSONObject profileImageJson() {
+        final UserInfo userInfo = UserInfo.getInstance();
+        JSONObject data = new JSONObject();
+        SQLDataService.putBundleValue(data, "upload", "usernum", userInfo.getUserNum());                 // 번들 데이터 더 추가(유저 id)
+        SQLDataService.putBundleValue(data, "upload", "path", "user");
+        SQLDataService.putBundleValue(data,"upload","context","image");
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(FomatService.getStringFromBitmap(thumbImage));
+        SQLDataService.putBundleValue(data, "upload", "imagecount", 1);
+        SQLDataService.putBundleValue(data, "upload", "array", jsonArray);
+        return data;
+    }
+
+    private void meContentData() {
+        final String sql ="select name, view_cnt, rec_cnt, reg_time,address,files " +
+                "from content inner join user " +
+                "on content.user_num = user.user_num " +
+                "where user.user_num = " + userInfo.getUserNum();
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                JSONObject data = SQLDataService.getSQLJSONData(sql,-1,"select");
+                SQLDataService.putBundleValue(data,"download","context","files");
+                return data;
+            }
+            @Override
+            public JSONObject getUpLoad(JSONObject resultSQL) {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if(responseData.get(0) != null) {
+                    JSONArray resultData = responseData.get(0).getJSONArray("result");
+                    for (int i = 0; i < resultData.length(); i++) {
+                        contetntImageDownLoad(resultData.getJSONObject(i).getJSONArray("image"), i);
+                    }
+                }
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
+    }
+
+    private void contetntImageDownLoad(final JSONArray imagedata, final int num) {
+
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                try {
+                    ArrayList<Bitmap> bitmaps = new ArrayList();
+                    for(int i = 0; i < imagedata.length(); i++) {
+                        bitmaps.add(new ImageDownLoad().execute(imagedata.getString(i)).get());
+                        if (bitmaps.size() != 0) {
+                            Message message = new Message();
+                            message = Message.obtain(handler,0,num,0, bitmaps);
+                            handler.sendMessage(message);
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        thread.start();
     }
 
     // 폰트 바꾸기

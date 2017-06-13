@@ -40,7 +40,7 @@ public final class SQLDataService {
         int datasize = data.size();                                             // 갯수 확인
         if(sqlsize != datasize) return null;                                    // 갯수가 다르면 오류이므로 null
 
-        StringTokenizer DataToken= new StringTokenizer(data.toString(),"/");    // 데이터 토큰
+        StringTokenizer DataToken= new StringTokenizer(data.toString(),"%[|]%");    // 데이터 토큰
         // sql에 데이터 넣기
         while(DataToken.hasMoreElements()) {
             sql = sql.replaceFirst("\\?",DataToken.nextToken());
@@ -48,6 +48,23 @@ public final class SQLDataService {
 
         return getSQLJSONData(sql,size,type);
     }
+
+    // 동적 쿼리 문
+    public static JSONObject getDynamicSQLJSONData(String sql, DataQueryGroup data, int size, String type, String delim) {
+        char ch = sql.charAt(sql.length()-1);
+        int sqlsize =  (ch != delim.charAt(0)) ? new StringTokenizer(sql,delim).countTokens() - 1 : new StringTokenizer(sql,delim).countTokens();          // 동적 sql 토큰 갯수 확인(끝 부분이 ?가 아니면 1개 빼기)
+        int datasize = data.size();                                             // 갯수 확인
+        if(sqlsize != datasize) return null;                                    // 갯수가 다르면 오류이므로 null
+
+        StringTokenizer DataToken= new StringTokenizer(data.toString(),"%[|]%");    // 데이터 토큰
+        // sql에 데이터 넣기
+        while(DataToken.hasMoreElements()) {
+            sql = sql.replaceFirst(delim,DataToken.nextToken());
+        }
+
+        return getSQLJSONData(sql,size,type);
+    }
+
 
     // 동적 (?) 쿼리 만들기
     public static String getDynamicQuery(int size) {
@@ -99,6 +116,7 @@ public final class SQLDataService {
     public static final class DataQueryGroup {
 
         private static DataQueryGroup mInstance;        // 싱글 톤
+        private String delim = "%[|]%";
         private StringBuilder stringBuilder;
         private int index;
 
@@ -117,28 +135,28 @@ public final class SQLDataService {
         // 데이터 추가
         public void addString(String data) {
             if(index == 0) stringBuilder.append("\""+data+"\"");
-            else stringBuilder.append("/\"" + data +"\"");
+            else stringBuilder.append(delim+"\"" + data +"\"");
 
             index++;
         }
 
         public void addInt(int data) {
             if(index == 0) stringBuilder.append(data);
-            else stringBuilder.append("/" + data);
+            else stringBuilder.append(delim + data);
 
             index++;
         }
 
         public void addDouble(double data) {
             if(index == 0) stringBuilder.append(data);
-            else stringBuilder.append("/" + data);
+            else stringBuilder.append(delim + data);
 
             index++;
         }
 
         public void addBoolean(boolean data) {
             if(index == 0) stringBuilder.append(data);
-            else stringBuilder.append("/" + data);
+            else stringBuilder.append(delim + data);
 
             index++;
         }

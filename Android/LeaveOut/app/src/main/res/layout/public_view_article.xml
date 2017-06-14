@@ -99,7 +99,7 @@
         android:layout_below="@+id/public_view_article_contents"
         android:numColumns="auto_fit"
         android:stretchMode="columnWidth"
-        tools:visibility="visible"/>
+        tools:visibility="gone"/>
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -202,7 +202,7 @@
         android:alwaysDrawnWithCache="true"
         android:layout_below="@+id/linearLayout2"
         android:background="@drawable/public_open_list"
-        tools:visibility="gone"/>
+        tools:visibility="visible"/>
 
 
     <RelativeLayout

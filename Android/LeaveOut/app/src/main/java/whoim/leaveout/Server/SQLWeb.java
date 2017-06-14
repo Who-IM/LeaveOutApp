@@ -29,7 +29,7 @@ public class SQLWeb implements Callable<JSONObject> {
     @Override
     public JSONObject call() throws Exception {
         try {
-            URL url = new URL("http://106.249.39.79:8080/controll"); // URL화 한다.
+            URL url = new URL("http://192.168.35.145:8080/controll"); // URL화 한다.
 
             mCon = (HttpURLConnection) url.openConnection();                 // 접속 객체 생성
 //            mCon.setRequestProperty("Content-Type", "application/json");      // 타입설정(application/json) 형식으로 전송
@@ -40,11 +40,11 @@ public class SQLWeb implements Callable<JSONObject> {
             mCon.setDoOutput(true);         // 쓰기모드 지정
             mCon.setDoInput(true);          // 읽기모드 지정
 
-            mBufferedWriter = new BufferedWriter(new OutputStreamWriter(mCon.getOutputStream(), "euc-kr"));       // 접속한 출력 스트림 생성
+            mBufferedWriter = new BufferedWriter(new OutputStreamWriter(mCon.getOutputStream(), "utf-8"));       // 접속한 출력 스트림 생성
             mBufferedWriter.write(request.toString());        // 여기서 각 필요한 데이터 보내기
             mBufferedWriter.flush();        // 보내기
 
-            mBufferedReader = new BufferedReader(new InputStreamReader(mCon.getInputStream(), "euc-kr"));       // 접속한 입력 스트림 생성
+            mBufferedReader = new BufferedReader(new InputStreamReader(mCon.getInputStream(), "utf-8"));       // 접속한 입력 스트림 생성
             StringBuilder sb = new StringBuilder();         // 스트링빌더 생성
             String json;        // 스트림으로 꺼낸것을 임시 저장
             while ((json = mBufferedReader.readLine()) != null) {        // 스트림 뽑아내기

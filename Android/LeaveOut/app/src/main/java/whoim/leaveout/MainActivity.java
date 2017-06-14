@@ -355,8 +355,10 @@ public class MainActivity extends MapAPIActivity {
                 holder = new menu_ViewHolder();
                 convertView = inflater.inflate(R.layout.menu_item, null);
 
+                holder.name = (TextView) convertView.findViewById(R.id.menu_profile_myname);
                 holder.Image = (ImageView) convertView.findViewById(R.id.menu_icon);
                 holder.name = (TextView) convertView.findViewById(R.id.menu_text);
+                holder.email = (TextView) convertView.findViewById(R.id.menu_profile_myemail);
 
                 // 친구 목록일 경우
                 if(position == 2) {
@@ -605,9 +607,9 @@ public class MainActivity extends MapAPIActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        for(menu_ListData menu_listData : adapter.getListData()) {
+/*        for(menu_ListData menu_listData : adapter.getListData()) {
             if(menu_listData.Image != null) menu_listData.Image.recycle();
-        }
+        }*/
 /*        moveTaskToBack(true);
         finish();
         android.os.Process.killProcess(android.os.Process.myPid());*/

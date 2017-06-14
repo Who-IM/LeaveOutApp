@@ -655,7 +655,7 @@ public class WritingActivity extends AppCompatActivity {
         JSONArray jsonArray = new JSONArray();
         ArrayList<writing_ListData> arrayList = adapter.getList();
         if(arrayList.size() == 0) return null;
-        jsonArray.put(FomatService.getStringFromBitmap(arrayList.get(0).Image));
+        jsonArray.put(FomatService.getStringFromBitmap(arrayList.get(imagecount).Image));
         this.imagecount++;
         SQLDataService.putBundleValue(data, "upload", "imagecount", this.imagecount);
         SQLDataService.putBundleValue(data, "upload", "array", jsonArray);

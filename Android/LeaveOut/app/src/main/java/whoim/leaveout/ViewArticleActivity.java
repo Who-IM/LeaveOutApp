@@ -222,6 +222,7 @@ public class ViewArticleActivity extends AppCompatActivity
                 }
                 return null;
             }
+
             @Override
             protected void onProgressUpdate(Object... values) {
                 mContentAdapter.addItem((Bitmap) values[0], (int)values[1], (String)values[2], (String)values[3], (String)values[4],(String)values[5],

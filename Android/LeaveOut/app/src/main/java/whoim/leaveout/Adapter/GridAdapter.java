@@ -95,6 +95,7 @@ public class GridAdapter extends BaseAdapter {
         params.height = totalHeight;
         parent.setLayoutParams(params);
 
+
         return convertView;
     }
 }

@@ -54,6 +54,12 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
         delete_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int count = adapter.getCount();
+                if (count == 0)     //체크에 아무 내용이 없을시 실행
+                {
+                    Toast.makeText(PreferencesCheckViewActivity.this, "체크에 아무것도 없음", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 for(int i = 0; i < btn.size(); i++) {
                     int pos = (int) btn.get(i).getTag();  // listview item position
 

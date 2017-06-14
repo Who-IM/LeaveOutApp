@@ -267,6 +267,7 @@ public class MainActivity extends MapAPIActivity {
         @Override
         public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
             switch (position) {
+
 /*                case 0:
                     // 임시
                     button = new Intent(getApplicationContext(), ViewArticleActivity.class);
@@ -424,7 +425,6 @@ public class MainActivity extends MapAPIActivity {
             if(position == 0) {  // 매뉴 프로필 email
                 holder.email.setText(mData.email);
             }
-
             return convertView;
         }
     }
@@ -845,6 +845,7 @@ public class MainActivity extends MapAPIActivity {
             mDataQueryGroup.addInt(0);
         }
         String query = SQLDataService.getDynamicQuery(count);       // sql 동적으로 ? 만들기
+
 
         final String mSelectSQL = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files, profile " +
                 "from content inner join user " +

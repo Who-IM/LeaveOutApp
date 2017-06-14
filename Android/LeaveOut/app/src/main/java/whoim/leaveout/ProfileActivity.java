@@ -74,6 +74,8 @@ public class ProfileActivity extends AppCompatActivity {
     UserInfo userInfo = UserInfo.getInstance();     // 유저 정보
     Bitmap bitmap = userInfo.getProfile();
 
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance(); // sql에 필요한 데이터 그룹
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,6 +104,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         // tab layout 설정
         tabLayout = (TabLayout) findViewById(R.id.profile_tab);
+
         tab = new profile_tab("전체");
         tab = new profile_tab("맛집");
         tab = new profile_tab("여행지");
@@ -444,5 +447,41 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
+    }
+
+    private void selectCategorySQLData() {
+
+        final String sql = "select user_num, cate_text " +
+                "from category " +
+                "where (user_num = ?)";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
+            }
+            @Override
+            public JSONObject getUpLoad() {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                JSONArray jspn = responseData.get(0).getJSONArray("result");
+                tab = new profile_tab("전체");
+                for (int i = 0; i < jspn.length(); i++) {
+                    JSONObject j = jspn.getJSONObject(i);
+                    tab = new profile_tab(j.getString("cate_text"));
+                }
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
     }
 }

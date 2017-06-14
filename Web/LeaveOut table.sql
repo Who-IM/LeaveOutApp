@@ -8,6 +8,7 @@ Create table comment (
   user_name varchar(15),
   rec_cnt int,
   reg_time date,
+  files varchar(60),
   constraint fk_comment_content_num 
 	foreign key(content_num) references Content(content_num)
 );

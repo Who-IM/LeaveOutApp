@@ -28,6 +28,7 @@ public class FileUpload {
 	private String filedir;			// 실제 서버 절대 경로
 
 	private int usernum;		// 유저 번호
+	private int contentnum;		// 게시글 번호
 	private String path;		// 저장 할 실제 이름(어디서 저장됬는지 확인)
 	private int pathnum;		// 실제 저장 할곳의 데이터베이스 번호
 
@@ -39,7 +40,12 @@ public class FileUpload {
  
 	// 초기화
 	public void init() {
-		usernum = ((Long)jsonupload.get("usernum")).intValue();
+		if(jsonupload.get("usernum") != null) {
+			usernum = ((Long)jsonupload.get("usernum")).intValue();
+		}
+		if(jsonupload.get("contentnum") != null) {
+			contentnum = ((Long)jsonupload.get("contentnum")).intValue();
+		}
 		path = (String)jsonupload.get("path");
 
 		if(path.equals("content")) {	// 게시글
@@ -48,6 +54,17 @@ public class FileUpload {
 			JSONArray array = (JSONArray) selectdata.get("result");
 			pathnum = (int) ((JSONObject)array.get(0)).get("content_num");
 			filedirstring = "/leaveout/files/" + usernum + "/" + path + "/" + pathnum;
+		}
+		else if(path.equals("comment")) {	// 댓글
+			sql = "select comm_num, content.files as files "
+					+ "from comment join content on comment.content_num = content.content_num "
+					+ "where comment.user_num = " + usernum + " and comment.content_num = " + contentnum + " and comment.files is null";
+			
+			JSONObject selectdata = dbsql.getPhoneSelect(sql,-1);
+			JSONArray array = (JSONArray) selectdata.get("result");
+			String files = (String) ((JSONObject)array.get(0)).get("files");
+			pathnum = (int) ((JSONObject)array.get(0)).get("comm_num");
+			filedirstring = files + "/" + path + "/" + usernum + "/" + pathnum;
 		}
 		else if(path.equals("user")) {	// 유저 프로필
 			filedirstring = "/leaveout/files/" + usernum + "/profile";
@@ -122,6 +139,10 @@ public class FileUpload {
 		}
 		else if(path.equals("user")) {
 			sql = "update user set profile = \"" + filedirstring + "\" where user_num = " + usernum;
+			jsonObject = dbsql.getPhoneUpdate(sql);
+		}
+		else if(path.equals("comment")) {
+			sql = "update comment set files = \"" + filedirstring + "\" where comm_num = " + pathnum;
 			jsonObject = dbsql.getPhoneUpdate(sql);
 		}
 		return jsonObject;

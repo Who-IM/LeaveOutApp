@@ -29,13 +29,13 @@ public class FileDownLoad {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void filesDownLoad(JSONObject jsondownload) {
+	public void filesDownLoad(JSONObject jsondownload,String context) {
 		if(resJSON.get("result") instanceof JSONArray) {
 			JSONArray array = (JSONArray) resJSON.get("result");
 			
 			for(int i = 0; i < array.size(); i++) {
 				JSONObject data = (JSONObject) array.get(i);						// 결과 데이터 한개씩 가져오기
-				filedirstring = (String) data.get(jsondownload.get("context"));		// 데이터베이스에서 만든 경로 가져오기
+				filedirstring = (String) data.get(context);		// 데이터베이스에서 만든 경로 가져오기
 				
 				if(filedirstring == null) return;			// 경로가 없으면 리턴
 //				data.remove(jsondownload.get("context"));	// 제이슨에서 만든 경로 데이터 삭제
@@ -49,7 +49,8 @@ public class FileDownLoad {
 					if(file.isFile()) {						// 파일 객체가 파일 확인
 						if(file.getName().contains(".txt")) {		//파일 이름이 .txt가 있으면
 							StringBuilder text = textRead(file);	// 파일에 내용 가져오기
-							data.put("text", text.toString());		// 제이슨 데이터에 넣기
+							if(data.get("text") == null) data.put("text", text.toString());		// 제이슨 데이터에 넣기
+							else data.put("text2", text.toString());		// 제이슨 데이터에 넣기
 						}
 						if(file.getName().contains(".jpg")) {		// 파일 이름이 jpg가 있으면
 							StringBuilder imagepath = imageRead(file,realpath,webpath);		// 이미지 path로 넣기
@@ -57,7 +58,10 @@ public class FileDownLoad {
 						}
 					}	// if -- END
 				}	// sub for -- END
-				data.put("image", imagearray);
+				if(data.get("image") == null) 
+					data.put("image", imagearray);
+				else 
+					data.put("image2", imagearray);
 				
 			}	// for -- END
 		}

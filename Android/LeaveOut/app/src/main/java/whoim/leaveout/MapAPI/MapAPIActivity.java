@@ -306,7 +306,9 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
         FenceThread fenceThread = new FenceThread(new FenceThread.FenceUIListener() {
             @Override
             public void FenceUI(JSONObject result) throws JSONException {
-                addMarkerList(result.getJSONArray("result"));
+                if(result != null) {
+                    addMarkerList(result.getJSONArray("result"));
+                }
             }
         });
         fenceThread.execute(SQLDataService.getDynamicSQLJSONData(mFenceSQL,mDataQueryGroup,5,"select"));
@@ -329,6 +331,10 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
             }
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if(responseData == null) {
+                    Toast.makeText(getApplicationContext(),"서버에 접속할수 없습니다.",Toast.LENGTH_LONG).show();
+                    return;
+                }
                 JSONArray result = responseData.get(0).getJSONArray("result");
                 if(result.length() == 0) return;        // 마커가 없을경우 리턴
                 addMarkerList(result);      // 마커 표시

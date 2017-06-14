@@ -17,11 +17,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,15 +31,11 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 
 import whoim.leaveout.Adapter.ContentAdapter;
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
-import whoim.leaveout.Server.ImageDownLoad2;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.Services.FomatService;
 import whoim.leaveout.User.UserInfo;
@@ -77,8 +70,6 @@ public class ProfileActivity extends AppCompatActivity {
     //like 버튼
     UserInfo userInfo = UserInfo.getInstance();     // 유저 정보
     Bitmap bitmap = userInfo.getProfile();
-
-    HashMap<Integer,ArrayList<Bitmap>> mImageMap = new HashMap<>();     // 이미지 해시맵
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,12 +108,6 @@ public class ProfileActivity extends AppCompatActivity {
         tab = new profile_tab("맛집");
         tab = new profile_tab("여행지");
         tab = new profile_tab("서울");
-        tab = new profile_tab("대구");
-        tab = new profile_tab("전체");
-        tab = new profile_tab("맛집");
-        tab = new profile_tab("여행지");
-        tab = new profile_tab("서울");
-        tab = new profile_tab("대구");
 
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
@@ -146,7 +131,6 @@ public class ProfileActivity extends AppCompatActivity {
 
             }
         });
-
         meContentData();
     }
 
@@ -241,76 +225,9 @@ public class ProfileActivity extends AppCompatActivity {
         list = (ListView) findViewById(R.id.proflie_list);
         list.addHeaderView(header);
 
-        mContentAdapter = new ContentAdapter();
+        mContentAdapter = new ContentAdapter(this);
         list.setAdapter(mContentAdapter);
-
-
-        // 여기서 db데이터 넣기
-/*        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문", "대구 수성구 범어동", "2017.05.08 19:12","250","511","놀러와라");
-        adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석", "대구 수성구 만촌역", "2017.05.21 20:00","500","1000","ddd");*/
     }
-
-    // 댓글 listview 셋팅
-    private void setComment(int position, int image, String name, String comment) {
-        // 실제 데이터 삽입
-        SimpleDateFormat sdfNow = new SimpleDateFormat("MM월 dd일 HH:mm:ss");
-        String time = sdfNow.format(new Date(System.currentTimeMillis()));
-
-    }
-
-    // 리스트뷰 펼처보기(한화면에)
-    public static void setListViewHeightBasedOnChildren(ListView listView) {
-        ListAdapter listAdapter = listView.getAdapter();
-        if (listAdapter == null) {
-            // pre-condition
-            return;
-        }
-
-        int totalHeight = 0;
-
-        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
-        for (int i = 0; i < listAdapter.getCount(); i++) {
-            View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-            totalHeight += listItem.getMeasuredHeight();
-        }
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-
-        params.height = totalHeight;
-        listView.setLayoutParams(params);
-        listView.requestLayout();
-    }
-
-    // 리스트뷰 펼처보기(한화면에)
-    public static void setListViewHeightBasedOnChildren(GridView listView) {
-        ListAdapter listAdapter = listView.getAdapter();
-        if (listAdapter == null) {
-            // pre-condition
-            return;
-        }
-
-        int totalHeight = 0;
-
-        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.AT_MOST);
-        int count = listAdapter.getCount();
-        if(count > 2) {
-            count = count/2 + 1;
-        }
-        else {
-            count = 1;
-        }
-        for (int i = 0; i < count; i++) {
-            View listItem = listAdapter.getView(i, null, listView);
-            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-            totalHeight += listItem.getMeasuredHeight();
-        }
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-
-        params.height = totalHeight;
-        listView.setLayoutParams(params);
-        listView.requestLayout();
-    }
-
 
     /* 초기설정 첫번째는 사진 : db에서
                 두번째는 이름 : db에서
@@ -444,7 +361,7 @@ public class ProfileActivity extends AppCompatActivity {
 
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
-                if(responseData.get(0) != null) {
+                if(responseData != null) {
                     JSONArray resultData = responseData.get(0).getJSONArray("result");
                     for (int i = 0; i < resultData.length(); i++) {
                         JSONObject data = resultData.getJSONObject(i);
@@ -462,42 +379,13 @@ public class ProfileActivity extends AppCompatActivity {
                             imagelist.add(imageArray.getString(j));
                         }
                         mContentAdapter.addItem(bitmap,contentnum,name, address, reg_time,rec_cnt,view_cnt,text, imagelist);
-//                        contetntImageDownLoad(resultData.getJSONObject(i).getJSONArray("image"), i);
                     }
                 }
             }
         };
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
     }
-/*    Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            for(GridAdapter grid : gridAdapter.values()) {
-                if(grid != null) grid.notifyDataSetChanged();
-            }
-            adapter.notifyDataSetChanged();
-        }
-    };*/
 
-    private void contetntImageDownLoad(final JSONArray imagedata, final int num) {
-
-        Thread thread = new Thread(){
-            @Override
-            public void run() {
-                try {
-                    ArrayList<Bitmap> bitmaps = new ArrayList();
-                    for(int i = 0; i < imagedata.length(); i++) {
-                        bitmaps.add(ImageDownLoad2.imageDownLoad(imagedata.getString(i)));
-                    }
-                        mImageMap.put(num,bitmaps);
-//                        handler.sendEmptyMessage(0);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        thread.start();
-    }
 
     // 폰트 바꾸기
     @Override

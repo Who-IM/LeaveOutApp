@@ -73,6 +73,26 @@ public class GridAdapter2 extends BaseAdapter {
             holder.Image.setVisibility(View.GONE);
         }
 
+        // // 리스트뷰 펼처보기(한화면에)
+        int totalHeight = 0;
+
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(parent.getWidth(), View.MeasureSpec.AT_MOST);
+        int count = this.getCount();
+        if(count > 2) {
+            count = count/2 + 1;
+        }
+        else {
+            count = 1;
+        }
+        for (int i = 0; i < count; i++) {
+            convertView.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            totalHeight += convertView.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = parent.getLayoutParams();
+
+        params.height = totalHeight;
+        parent.setLayoutParams(params);
+
         return convertView;
     }
 }

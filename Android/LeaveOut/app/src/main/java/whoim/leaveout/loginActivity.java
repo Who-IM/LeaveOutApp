@@ -34,11 +34,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
-import whoim.leaveout.Server.ImageDownLoad;
+import whoim.leaveout.Server.ImageDownLoad2;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.StartSetting.Permission;
 import whoim.leaveout.StartSetting.SharedName;
@@ -398,30 +397,9 @@ public class loginActivity extends AppCompatActivity {
         mUserInfo.setUserNum(usernum);       //  유저 id 셋팅
         mUserInfo.setEmail(email);       //  유저 id 셋팅
         mUserInfo.setName(name);
-
         if(prfile != null && !prfile.equals("null")) {
-            Thread thread = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        if(prfile.contains("http")) {       // profile파일 경로가 http 일경우
-                            mUserInfo.setProfile(new ImageDownLoad().execute(prfile).get());
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-            try {
-                thread.start();
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            mUserInfo.setProfile(ImageDownLoad2.imageDownLoad(prfile));
         }
-
     }
 
     private void LoginFaceBookSharedSet(int usernum,String email,String name,String facceid, String prfile) {

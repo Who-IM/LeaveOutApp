@@ -724,7 +724,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void selectCategorySQLData() {
 
-        final String sql = "select * " +
+        final String sql = "select user_num, cate_text " +
                 "from category " +
                 "where (user_num = ?)";
 

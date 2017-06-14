@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
-//알림
+//알림 현재 숨김표시 해놓음
 public class PreferencesNoticeActivity extends AppCompatActivity {
     Switch all; //스위치 전체
     Switch fence;   //울타리글 스위치

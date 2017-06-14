@@ -162,7 +162,7 @@ public class PhoneController extends HttpServlet {
 				if(jsondownload.get("context") != null) {
 					filedownload.filesDownLoad(jsondownload,(String) jsondownload.get("context"));	// 파일 다운로드1(text 는 string image는 uri로 가져오기)
 				}
-				else if(jsondownload.get("context2") != null) {
+				if(jsondownload.get("context2") != null) {
 					filedownload.filesDownLoad(jsondownload,(String) jsondownload.get("context2"));	// 파일 다운로드2(text 는 string image는 uri로 가져오기)
 				}
 			}

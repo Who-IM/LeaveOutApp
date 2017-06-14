@@ -37,7 +37,7 @@ public class FileDownLoad {
 				JSONObject data = (JSONObject) array.get(i);						// 결과 데이터 한개씩 가져오기
 				filedirstring = (String) data.get(context);		// 데이터베이스에서 만든 경로 가져오기
 				
-				if(filedirstring == null) return;			// 경로가 없으면 리턴
+				if(filedirstring == null || !filedirstring.contains("/leaveout/files")) return;			// 경로가 없으면 리턴
 //				data.remove(jsondownload.get("context"));	// 제이슨에서 만든 경로 데이터 삭제
 				
 				filedir = request.getServletContext().getRealPath(filedirstring);		// 실제 경로 + 폴더
@@ -60,7 +60,7 @@ public class FileDownLoad {
 				}	// sub for -- END
 				if(data.get("image") == null) 
 					data.put("image", imagearray);
-				else 
+				else
 					data.put("image2", imagearray);
 				
 			}	// for -- END

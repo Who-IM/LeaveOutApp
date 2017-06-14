@@ -11,7 +11,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -388,7 +387,7 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
 
     private void selectContentSQL(String query) {
 
-        final String sql = "select name, view_cnt, rec_cnt, reg_time,address,files " +
+        final String sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files,profile " +
                 "from content inner join user " +
                 "on content.user_num = user.user_num " +
                 "where content_num in (" + query + ")";
@@ -401,7 +400,8 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
             @Override
             public JSONObject getSQLQuery() {
                 JSONObject data = SQLDataService.getDynamicSQLJSONData(sql, mDataQueryGroup, -1, "select");
-                return SQLDataService.putBundleValue(data,"download","context","files");
+                SQLDataService.putBundleValue(data,"download","context","files");
+                return SQLDataService.putBundleValue(data,"download","context2","profile");
             }
             @Override
             public JSONObject getUpLoad(JSONObject resultSQL) {
@@ -409,11 +409,13 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
             }
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
-                Intent intent = new Intent(getApplicationContext(), ViewArticleActivity.class);
-                intent.putExtra("responseData", responseData.get(0).toString());
-                Log.e("responseData",responseData.get(0).toString());
-                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
+                if(responseData.get(0) != null) {
+                    Intent intent = new Intent(getApplicationContext(), ViewArticleActivity.class);
+                    intent.putExtra("responseData", responseData.get(0).toString());
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                }
+                else Toast.makeText(getApplicationContext(),"잠시후 다시 시도해 주십시오.",Toast.LENGTH_SHORT).show();
             }
         };
         LoadingSQLDialog.SQLSendStart(this, loadingSQLListener,ProgressDialog.STYLE_SPINNER, null);

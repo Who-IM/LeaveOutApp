@@ -846,7 +846,7 @@ public class MainActivity extends MapAPIActivity {
         }
         String query = SQLDataService.getDynamicQuery(count);       // sql 동적으로 ? 만들기
 
-        final String mSelectSQL = "select name, view_cnt, rec_cnt, reg_time,address,files " +
+        final String mSelectSQL = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files, profile " +
                 "from content inner join user " +
                 "on content.user_num = user.user_num " +
                 "where (loc_x >= ? && loc_x <= ?) AND (loc_y >= ? && loc_y <= ?) AND (fence = false OR content_num in ("+ query +"))";     // 모아보기 sql
@@ -860,6 +860,7 @@ public class MainActivity extends MapAPIActivity {
             public JSONObject getSQLQuery() {
                 JSONObject data = SQLDataService.getDynamicSQLJSONData(mSelectSQL, mDataQueryGroup, -1, "select");             // select SQL 제이슨
                 SQLDataService.putBundleValue(data,"download","context","files");
+                SQLDataService.putBundleValue(data,"download","context2","profile");
                 return data;
             }
             @Override
@@ -875,7 +876,7 @@ public class MainActivity extends MapAPIActivity {
                 }
                 Intent intent = new Intent(getApplicationContext(), CollectActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra("result",result.toString());
+                intent.putExtra("responseData",responseData.get(0).toString());
                 startActivity(intent);
             }
         };

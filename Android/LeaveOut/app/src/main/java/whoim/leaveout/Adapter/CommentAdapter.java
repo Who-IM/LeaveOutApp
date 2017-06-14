@@ -48,6 +48,10 @@ public class CommentAdapter extends BaseAdapter {
         mListData.add(addInfo);
     }
 
+    public ArrayList<CommentListData> getListData() {
+        return mListData;
+    }
+
     @Override
     public int getCount() {
         return mListData.size();
@@ -97,7 +101,7 @@ public class CommentAdapter extends BaseAdapter {
         holder.nameview.setText(data.name);
         holder.commentview.setText(data.comment);
         holder.timeview.setText(data.time);
-
+/*
         int totalHeight = 0;
 
         int desiredWidth = View.MeasureSpec.makeMeasureSpec(parent.getWidth(), View.MeasureSpec.AT_MOST);
@@ -108,7 +112,7 @@ public class CommentAdapter extends BaseAdapter {
         ViewGroup.LayoutParams params = parent.getLayoutParams();
 
         params.height = totalHeight;
-        parent.setLayoutParams(params);
+        parent.setLayoutParams(params);*/
 
 
         return convertView;

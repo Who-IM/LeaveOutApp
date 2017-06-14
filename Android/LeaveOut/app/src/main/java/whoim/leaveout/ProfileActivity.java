@@ -33,10 +33,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import whoim.leaveout.Adapter.CommentAdapter;
 import whoim.leaveout.Adapter.ContentAdapter;
+import whoim.leaveout.Loading.LoadingDialogBin;
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Server.ImageDownLoad;
 import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.Server.WebControll;
 import whoim.leaveout.Services.FomatService;
 import whoim.leaveout.User.UserInfo;
 
@@ -46,8 +50,9 @@ public class ProfileActivity extends AppCompatActivity {
     // 프로필 이미지 변경
     private ImageButton mProfileSetImage;
 
-    // list
-    private ListView list = null;
+    // list 게시글
+    private ListView mContentlist = null;
+    private ContentAdapter mContentAdapter;
 
     // comment list
     View header = null; // 리스트뷰 헤더
@@ -64,8 +69,6 @@ public class ProfileActivity extends AppCompatActivity {
     Bitmap thumbImage = null;
 
     int menuCount = 0;  //매뉴 옵션 아이템 순서
-
-    ContentAdapter mContentAdapter;
 
     //like 버튼
     UserInfo userInfo = UserInfo.getInstance();     // 유저 정보
@@ -222,11 +225,11 @@ public class ProfileActivity extends AppCompatActivity {
     // 모아보기 listview 셋팅
     private void setProfile() {
         // 메뉴
-        list = (ListView) findViewById(R.id.proflie_list);
-        list.addHeaderView(header);
+        mContentlist = (ListView) findViewById(R.id.proflie_list);
+        mContentlist.addHeaderView(header);
 
         mContentAdapter = new ContentAdapter(this);
-        list.setAdapter(mContentAdapter);
+        mContentlist.setAdapter(mContentAdapter);
     }
 
     /* 초기설정 첫번째는 사진 : db에서
@@ -337,53 +340,103 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void meContentData() {
-        final String sql ="select content_num, name, view_cnt, rec_cnt, reg_time,address,files " +
+
+        final String sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files " +
                 "from content inner join user " +
                 "on content.user_num = user.user_num " +
                 "where user.user_num = " + userInfo.getUserNum();
 
-        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
-            @Override
-            public int getSize() {
-                return 1;
-            }
+       new LoadingDialogBin(this) {
 
-            @Override
-            public JSONObject getSQLQuery() {
-                JSONObject data = SQLDataService.getSQLJSONData(sql,-1,"select");
-                SQLDataService.putBundleValue(data,"download","context","files");
-                return data;
-            }
-            @Override
-            public JSONObject getUpLoad(JSONObject resultSQL) {
-                return null;
-            }
+           @Override
+           protected Void doInBackground(Void... params) {
+               JSONObject request = SQLDataService.getSQLJSONData(sql, -1, "select");
+               SQLDataService.putBundleValue(request, "download", "context", "files");
+               result.add(new WebControll().WebLoad(request));
+               try {
+                   if (result.get(0) != null && result.get(0).getJSONArray("result").length() != 0) {            // 게시글 가져오기
+                       JSONArray resultData = result.get(0).getJSONArray("result");   // 결과값
+                       for (int i = 0; i < resultData.length(); i++) {
+                           CommentAdapter commentAdapter = null;                   // 댓글 어댑터
+                           JSONObject contentdata = resultData.getJSONObject(i);   // 게시글 데이터
 
-            @Override
-            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
-                if(responseData != null) {
-                    JSONArray resultData = responseData.get(0).getJSONArray("result");
-                    for (int i = 0; i < resultData.length(); i++) {
-                        JSONObject data = resultData.getJSONObject(i);
-                        int contentnum = data.getInt("content_num");
-                        String name = data.getString("name");
-                        String address = data.getString("address");
-                        String reg_time = data.getString("reg_time");
-                        String rec_cnt = data.getString("rec_cnt");
-                        String view_cnt = data.getString("view_cnt");
-                        String text = data.getString("text");
+                           ArrayList<String> imagelist = new ArrayList();          // 이미지 넣을 데이터
+                           JSONArray imageArray = resultData.getJSONObject(i).getJSONArray("image");       // 게시글에서 이미지 가져오기
+                           for (int j = 0; j < imageArray.length(); j++) {
+                               imagelist.add(imageArray.getString(j));             // 이미지 배열에 넣기
+                           }
 
-                        ArrayList<String> imagelist = new ArrayList();
-                        JSONArray imageArray = resultData.getJSONObject(i).getJSONArray("image");
-                        for(int j = 0; j < imageArray.length(); j++) {
-                            imagelist.add(imageArray.getString(j));
-                        }
-                        mContentAdapter.addItem(bitmap,contentnum,name, address, reg_time,rec_cnt,view_cnt,text, imagelist);
-                    }
-                }
+                           int contentnum = contentdata.getInt("content_num");     // 게시글 번호 가져오기
+                           String name = contentdata.getString("name");
+                           String address = contentdata.getString("address");
+                           String reg_time = contentdata.getString("reg_time");
+                           String rec_cnt = contentdata.getString("rec_cnt");
+                           String view_cnt = contentdata.getString("view_cnt");
+                           String text = contentdata.getString("text");
+
+                            // 댓글 부분
+                           String commentsql = "select comm_num, rec_cnt, reg_time, files, name, profile " +        // 댓글
+                                   "from comment join user on comment.user_num = user.user_num " +
+                                   "where content_num = " + contentnum;
+
+                           request = SQLDataService.getSQLJSONData(commentsql, -1, "select");
+                           SQLDataService.putBundleValue(request, "download", "context", "files");
+                           SQLDataService.putBundleValue(request, "download", "context2", "profile");
+                           JSONObject commentdata = new WebControll().WebLoad(request);     // SQL 돌리기
+                           if (commentdata != null && commentdata.getJSONArray("result").length() != 0) {
+                               Bitmap profile = null;                                   // 댓글 유저의 프로필
+                               commentAdapter = new CommentAdapter();
+                               JSONArray commentresult = commentdata.getJSONArray("result");
+                               for (int j = 0; j < commentresult.length(); j++) {
+                                   JSONObject resultdata = commentdata.getJSONArray("result").getJSONObject(j);
+                                   profile = setProfile(resultdata);
+
+                                   commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), resultdata.getString("text"), resultdata.getString("reg_time"));       // 어댑터 추가
+                               }
+                           }
+                           Object[] objects = {contentnum, name, address, reg_time, rec_cnt, view_cnt, text, imagelist, commentAdapter};
+                           publishProgress(objects);
+                       }
+                   }
+               } catch (JSONException e) {
+                   e.printStackTrace();
+               }
+               return null;
+           }
+           @Override
+           protected void onProgressUpdate(Object... values) {
+               mContentAdapter.addItem(bitmap,(int)values[0],(String)values[1], (String)values[2], (String)values[3],(String)values[4],
+                                       (String)values[5],(String)values[6], (ArrayList<String>) values[7], bitmap,(CommentAdapter)values[8]);
+           }
+           @Override
+           protected void onPostExecute(Void aVoid) {
+               mContentlist.requestLayout();
+               super.onPostExecute(aVoid);
+           }
+       }.execute();
+    }
+
+    public Bitmap setProfile(JSONObject data) throws JSONException {
+        Bitmap bitmap = null;
+        if(data.has("image2")) {      // 있는지 확인
+            JSONArray profileUri = data.getJSONArray("image2");
+            if (profileUri.length() != 0) {
+                bitmap = ImageDownLoad.imageDownLoad(profileUri.getString(0));
             }
-        };
-        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
+        }
+        else {
+            bitmap = ImageDownLoad.imageDownLoad(data.getString("profile"));
+        }
+        if (bitmap == null) {
+            bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.basepicture, null)).getBitmap();
+        }
+        return bitmap;
+    }
+
+    @Override
+    protected void onDestroy() {
+        mContentAdapter.recycle();
+        super.onDestroy();
     }
 
 

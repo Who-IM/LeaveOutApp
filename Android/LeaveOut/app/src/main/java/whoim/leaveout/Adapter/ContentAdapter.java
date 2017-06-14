@@ -4,10 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,24 +21,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.R;
-import whoim.leaveout.Server.ImageDownLoad2;
+import whoim.leaveout.Server.ImageDownLoad;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.User.UserInfo;
 
@@ -60,6 +50,8 @@ public class ContentAdapter extends BaseAdapter {
         public String views_num;
         public String contents;
         public ArrayList<String> imagelist;
+        public Bitmap mycommentprofile;
+        public CommentAdapter commentAdapter;
     }
 
     private class ContentViewHolder {
@@ -80,13 +72,23 @@ public class ContentAdapter extends BaseAdapter {
 
     private Context mContext;
     private ArrayList<ContentItem> mDataList = new ArrayList();
-    private HashMap<Integer, GridAdapter2> mImageGridAdapterList = new HashMap();
-    private HashMap<Integer, CommentAdapter> mCommentAdapterList = new HashMap();
+
+    private HashMap<Integer, GridAdapter> mImageGridAdapterList = new HashMap();
 
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();
 
     public ContentAdapter(Context context) {
         mContext = context;
+    }
+
+    public void recycle() {
+        for(int i = 0; i < mImageGridAdapterList.size(); i++) {
+            if(mImageGridAdapterList.get(i) != null && mImageGridAdapterList.get(i).getListData() != null) {
+                for (GridAdapter.GridItem gridItem : mImageGridAdapterList.get(i).getListData()) {
+                    if (gridItem.Image != null) gridItem.Image.recycle();
+                }
+            }
+        }
     }
 
     private Handler imagehandler = new Handler() {
@@ -98,7 +100,8 @@ public class ContentAdapter extends BaseAdapter {
     };
 
     // 생성자로 값을 받아 셋팅
-    public void addItem(Bitmap profile, int contentnum, String name, String location, String time, String recom_num, String views_num, String contents, ArrayList<String> imagelist) {
+    public void addItem(Bitmap profile, int contentnum, String name, String location, String time, String recom_num, String views_num,
+                        String contents, ArrayList<String> imagelist,Bitmap mycommentprofile, CommentAdapter commentAdapter) {
         ContentItem addInfo = new ContentItem();
         addInfo.contentnum = contentnum;
         addInfo.profile = profile;
@@ -109,6 +112,8 @@ public class ContentAdapter extends BaseAdapter {
         addInfo.views_num = views_num;
         addInfo.contents = contents;
         addInfo.imagelist = imagelist;
+        addInfo.mycommentprofile = mycommentprofile;
+        addInfo.commentAdapter = commentAdapter;
         mDataList.add(addInfo);
     }
 
@@ -160,13 +165,13 @@ public class ContentAdapter extends BaseAdapter {
             holder = (ContentViewHolder) convertView.getTag();
         }
 
-        final ContentItem mData = mDataList.get(position);
+        final ContentItem mData = mDataList.get(position);      // 데이터 아이템 꺼내기
         // 프로필 이미지 처리 및 댓글 사진 처리
         if (mData.profile != null) {
             holder.profile.setVisibility(View.VISIBLE);           //  게시글 프로필 사진
             holder.profile.setImageBitmap(mData.profile);
             holder.mycomment.setVisibility(View.VISIBLE);       // 댓글 사진
-            holder.mycomment.setImageBitmap(mData.profile);
+            holder.mycomment.setImageBitmap(mData.mycommentprofile);
         } else {
             holder.mycomment.setVisibility(View.GONE);
             holder.profile.setVisibility(View.GONE);
@@ -184,7 +189,7 @@ public class ContentAdapter extends BaseAdapter {
         // 게시글 이미지 보여주기
         if (mData.imagelist.size() != 0) {
             if (mImageGridAdapterList.get(position) == null)
-                mImageGridAdapterList.put(position, new GridAdapter2());
+                mImageGridAdapterList.put(position, new GridAdapter());
             holder.contentimagegrid.setAdapter(mImageGridAdapterList.get(position));
             holder.contentimagegrid.setVisibility(View.VISIBLE);
             if (mImageGridAdapterList.get(position).getCount() != mData.imagelist.size()) {
@@ -198,15 +203,13 @@ public class ContentAdapter extends BaseAdapter {
         }
         holder.contentimagegrid.setAdapter(mImageGridAdapterList.get(position));
 
-
         // 댓글 부분
-        if (mCommentAdapterList.get(position) == null) {
-            mCommentAdapterList.put(position, new CommentAdapter());     // 어뎁터 없을경우 생성 (재활용을 위해)
-            commentselectSQL(mData.contentnum,position,holder.commentlist);
+        if (mDataList.get(position).commentAdapter == null) {
+            mDataList.get(position).commentAdapter = new CommentAdapter();     // 어뎁터 없을경우 생성 (재활용을 위해)
         }
-        holder.commentlist.setAdapter(mCommentAdapterList.get(position));   // 어뎁터 등록
-        setListViewHeightBasedOnChildren(holder.commentlist); // 리스트뷰 펼처보기(한화면에)
 
+        holder.commentlist.setAdapter(mDataList.get(position).commentAdapter);   // 어뎁터 등록
+        setListViewHeightBasedOnChildren(holder.commentlist); // 리스트뷰 펼처보기(한화면에)
 
         holder.commentedit.setTag(position);
         final ContentViewHolder finalHolder = holder;
@@ -225,7 +228,6 @@ public class ContentAdapter extends BaseAdapter {
                         if (finalHolder.commentlist.getVisibility() == View.GONE) {
                             finalHolder.commentlist.setVisibility(View.VISIBLE);
                         }
-
                     }
                     return true;
                 }
@@ -263,7 +265,7 @@ public class ContentAdapter extends BaseAdapter {
         Thread thread = new Thread() {
             @Override
             public void run() {
-                Bitmap bitmap = ImageDownLoad2.imageDownLoad(uri);
+                Bitmap bitmap = ImageDownLoad.imageDownLoad(uri);
                 Message message = Message.obtain(imagehandler, position, bitmap);
                 imagehandler.sendMessage(message);
             }
@@ -311,7 +313,7 @@ public class ContentAdapter extends BaseAdapter {
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
                 if (responseData != null) {
                     if (!responseData.get(0).getString("result").equals("error")) {
-                        Toast.makeText(mContext, "good", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "등록 되었습니다.", Toast.LENGTH_SHORT).show();
                         int pos = (int) view.getTag();
 
                         if (responseData.get(1) != null) {
@@ -326,161 +328,17 @@ public class ContentAdapter extends BaseAdapter {
                         }
                     }
                 }
+                else {
+                    Toast.makeText(mContext, "다시 시도해 주십시오.", Toast.LENGTH_SHORT).show();
+                }
             }
         };
         LoadingSQLDialog.SQLSendStart(mContext, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);
     }
 
-    private final Handler commentHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            try {
-                JSONObject result = new JSONObject(msg.getData().getString("result"));
-                Log.d("dd",result.toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
-    // 올라온 댓글 가져오기
-    private void commentselectSQL(final int contentnum, final int position, final ListView commentlist) {
-        final String sql = "select comm_num, rec_cnt, reg_time, files, name, profile " +
-                "from comment join user on comment.user_num = user.user_num " +
-                "where content_num = " + contentnum;
-
-
-/*        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                JSONObject data = SQLDataService.getSQLJSONData(sql, -1, "select");
-                SQLDataService.putBundleValue(data, "download", "context", "files");
-                SQLDataService.putBundleValue(data, "download", "context2", "profile");
-                JSONObject result = test(data);
-
-                try {
-                    JSONArray array = result.getJSONArray("result");
-                    for (int i = 0; i < array.length(); i++) {
-                        JSONObject resultdata = result.getJSONArray("result").getJSONObject(i);
-                        Bitmap profile = null;
-
-                        JSONArray profileUri = resultdata.getJSONArray("image");
-                        if (profileUri.length() != 0) {
-                            profile = ImageDownLoad2.imageDownLoad(profileUri.getString(0));
-                        }
-                        if (profile == null) {
-                            profile = ((BitmapDrawable) mContext.getResources().getDrawable(R.drawable.basepicture, null)).getBitmap();
-                        }
-                        addComment(position, contentnum, profile, resultdata.getString("name"), resultdata.getString("text"), resultdata.getString("reg_time"));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-                    thread.start();
-        };*/
-                AsyncTask<Void,Object,Void> AsyncTask = new AsyncTask<Void, Object, Void>() {
-
-                    Bitmap profile = null;
-                    JSONObject AsyncTaskresult;
-
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        JSONObject data = SQLDataService.getSQLJSONData(sql, -1, "select");
-                        SQLDataService.putBundleValue(data, "download", "context", "files");
-                        SQLDataService.putBundleValue(data, "download", "context2", "profile");
-                        AsyncTaskresult = test(data);
-
-                        try {
-                            JSONArray array = AsyncTaskresult.getJSONArray("result");
-                            for (int i = 0; i < array.length(); i++) {
-                                JSONObject resultdata = AsyncTaskresult.getJSONArray("result").getJSONObject(i);
-
-                                JSONArray profileUri = resultdata.getJSONArray("image");
-                                if (profileUri.length() != 0) {
-                                    profile = ImageDownLoad2.imageDownLoad(profileUri.getString(0));
-                                }
-                                if (profile == null) {
-                                    profile = ((BitmapDrawable) mContext.getResources().getDrawable(R.drawable.basepicture, null)).getBitmap();
-                                }
-                                Object[] objects = new Object[4];
-                                objects[0] = profile;
-                                objects[1] = resultdata.getString("name");
-                                objects[2] = resultdata.getString("text");
-                                objects[3] = resultdata.getString("reg_time");
-                                publishProgress(objects);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    protected void onProgressUpdate(Object... values) {
-                        addComment(position, contentnum, (Bitmap) values[0], (String) values[1],(String) values[2],(String) values[3]);
-                    }
-                };
-                AsyncTask.execute();
-
-
-
-/*                Message message = Message.obtain(commentHandler,position,commentlist);
-                Bundle bundle = new Bundle();
-                bundle.putString("result",result.toString());
-                message.setData(bundle);
-                commentHandler.sendMessage(message);*/
-
-
-
-    }
-
-
-    private JSONObject test(JSONObject request) {
-        HttpURLConnection mCon = null;
-        BufferedWriter mBufferedWriter = null;
-        BufferedReader mBufferedReader = null;
-        try {
-            URL url = new URL("http://192.168.35.145:8080/controll"); // URL화 한다.
-            mCon = (HttpURLConnection) url.openConnection();                 // 접속 객체 생성
-//            mCon.setRequestProperty("Content-Type", "application/json");      // 타입설정(application/json) 형식으로 전송
-            mCon.setRequestProperty("Content-Type", "text/html");               // 타입설
-            mCon.setConnectTimeout(10000);  // 접속 제한시간
-            mCon.setReadTimeout(10000);     // 입력스트림 읽어오는 제한시간
-            mCon.setRequestMethod("POST");  // POST방식 통신
-            mCon.setDoOutput(true);         // 쓰기모드 지정
-            mCon.setDoInput(true);          // 읽기모드 지정
-
-            mBufferedWriter = new BufferedWriter(new OutputStreamWriter(mCon.getOutputStream(), "utf-8"));       // 접속한 출력 스트림 생성
-            mBufferedWriter.write(request.toString());        // 여기서 각 필요한 데이터 보내기
-            mBufferedWriter.flush();        // 보내기
-
-            mBufferedReader = new BufferedReader(new InputStreamReader(mCon.getInputStream(), "utf-8"));       // 접속한 입력 스트림 생성
-            StringBuilder sb = new StringBuilder();         // 스트링빌더 생성
-            String json;        // 스트림으로 꺼낸것을 임시 저장
-            while ((json = mBufferedReader.readLine()) != null) {        // 스트림 뽑아내기
-                sb.append(json + "\n");
-            }
-
-            return new JSONObject(sb.toString());       // 뽑아낸것을 제이슨으로 객체로 만들어 리턴
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (mBufferedWriter != null) mBufferedWriter.close();
-                if (mBufferedReader != null) mBufferedReader.close();
-                if (mCon != null) mCon.disconnect();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
     // 댓글 추가
     private void addComment(int pos, int contentnum, Bitmap bitmap, String name, String comment, String time) {
-        final CommentAdapter commentAdapter = mCommentAdapterList.get(pos);
+        final CommentAdapter commentAdapter = mDataList.get(pos).commentAdapter;
         commentAdapter.addItem(contentnum, bitmap, name, comment, time);
         commentAdapter.notifyDataSetChanged();   // 데이터 변화시
     }

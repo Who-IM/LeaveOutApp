@@ -37,7 +37,7 @@ import java.util.Arrays;
 
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
-import whoim.leaveout.Server.ImageDownLoad2;
+import whoim.leaveout.Server.ImageDownLoad;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.StartSetting.Permission;
 import whoim.leaveout.StartSetting.SharedName;
@@ -398,7 +398,12 @@ public class loginActivity extends AppCompatActivity {
         mUserInfo.setEmail(email);       //  유저 id 셋팅
         mUserInfo.setName(name);
         if(prfile != null && !prfile.equals("null")) {
-            mUserInfo.setProfile(ImageDownLoad2.imageDownLoad(prfile));
+            new Thread() {
+                @Override
+                public void run() {
+                    mUserInfo.setProfile(ImageDownLoad.imageDownLoad(prfile));
+                }
+            }.start();
         }
     }
 

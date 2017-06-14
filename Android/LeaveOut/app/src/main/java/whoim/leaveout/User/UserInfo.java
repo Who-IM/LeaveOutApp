@@ -59,10 +59,10 @@ public class UserInfo {
     }
 
     public void setProfile(Bitmap profile) {
-        if(this.profile != null) {
+/*        if(this.profile != null) {
             this.profile.recycle();
             this.profile = null;
-        }
+        }*/
         this.profile = profile;
     }
 }

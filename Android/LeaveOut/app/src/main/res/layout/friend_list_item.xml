@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="55dp"
-    android:orientation="vertical" >
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/friend_list_item"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="17dp"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft" />
+        android:layout_height="wrap_content">
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/friend_list_item_image"
+            android:layout_width="40dp"
+            android:layout_height="45dp"
+            android:src="@drawable/basepicture"
+            android:layout_margin="5dp"/>
+
+        <TextView
+            android:id="@+id/friend_list_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:padding="5dp"
+            android:textSize="20dp"
+            android:layout_marginStart="5dp"
+            app:font="custom2"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/friend_list_item_image" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -46,17 +46,21 @@ public class PreferencesActivity extends AppCompatActivity {
     public void preferencesOnclick(View v) {
         if (v.getId() == R.id.preferences_category) {        //카테고리
             Intent intent = new Intent(getApplicationContext(), PreferencesCategoryActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
         } else if (v.getId() == R.id.preferences_check_delete) {      //체크 삭제
             Intent intent = new Intent(getApplicationContext(), PreferencesCheckViewActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
 
         } /*else if (v.getId() == R.id.preferences_notice) {        //알림
             Intent intent = new Intent(getApplicationContext(), PreferencesNoticeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
 
         }*/ else if (v.getId() == R.id.preferences_logout) {       //로그아웃
             Intent intent = new Intent(getApplicationContext(), loginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
         } else if (v.getId() == R.id.preferences_id_delete) {        //계정 탈퇴
             AlertDialog.Builder d = new AlertDialog.Builder(PreferencesActivity.this);
@@ -70,6 +74,7 @@ public class PreferencesActivity extends AppCompatActivity {
 //                    IDDeleteSQLData(); //계정삭제
                     Toast.makeText(PreferencesActivity.this, "계정 탈퇴 실행.", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getApplicationContext(), loginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 }
             });

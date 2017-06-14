@@ -54,10 +54,11 @@
             android:layout_marginBottom="15dp"
             android:layout_marginStart="20dp"
             android:layout_marginTop="15dp"
+            android:scaleType="fitXY"
             android:src="@drawable/basepicture" />
 
         <ImageButton
-            android:id="@+id/profile_add_Image"
+            android:id="@+id/profile_set_Image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/public_profile_add_image"
@@ -84,7 +85,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:textSize="20dp"
+            android:textSize="16dp"
             android:text="TextView"
             app:font="custom2"
             android:textColor="#FF000000"

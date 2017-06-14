@@ -39,11 +39,12 @@ public class PhoneController extends HttpServlet {
 		this.process(request, response);
 	}
 	
+	
 	// 처리 함수
 	private void process(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		request.setCharacterEncoding("euc-kr"); // 요청 charset 설정
-		response.setContentType("text/html; charset=euc-kr"); // 응답 타입 및 charset 설정
+		request.setCharacterEncoding("utf-8"); // 요청 charset 설정
+		response.setContentType("text/html; charset=utf-8"); // 응답 타입 및 charset 설정
 		
 		try {
 			out = response.getWriter(); // 웹 출력(응답용) 스트림 생성
@@ -63,8 +64,8 @@ public class PhoneController extends HttpServlet {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			out.close(); // 출력 닫기
-			in.close(); // 입력 닫기
+			if(out != null) out.close(); // 출력 닫기
+			if(in != null) in.close(); // 입력 닫기
 		}
 		
 	}
@@ -157,9 +158,12 @@ public class PhoneController extends HttpServlet {
 			}
 			if(data.get("download") != null && resJSON != null) {			// 다운로드가 있을경우
 				JSONObject jsondownload = (JSONObject) data.get("download");
+				FileDownLoad filedownload = new FileDownLoad(resJSON, request);
 				if(jsondownload.get("context") != null) {
-					FileDownLoad filedownload = new FileDownLoad(resJSON, request);
-					filedownload.filesDownLoad(jsondownload);						// 파일 다운로드(text 는 string image는 uri로 가져오기)
+					filedownload.filesDownLoad(jsondownload,(String) jsondownload.get("context"));	// 파일 다운로드1(text 는 string image는 uri로 가져오기)
+				}
+				if(jsondownload.get("context2") != null) {
+					filedownload.filesDownLoad(jsondownload,(String) jsondownload.get("context2"));	// 파일 다운로드2(text 는 string image는 uri로 가져오기)
 				}
 			}
 			return resJSON;

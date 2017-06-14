@@ -5,11 +5,13 @@ SET FOREIGN_KEY_CHECKS=0;
 Create table comment (
   comm_num int primary key not null auto_increment,
   content_num int not null,
-  user_name varchar(15),
-  rec_cnt int,
-  reg_time date,
+  user_num int not null,
+  rec_cnt int default 0,
+  reg_time datetime,
   constraint fk_comment_content_num 
-	foreign key(content_num) references Content(content_num)
+	foreign key(content_num) references Content(content_num),
+  constraint fk_comment_user_num
+        foreign key(user_num) references User(user_num)
 );
 
 /* 게시글 */

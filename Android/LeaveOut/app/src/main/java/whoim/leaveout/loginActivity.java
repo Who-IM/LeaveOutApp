@@ -23,6 +23,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.tsengvn.typekit.TypekitContextWrapper;
@@ -36,10 +37,13 @@ import java.util.Arrays;
 
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Server.ImageDownLoad;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.StartSetting.Permission;
 import whoim.leaveout.StartSetting.SharedName;
 import whoim.leaveout.User.UserInfo;
+
+import static whoim.leaveout.Loading.LoadingSQLDialog.SQLSendStart;
 
 // 로그인
 public class loginActivity extends AppCompatActivity {
@@ -56,7 +60,10 @@ public class loginActivity extends AppCompatActivity {
     EditText mPassEditText;         // pass 에딧
 
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
-    private String mSelectSQL = "select user_num,id from user where id = ? and password = ?";
+    private String mSelectSQL = "select user_num,email,name,id,profile from user where id = ? and password = ?";
+    private String mFaceBookSelectSQL = "select user_num,email,name,profile from user where token_num = ?";
+    private String mFaceBookInsertSQL = "insert into user(token_num,name,email,profile) values(?,?,?,?)";
+    private String mFaceBookUpdateSQL = "update user set name = #, email = #, profile = # where user_num = #";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,14 +110,12 @@ public class loginActivity extends AppCompatActivity {
         mLoginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {       // 로그인 확인 콜백 메소드 생성
             @Override
             public void onSuccess(final LoginResult loginResult) {      // 로그인 성공시
-                faceBookRequest(loginResult.getAccessToken());          // 페이스북에 사용자 정보 요청하기
-                Log.d("TAG", loginResult.getAccessToken().getToken());
+                faceBookRequest(loginResult.getAccessToken(),false);          // 페이스북에 사용자 정보 요청하기
             }
 
             @Override
             public void onCancel() {        // 로그인 취소시
                 Log.d("onCancel", "취소");
-
             }
 
             @Override
@@ -121,13 +126,15 @@ public class loginActivity extends AppCompatActivity {
     }
 
     // 페이스북 데이터 정보 가져오기
-    private void faceBookRequest(AccessToken accessToken) {
+    private void faceBookRequest(AccessToken accessToken, final boolean autocheck) {
         GraphRequest graphRequest = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {        // 로그인
             @Override
             public void onCompleted(JSONObject data, GraphResponse response) {
                 try {
                     Log.d("result", data.toString());
-                    mUserInfo.setFacebookId(data.getString("id"));      // 페이스북 유저 데이터 저장
+                    faceBookSQLSelectData(data,autocheck,false);        // 확인
+//                    mUserInfo.setFacebookId(data.getString("id"));      // 페이스북 유저 데이터 저장
+//                    nextActivity();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -140,14 +147,106 @@ public class loginActivity extends AppCompatActivity {
         graphRequest.executeAsync();    // 페이스북으로 요청 전송
     }
 
+    // 확인 및 없으면 데이터베이스에 넣기
+    private void faceBookSQLSelectData(final JSONObject data, final boolean autocheck, final boolean complete) throws JSONException {
+        mDataQueryGroup.clear();
+        mDataQueryGroup.addString(data.getString("id"));
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                return SQLDataService.getDynamicSQLJSONData(mFaceBookSelectSQL,mDataQueryGroup,-1,"select");
+            }
+            @Override
+            public JSONObject getUpLoad(JSONObject resultSQL) {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if(responseData == null)  {
+                    Toast.makeText(getApplicationContext(), "다시 시도해 주십시오", Toast.LENGTH_SHORT).show();
+                    LoginManager.getInstance().logOut();        // 로그아웃
+                }
+                else if(responseData.get(0).getJSONArray("result").length() == 0) {      // 없을경우 데이터베이스에 넣기
+                    if(!autocheck) {
+                        mDataQueryGroup.clear();
+                        mDataQueryGroup.addString(AccessToken.getCurrentAccessToken().getUserId());
+                        mDataQueryGroup.addString(data.getString("name"));
+                        mDataQueryGroup.addString(data.getString("email"));
+                        mDataQueryGroup.addString(data.getJSONObject("picture").getJSONObject("data").getString("url"));
+                        faceBookUpdateData(data,1);
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), "다시 시도해 주십시오", Toast.LENGTH_SHORT).show();
+                        LoginManager.getInstance().logOut();        // 로그아웃
+                    }
+                }
+                else if(responseData.get(0).getJSONArray("result").length() == 1) { // 있을경우 업데이트
+                        JSONObject resultData = responseData.get(0).getJSONArray("result").getJSONObject(0);
+                    if(complete) {          // faceBookUpdateData 완료 했을경우
+                        LoginFaceBookSharedSet(resultData.getInt("user_num"),resultData.getString("email"),resultData.getString("name"),AccessToken.getCurrentAccessToken().getUserId(),resultData.getString("profile"));
+                        Toast.makeText(getApplicationContext(), "페이스북으로 로그인", Toast.LENGTH_SHORT).show();  // 테스트
+                        nextActivity();     // 메인액티비티로
+                    }
+                    else {
+                        mDataQueryGroup.clear();
+                        mDataQueryGroup.addString(data.getString("name"));
+                        mDataQueryGroup.addString(data.getString("email"));
+                        mDataQueryGroup.addString(data.getJSONObject("picture").getJSONObject("data").getString("url"));
+                        mDataQueryGroup.addInt(resultData.getInt("user_num"));
+                        faceBookUpdateData(data,2);
+                    }
+                }
+            }
+        };
+        SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
+    }
+
+    // 데이터베이스에 페이스북 넣기 or 데이터베이스에 페이스북 업데이트 하기(check = 1 : insert, 2 : update)
+    private void faceBookUpdateData(final JSONObject data, final int check) throws JSONException {
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                if (check == 1)
+                    return SQLDataService.getDynamicSQLJSONData(mFaceBookInsertSQL, mDataQueryGroup, 0, "update");          // insert
+                else
+                    return SQLDataService.getDynamicSQLJSONData(mFaceBookUpdateSQL, mDataQueryGroup, 0, "update","#");          // update
+            }
+            @Override
+            public JSONObject getUpLoad(JSONObject resultSQL) {
+                return null;
+            }
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if(responseData == null)  {
+                    Toast.makeText(getApplicationContext(), "다시 시도해 주십시오", Toast.LENGTH_SHORT).show();
+                    LoginManager.getInstance().logOut();        // 로그아웃
+                }
+                else if(!responseData.get(0).getString("result").equals("error")) {      // 확인 완료
+                    faceBookSQLSelectData(data,false,true);
+                }
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
+    }
+
     // 자동 로그인 체크
     private boolean autoLogin() {
         if (mLoginShared.getInt("user_num", 0) != 0) {     // LeaveOut 로그인을 했을경우
             autoCheckSelectSQL();           // 데이터베이스 확인 요청
             return true;
         } else if (AccessToken.getCurrentAccessToken() != null) {      // 페이스북 로그인을 했을경우
-            Toast.makeText(this, "페이스북으로 로그인", Toast.LENGTH_SHORT).show();  // 테스트
-            faceBookRequest(AccessToken.getCurrentAccessToken());       // 페이스북에 사용자 요청
+            faceBookRequest(AccessToken.getCurrentAccessToken(),true);       // 페이스북에 사용자 요청
             return true;
         }
         return false;
@@ -177,13 +276,6 @@ public class loginActivity extends AppCompatActivity {
     // 앱 로그인 버튼 메인화면으로 넘어가기(데이터베이스에서 확인 후 넘기기)
     public void loginButton(View v) {
         loginSelectSQLData();        // select sql 쿼리 돌리기
-    }
-
-    // 페이스북 로그인 버튼 메인화면으로 넘어가기
-    public void facebook_loginButton(View v) {
-
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(intent);
     }
 
     public boolean editCheckAll() {
@@ -216,28 +308,37 @@ public class loginActivity extends AppCompatActivity {
                     mDataQueryGroup.clear();        // 초기화
                     mDataQueryGroup.addString(mIdEditText.getText().toString());        // 쿼리 id 추가
                     mDataQueryGroup.addString(mPassEditText.getText().toString());      // 쿼리 pass 추가
-                    return SQLDataService.getDynamicSQLJSONData(mSelectSQL, mDataQueryGroup, -1, "select");             // select SQL 제이슨
+                    JSONObject data = SQLDataService.getDynamicSQLJSONData(mSelectSQL, mDataQueryGroup, -1, "select");             // select SQL 제이슨
+                    return SQLDataService.putBundleValue(data,"download","context","profile");
                 }
                 @Override
-                public JSONObject getUpLoad() {
+                public JSONObject getUpLoad(JSONObject resultSQL) {
                     return null;
                 }
                 @Override
                 public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                    if(responseData == null) {
+                        Toast.makeText(loginActivity.this, "잠시후 다시 시도해주십시오.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
                     JSONArray result = responseData.get(0).getJSONArray("result");     // 결과 값 가져오기
                     if (result.length() == 0)        // 데이터베이스에 입력한 ID가 없을경우
                         Toast.makeText(loginActivity.this, "아이디 혹은 비밀번호가 일치하지 않습니다.", Toast.LENGTH_LONG).show();
                     else if (result.getJSONObject(0).getString("id").equals(mIdEditText.getText().toString())) {     // 데이터베이스에 입력한 ID가 있을경우
+                        JSONObject resultData = result.getJSONObject(0);
                         SharedPreferences.Editor LoginSharedEdit = mLoginShared.edit();     // 상태 저장 에디터
-                        LoginSharedEdit.putInt("user_num", result.getJSONObject(0).getInt("user_num"));      // 유저 id 상태 저장
+                        LoginSharedEdit.putInt("user_num", resultData.getInt("user_num"));      // 유저 id 상태 저장
                         LoginSharedEdit.commit();       // commit
-                        mUserInfo.setUserNum(mLoginShared.getInt("user_num", 0));       //  유저 id 셋팅
+
+                        String profile = null;
+                        if(!resultData.getString("profile").equals("null")) profile = resultData.getJSONArray("image").getString(0);      // 프로필 사진이 있을경우 셋팅
+                        LoginSharedSet(mLoginShared.getInt("user_num", 0),resultData.getString("email"),resultData.getString("name"),profile);     // 상태 저장
 
                         nextActivity();     // 메인액티비티로
                     }
                 }
             };
-            LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
+            SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
         }
     }
 
@@ -250,27 +351,38 @@ public class loginActivity extends AppCompatActivity {
             }
             @Override
             public JSONObject getSQLQuery() {
-                String sql = "select id from user where user_num = " + mLoginShared.getInt("user_num", 0);
-                return SQLDataService.getSQLJSONData(sql, -1, "select");
+                String sql = "select id,email,name,profile from user where user_num = " + mLoginShared.getInt("user_num", 0);
+                JSONObject data = SQLDataService.getSQLJSONData(sql, -1, "select");
+                return SQLDataService.putBundleValue(data,"download","context","profile");
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if(responseData == null){
+                    Toast.makeText(loginActivity.this, "다시 시작해 주십시오", Toast.LENGTH_LONG).show();     // 없을경우
+                    finish();
+                    return;
+                }
                 JSONArray result = responseData.get(0).getJSONArray("result");     // 결과 값 가져오기
                 if (result.length() == 0) {
                     Toast.makeText(loginActivity.this, "다시 로그인 해주십시오.", Toast.LENGTH_LONG).show();     // 없을경우
                     mLoginShared.edit().clear().commit();       // 상태 정보 초기화
                 } else {
+                    JSONObject resultData = result.getJSONObject(0);
+
+                    String profile = null;
+                    if(!resultData.getString("profile").equals("null")) profile = resultData.getJSONArray("image").getString(0);      // 프로필 사진이 있을경우 셋팅
+                    LoginSharedSet(mLoginShared.getInt("user_num", 0),resultData.getString("email"),resultData.getString("name"),profile);     // 상태 저장
+
                     Toast.makeText(loginActivity.this, "앱으로 로그인", Toast.LENGTH_SHORT).show();  // 테스트
-                    mUserInfo.setUserNum(mLoginShared.getInt("user_num", 0));       //  유저 id 셋팅
                     nextActivity();        // 있을경우
                 }
             }
         };
-        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
+        SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
     }
 
     // 메인액티비티로
@@ -279,6 +391,25 @@ public class loginActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         loginActivity.this.startActivity(intent);       // 다음 액티비티
 //        loginActivity.this.finish();                    // 액티비티 종료
+    }
+
+    private void LoginSharedSet(int usernum, String email, String name, final String prfile) {
+        mUserInfo.setUserNum(usernum);       //  유저 id 셋팅
+        mUserInfo.setEmail(email);       //  유저 id 셋팅
+        mUserInfo.setName(name);
+        if(prfile != null && !prfile.equals("null")) {
+            new Thread() {
+                @Override
+                public void run() {
+                    mUserInfo.setProfile(ImageDownLoad.imageDownLoad(prfile));
+                }
+            }.start();
+        }
+    }
+
+    private void LoginFaceBookSharedSet(int usernum,String email,String name,String facceid, String prfile) {
+        LoginSharedSet(usernum,email,name,prfile);
+        mUserInfo.setFacebookId(facceid);      // 페이스북 유저 데이터 저장
     }
 
     // 폰트 바꾸기

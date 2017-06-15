@@ -721,22 +721,20 @@ public class WritingActivity extends AppCompatActivity {
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
                 JSONArray jspn = responseData.get(0).getJSONArray("result");
-                Location location = new Location("checks");
                 for(int i =0; i < jspn.length(); i++) {
                     JSONObject j = jspn.getJSONObject(i);
                     double x = j.getDouble("chk_x");
                     double y = j.getDouble("chk_y");
                     chk_n = j.getInt("check_num");
-                    location.setLatitude(x);
-                    location.setLongitude(y);
-                    product.add(FomatService.getCurrentAddress(getApplicationContext(),location));
+                    mCurrentLocation.setLatitude(x);
+                    mCurrentLocation.setLongitude(y);
+                    product.add(FomatService.getCurrentAddress(getApplicationContext(),mCurrentLocation));
                 }
                 list.setAdapter(adapter);
             }
         };
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
     }
-
 
     // 폰트 바꾸기
     @Override

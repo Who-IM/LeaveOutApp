@@ -891,4 +891,3 @@ public class MainActivity extends MapAPIActivity {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
 }
-

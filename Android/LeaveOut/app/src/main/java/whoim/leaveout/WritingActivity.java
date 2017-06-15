@@ -726,8 +726,8 @@ public class WritingActivity extends AppCompatActivity {
                     double x = j.getDouble("chk_x");
                     double y = j.getDouble("chk_y");
                     chk_n = j.getInt("check_num");
-                    mCurrentLocation.setLatitude(x);
-                    mCurrentLocation.setLongitude(y);
+//                    mCurrentLocation.setLatitude(x);
+//                    mCurrentLocation.setLongitude(y);
                     product.add(FomatService.getCurrentAddress(getApplicationContext(),mCurrentLocation));
                 }
                 list.setAdapter(adapter);

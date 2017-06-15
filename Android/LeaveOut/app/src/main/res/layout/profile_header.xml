@@ -5,58 +5,58 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <fragment
-        android:id="@+id/profile_google_map"
-        class="com.google.android.gms.maps.MapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_margin="8dp" />
+    <!--<fragment-->
+        <!--android:id="@+id/profile_google_map"-->
+        <!--class="com.google.android.gms.maps.MapFragment"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="300dp"-->
+        <!--android:layout_margin="8dp" />-->
 
-    <TextView
-        android:id="@+id/profile_map_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/profile_google_map"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="15dp"
-        android:text="TextView"
-        android:textSize="20dp"
-        app:font="custom2" />
+    <!--<TextView-->
+        <!--android:id="@+id/profile_map_text"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@+id/profile_google_map"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_marginBottom="10dp"-->
+        <!--android:layout_marginTop="15dp"-->
+        <!--android:text="TextView"-->
+        <!--android:textSize="20dp"-->
+        <!--app:font="custom2" />-->
 
-    <RadioGroup
-        android:id="@+id/profile_radio_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/profile_google_map"
-        android:layout_below="@+id/profile_google_map">
+    <!--<RadioGroup-->
+        <!--android:id="@+id/profile_radio_group"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignStart="@+id/profile_google_map"-->
+        <!--android:layout_below="@+id/profile_google_map">-->
 
-        <RadioButton
-            android:id="@+id/profile_check"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:checked="true"
-            android:text="체크" />
+        <!--<RadioButton-->
+            <!--android:id="@+id/profile_check"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:checked="true"-->
+            <!--android:text="체크" />-->
 
-        <RadioButton
-            android:id="@+id/profile_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="글" />
-    </RadioGroup>
+        <!--<RadioButton-->
+            <!--android:id="@+id/profile_text"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:text="글" />-->
+    <!--</RadioGroup>-->
 
     <android.support.design.widget.TabLayout
         android:id="@+id/profile_tab"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/profile_radio_group"
         android:background="#FFabdeff"
         app:tabTextColor="#FF808080"
         app:tabSelectedTextColor="#FF000000"
         android:elevation="30dp"
-        app:tabMode="scrollable" />
+        app:tabMode="scrollable"/>
+        <!--android:layout_below="@id/profile_radio_group"-->
 
     <android.support.v4.view.ViewPager
         android:id="@+id/profile_pager"

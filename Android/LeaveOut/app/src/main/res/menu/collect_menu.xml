@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="whoim.leaveout.CollectActivity" >
+    tools:context=".PreferencesNoticeActivity">
     <item
         android:id="@+id/collect_menu_location"
         android:orderInCategory="100"

@@ -256,7 +256,7 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
 
@@ -286,7 +286,7 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
 
@@ -325,7 +325,7 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
 
@@ -354,7 +354,7 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
 

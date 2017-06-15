@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:layout_margin = "10dp"
         android:textColor="#FF000000"
-        android:textSize="25dp"
+        android:textSize="23dp"
         android:text="체크 내용"
         app:font="custom2" />
 

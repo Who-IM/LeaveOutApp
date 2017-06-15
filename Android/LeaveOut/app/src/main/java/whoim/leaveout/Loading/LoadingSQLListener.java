@@ -11,6 +11,6 @@ import java.util.ArrayList;
 public interface LoadingSQLListener {
     int getSize();
     JSONObject getSQLQuery();
-    JSONObject getUpLoad();
+    JSONObject getUpLoad(JSONObject resultSQL);
     void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException;
 }

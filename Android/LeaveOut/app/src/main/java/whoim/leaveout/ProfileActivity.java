@@ -15,7 +15,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -178,34 +177,34 @@ public class ProfileActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // 메뉴의 항목을 선택(클릭)했을 때 호출되는 콜백메서드
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.profile_menu_location:
-                Toast.makeText(getApplicationContext(), "가까운 위치 순서대로", Toast.LENGTH_SHORT).show();
-                menuCount = 0;
-                return true;
-
-            case R.id.profile_menu_time:
-                Toast.makeText(getApplicationContext(), "최신글 순서대로", Toast.LENGTH_SHORT).show();
-                menuCount = 1;
-                return true;
-
-            case R.id.profile_menu_view:
-                Toast.makeText(getApplicationContext(), "조회수 순서대로", Toast.LENGTH_SHORT).show();
-                menuCount = 2;
-                return true;
-
-            case R.id.profile_menu_recommended:
-                Toast.makeText(getApplicationContext(), "추천수 순서대로", Toast.LENGTH_SHORT).show();
-                menuCount = 3;
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // 메뉴의 항목을 선택(클릭)했을 때 호출되는 콜백메서드
+//        int id = item.getItemId();
+//
+//        switch (id) {
+//            case R.id.profile_menu_location:
+//                Toast.makeText(getApplicationContext(), "가까운 위치 순서대로", Toast.LENGTH_SHORT).show();
+//                menuCount = 0;
+//                return true;
+//
+//            case R.id.profile_menu_time:
+//                Toast.makeText(getApplicationContext(), "최신글 순서대로", Toast.LENGTH_SHORT).show();
+//                menuCount = 1;
+//                return true;
+//
+//            case R.id.profile_menu_view:
+//                Toast.makeText(getApplicationContext(), "조회수 순서대로", Toast.LENGTH_SHORT).show();
+//                menuCount = 2;
+//                return true;
+//
+//            case R.id.profile_menu_recommended:
+//                Toast.makeText(getApplicationContext(), "추천수 순서대로", Toast.LENGTH_SHORT).show();
+//                menuCount = 3;
+//                return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
     // 옵션 버튼 끝
 
     protected class profile_tab

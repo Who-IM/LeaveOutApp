@@ -181,9 +181,6 @@ public class ContentAdapter extends BaseAdapter {
             holder.profile.setImageBitmap(mData.profile);
             holder.mycomment.setVisibility(View.VISIBLE);       // 댓글 사진
             holder.mycomment.setImageBitmap(mData.mycommentprofile);
-        } else {
-            holder.mycomment.setVisibility(View.GONE);
-            holder.profile.setVisibility(View.GONE);
         }
 
         // textView 처리(이름 , 주소, 게시글내용,조회수 및 추천수)

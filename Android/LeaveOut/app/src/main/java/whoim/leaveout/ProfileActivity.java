@@ -14,11 +14,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-
-import android.view.MenuItem;
-import android.view.MotionEvent;
-
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -76,8 +71,7 @@ public class ProfileActivity extends AppCompatActivity {
     //like 버튼
     UserInfo userInfo = UserInfo.getInstance();     // 유저 정보
     Bitmap bitmap = userInfo.getProfile();
-    //친구추가버튼
-    ImageView profile_friend_plus;
+
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance(); // sql에 필요한 데이터 그룹
 
     @Override
@@ -85,17 +79,6 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_layout);
 
-       // if(userInfo.getUserNum() == 1) {
-            profile_friend_plus = (ImageView) findViewById(R.id.profile_friend_plus);
-            profile_friend_plus.setVisibility(View.VISIBLE);
-            profile_friend_plus.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    //userInfo.getUserNum();
-                    return false;
-                }
-            });
-      //  }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
@@ -146,7 +129,7 @@ public class ProfileActivity extends AppCompatActivity {
         meContentData();
     }
 
-    //옵션 버튼
+    /*//옵션 버튼
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // 메뉴버튼이 처음 눌러졌을 때 실행되는 콜백메서드
@@ -193,34 +176,34 @@ public class ProfileActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // 메뉴의 항목을 선택(클릭)했을 때 호출되는 콜백메서드
-//        int id = item.getItemId();
-//
-//        switch (id) {
-//            case R.id.profile_menu_location:
-//                Toast.makeText(getApplicationContext(), "가까운 위치 순서대로", Toast.LENGTH_SHORT).show();
-//                menuCount = 0;
-//                return true;
-//
-//            case R.id.profile_menu_time:
-//                Toast.makeText(getApplicationContext(), "최신글 순서대로", Toast.LENGTH_SHORT).show();
-//                menuCount = 1;
-//                return true;
-//
-//            case R.id.profile_menu_view:
-//                Toast.makeText(getApplicationContext(), "조회수 순서대로", Toast.LENGTH_SHORT).show();
-//                menuCount = 2;
-//                return true;
-//
-//            case R.id.profile_menu_recommended:
-//                Toast.makeText(getApplicationContext(), "추천수 순서대로", Toast.LENGTH_SHORT).show();
-//                menuCount = 3;
-//                return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // 메뉴의 항목을 선택(클릭)했을 때 호출되는 콜백메서드
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.profile_menu_location:
+                Toast.makeText(getApplicationContext(), "가까운 위치 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 0;
+                return true;
+
+            case R.id.profile_menu_time:
+                Toast.makeText(getApplicationContext(), "최신글 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 1;
+                return true;
+
+            case R.id.profile_menu_view:
+                Toast.makeText(getApplicationContext(), "조회수 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 2;
+                return true;
+
+            case R.id.profile_menu_recommended:
+                Toast.makeText(getApplicationContext(), "추천수 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 3;
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }*/
     // 옵션 버튼 끝
 
     protected class profile_tab
@@ -379,6 +362,7 @@ public class ProfileActivity extends AppCompatActivity {
                            String name = contentdata.getString("name");
                            String address = contentdata.getString("address");
                            String reg_time = contentdata.getString("reg_time");
+                           reg_time = reg_time.substring(0,reg_time.length()-2);
                            String rec_cnt = contentdata.getString("rec_cnt");
                            String view_cnt = contentdata.getString("view_cnt");
                            String text = contentdata.getString("text");
@@ -402,7 +386,8 @@ public class ProfileActivity extends AppCompatActivity {
 
                                    // 마지막에 줄띄우기 잘라내기
                                    String temptext = resultdata.getString("text").substring(0,resultdata.getString("text").length()-2);
-                                   commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), temptext, resultdata.getString("reg_time"), resultdata.getInt("user_num"));       // 어댑터 추가
+                                   String time = resultdata.getString("reg_time").substring(0,resultdata.getString("reg_time").length()-2);
+                                   commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), temptext, time, resultdata.getInt("user_num"));       // 어댑터 추가
                                }
                            }
                            Object[] objects = {contentnum, name, address, reg_time, rec_cnt, view_cnt, text, imagelist, commentAdapter};

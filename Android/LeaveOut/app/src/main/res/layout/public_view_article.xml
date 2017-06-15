@@ -227,6 +227,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginBottom="10dp"
             android:layout_marginStart="10dp"
+            android:src="@drawable/basepicture"
             android:layout_marginTop="10dp" />
 
         <EditText

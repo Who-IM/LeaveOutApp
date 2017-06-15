@@ -232,7 +232,7 @@ public class CollectActivity extends AppCompatActivity {
                             Bitmap contentuserprofile = setProfile(contentdata);
 
                             // 댓글 부분
-                            String commentsql = "select comm_num, rec_cnt, reg_time, files, name, profile " +        // 댓글
+                            String commentsql = "select comm_num, rec_cnt, reg_time, files, name, profile, comment.user_num " +        // 댓글
                                     "from comment join user on comment.user_num = user.user_num " +
                                     "where content_num = " + contentnum;
 
@@ -248,7 +248,9 @@ public class CollectActivity extends AppCompatActivity {
                                     JSONObject resultdata = commentdata.getJSONArray("result").getJSONObject(j);
                                     profile = setProfile(resultdata);
 
-                                    commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), resultdata.getString("text"), resultdata.getString("reg_time"));       // 어댑터 추가
+                                    // 마지막에 줄띄우기 잘라내기
+                                    String temptext = resultdata.getString("text").substring(0,resultdata.getString("text").length()-2);
+                                    commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), temptext, resultdata.getString("reg_time"), resultdata.getInt("user_num") );       // 어댑터 추가
                                 }
                             }
                             Object[] objects = {contentuserprofile,contentnum, name, address, reg_time, rec_cnt, view_cnt, text, imagelist, commentAdapter};

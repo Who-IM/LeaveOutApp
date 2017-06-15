@@ -68,10 +68,13 @@ public class ContentAdapter extends BaseAdapter {
         public GridView contentimagegrid;
         public ListView commentlist;
         public EditText commentedit;
+        public Button viewcomment_btn;
     }
 
     private Context mContext;
     private ArrayList<ContentItem> mDataList = new ArrayList();
+
+    private ArrayList<Button> comment_btn = new ArrayList<>();
 
     private HashMap<Integer, GridAdapter> mImageGridAdapterList = new HashMap();
 
@@ -146,6 +149,7 @@ public class ContentAdapter extends BaseAdapter {
         holder.contentimagegrid = (GridView) convertView.findViewById(R.id.public_view_article_grid);
         holder.commentlist = (ListView) convertView.findViewById(R.id.public_view_article_comment_list);
         holder.commentedit = (EditText) convertView.findViewById(R.id.public_view_article_comment_editText);
+        holder.viewcomment_btn = (Button) convertView.findViewById(R.id.public_view_article_comment_btn);
     }
 
     @Override
@@ -232,6 +236,23 @@ public class ContentAdapter extends BaseAdapter {
                     return true;
                 }
                 return false;
+            }
+        });
+
+        // 댓글보기 클릭시
+        holder.viewcomment_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(finalHolder.commentlist.getCount() == 0) {
+                    Toast.makeText(mContext, "입력된 댓글이 없습니다.", Toast.LENGTH_SHORT).show();
+                }
+
+                if(finalHolder.commentlist.getVisibility() == View.GONE) {
+                    finalHolder.commentlist.setVisibility(View.VISIBLE);
+                } else {
+                    finalHolder.commentlist.setVisibility(View.GONE);
+                }
+                setListViewHeightBasedOnChildren(finalHolder.commentlist);
             }
         });
         return convertView;
@@ -322,7 +343,7 @@ public class ContentAdapter extends BaseAdapter {
                             if (profile == null) {
                                 profile = ((BitmapDrawable) mContext.getResources().getDrawable(R.drawable.basepicture, null)).getBitmap();
                             }
-                            addComment(pos, mDataList.get(pos).contentnum, profile, userInfo.getName(), view.getText().toString(), time);  // 데이터 셋팅
+                            addComment(pos, mDataList.get(pos).contentnum, profile, userInfo.getName(), view.getText().toString(), time, userInfo.getUserNum());  // 데이터 셋팅
                             setListViewHeightBasedOnChildren(commentlist); // 리스트뷰 펼처보기(한화면에)
                             view.setText("");   // 내용 초기화
                         }
@@ -337,9 +358,9 @@ public class ContentAdapter extends BaseAdapter {
     }
 
     // 댓글 추가
-    private void addComment(int pos, int contentnum, Bitmap bitmap, String name, String comment, String time) {
+    private void addComment(int pos, int contentnum, Bitmap bitmap, String name, String comment, String time, int user_num) {
         final CommentAdapter commentAdapter = mDataList.get(pos).commentAdapter;
-        commentAdapter.addItem(contentnum, bitmap, name, comment, time);
+        commentAdapter.addItem(contentnum, bitmap, name, comment, time, user_num);
         commentAdapter.notifyDataSetChanged();   // 데이터 변화시
     }
 

@@ -384,7 +384,7 @@ public class ProfileActivity extends AppCompatActivity {
                            String text = contentdata.getString("text");
 
                             // 댓글 부분
-                           String commentsql = "select comm_num, rec_cnt, reg_time, files, name, profile, user_num " +        // 댓글
+                           String commentsql = "select comm_num, rec_cnt, reg_time, files, name, profile, comment.user_num " +        // 댓글
                                    "from comment join user on comment.user_num = user.user_num " +
                                    "where content_num = " + contentnum;
 

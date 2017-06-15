@@ -1,6 +1,7 @@
 package whoim.leaveout;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +18,13 @@ import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.StartSetting.SharedName;
 import whoim.leaveout.User.UserInfo;
@@ -105,7 +113,7 @@ public class PreferencesActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     PreferencesActivity.this.finish();
-//                    IDDeleteSQLData(); //계정삭제
+                    IDDeleteSQLData(); //계정삭제
                     Toast.makeText(PreferencesActivity.this, "계정 탈퇴 실행.", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getApplicationContext(), loginActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -137,7 +145,7 @@ public class PreferencesActivity extends AppCompatActivity {
 
 
     //계정삭제 foreign키 걸림
-   /* private void IDDeleteSQLData() {
+    private void IDDeleteSQLData() {
 
         final String sql = "delete from user where user_num = ?;";
 
@@ -154,8 +162,9 @@ public class PreferencesActivity extends AppCompatActivity {
                 mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
             }
+
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
 
@@ -164,5 +173,5 @@ public class PreferencesActivity extends AppCompatActivity {
             }
         };
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
-    }*/
+    }
 }

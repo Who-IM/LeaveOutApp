@@ -104,16 +104,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         // tab layout 설정
         tabLayout = (TabLayout) findViewById(R.id.profile_tab);
-
-        tab = new profile_tab("전체");
-        tab = new profile_tab("맛집");
-        tab = new profile_tab("여행지");
-        tab = new profile_tab("서울");
-        tab = new profile_tab("대구");
-        tab = new profile_tab("전체");
-        tab = new profile_tab("맛집");
-        tab = new profile_tab("여행지");
-        tab = new profile_tab("서울");
+        selectCategorySQLData();
 
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
@@ -468,7 +459,7 @@ public class ProfileActivity extends AppCompatActivity {
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
 

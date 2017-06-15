@@ -65,4 +65,8 @@ public class UserInfo {
         }*/
         this.profile = profile;
     }
+
+    public void clear() {
+        mInstance = null;
+    }
 }

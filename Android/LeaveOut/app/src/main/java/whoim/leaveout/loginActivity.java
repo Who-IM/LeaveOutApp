@@ -193,7 +193,7 @@ public class loginActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "페이스북으로 로그인", Toast.LENGTH_SHORT).show();  // 테스트
                         nextActivity();     // 메인액티비티로
                     }
-                    else {
+                    else {      // 업데이트
                         mDataQueryGroup.clear();
                         mDataQueryGroup.addString(data.getString("name"));
                         mDataQueryGroup.addString(data.getString("email"));
@@ -387,6 +387,8 @@ public class loginActivity extends AppCompatActivity {
 
     // 메인액티비티로
     private void nextActivity() {
+        mIdEditText.setText("");
+        mPassEditText.setText("");
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);        // 메인 화면으로
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         loginActivity.this.startActivity(intent);       // 다음 액티비티
@@ -398,12 +400,18 @@ public class loginActivity extends AppCompatActivity {
         mUserInfo.setEmail(email);       //  유저 id 셋팅
         mUserInfo.setName(name);
         if(prfile != null && !prfile.equals("null")) {
-            new Thread() {
+            Thread thread = new Thread() {
                 @Override
                 public void run() {
                     mUserInfo.setProfile(ImageDownLoad.imageDownLoad(prfile));
                 }
-            }.start();
+            };
+            try {
+                thread.start();
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

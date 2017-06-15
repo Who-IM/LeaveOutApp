@@ -1,8 +1,10 @@
 package whoim.leaveout;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -11,21 +13,29 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.login.LoginManager;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.StartSetting.SharedName;
+import whoim.leaveout.User.UserInfo;
 
 // 환경설정
 public class PreferencesActivity extends AppCompatActivity {
-    Switch login;
+    private Switch login;
+    private SharedPreferences mLoginShared;       // 상태 저장(로그인 정보)
+    private UserInfo userInfo = UserInfo.getInstance();
+
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance(); // sql에 필요한 데이터 그룹
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.preferences_layout);
-        login = (Switch) findViewById(R.id.preferences_autologin);
+        mLoginShared = getSharedPreferences(SharedName.SHARED_LOGIN_INFO, Activity.MODE_PRIVATE);     // 로그인 정보 상태
 
+        login = (Switch) findViewById(R.id.preferences_autologin);
         //자동 로그인 버튼
         login.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -59,9 +69,33 @@ public class PreferencesActivity extends AppCompatActivity {
             startActivity(intent);
 
         }*/ else if (v.getId() == R.id.preferences_logout) {       //로그아웃
-            Intent intent = new Intent(getApplicationContext(), loginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
+            AlertDialog.Builder d = new AlertDialog.Builder(PreferencesActivity.this);
+            d.setTitle("로그아웃");
+            d.setMessage("로그아웃을 하시겠습니까?");
+
+            d.setPositiveButton("예", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (AccessToken.getCurrentAccessToken() != null) {
+                        LoginManager.getInstance().logOut();
+                    }
+                    mLoginShared.edit().clear().commit();       // 상태 정보 초기화
+                    userInfo.clear();
+                    Intent intent = new Intent(getApplicationContext(), loginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }
+            });
+
+            d.setNegativeButton("아니요", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            d.show();
+
+
         } else if (v.getId() == R.id.preferences_id_delete) {        //계정 탈퇴
             AlertDialog.Builder d = new AlertDialog.Builder(PreferencesActivity.this);
             d.setTitle("회원 탈퇴");

@@ -1,6 +1,5 @@
 package whoim.leaveout;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -290,122 +289,6 @@ public class CollectActivity extends AppCompatActivity {
             bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.basepicture, null)).getBitmap();
         }
         return bitmap;
-    }
-
-    private void comment_InsertSQLData(final int content_num, final String text) {
-        final String mSelectSQL = "insert into comment(content_num, user_name, reg_time) " +
-                                   "values(?, ?, now());";
-
-        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
-            @Override
-            public int getSize() {
-                return 1;
-            }
-
-            @Override
-            public JSONObject getSQLQuery() {
-                mDataQueryGroup.clear();        // 초기화
-                mDataQueryGroup.addInt(content_num);
-                mDataQueryGroup.addString("이름");
-                JSONObject data = SQLDataService.getDynamicSQLJSONData(mSelectSQL, mDataQueryGroup, 0, "update");             // select SQL 제이슨
-                SQLDataService.putBundleValue(data, "upload", "usernum", UserInfo.getInstance().getUserNum());                 // 번들 데이터 더 추가(유저 id)
-                SQLDataService.putBundleValue(data, "upload", "path", "comment");
-                SQLDataService.putBundleValue(data, "upload","context","text");
-                SQLDataService.putBundleValue(data, "upload", "text", text);        // 번들 데이터 더 추가(내용)
-                return data;
-            }
-
-            @Override
-            public JSONObject getUpLoad() {
-                return null;
-            }
-
-            @Override
-            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
-
-            }
-        };
-        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
-    }
-
-
-    private void content_number_SelectSQLData(final int content_num, final int position) {
-        final String mSelectSQL = "select files from content where content_num = ?";
-
-        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
-            @Override
-            public int getSize() {
-                return 1;
-            }
-
-            @Override
-            public JSONObject getSQLQuery() {
-                mDataQueryGroup.clear();        // 초기화
-                mDataQueryGroup.addInt(content_num);
-                JSONObject data = SQLDataService.getDynamicSQLJSONData(mSelectSQL, mDataQueryGroup, -1, "select");             // select SQL 제이슨
-                SQLDataService.putBundleValue(data, "download", "context", "files");
-                return data;
-            }
-
-            @Override
-            public JSONObject getUpLoad() {
-                return null;
-            }
-
-            @Override
-            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
-                if (!responseData.get(0).getJSONArray("result").equals("error")) {
-                    JSONArray result = responseData.get(0).getJSONArray("result");     // 결과 값 가져오기
-                    for (int i = 0; i < result.length(); i++) {
-                        JSONObject fileObject = result.getJSONObject(i);
-                        String image = fileObject.getString("image");
-                        JSONArray fileArray = new JSONArray(image);
-
-                        if (fileArray.length() != 0) {
-                            selectThread th = new selectThread();
-                            th.init(fileArray, position);
-                            th.start();
-                        }
-                    }
-
-                }
-            }
-        };
-        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
-    }
-
-    public class selectThread extends Thread {
-        ImageDownLoad down = new ImageDownLoad();
-        JSONArray fileArray;
-        int position;
-
-        public void init(JSONArray fileArray, int position) {
-            this.fileArray = fileArray;
-            this.position = position;
-        }
-
-        public void run() {
-            for (int j = 0; j < fileArray.length(); j++) {
-                try {
-                    Bitmap bitmap = down.execute(fileArray.getString(j)).get();
-                    gridAdapter.get(position).addItem(bitmap);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    grid_list.get(position).setAdapter(gridAdapter.get(position));
-                    setListViewHeightBasedOnChildren(grid_list.get(position)); // 펼쳐보기
-                }
-            });
-        }
     }
 
     // 뒤로가기

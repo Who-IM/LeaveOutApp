@@ -276,7 +276,7 @@ public class FriendListActivity extends AppCompatActivity  {
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
 

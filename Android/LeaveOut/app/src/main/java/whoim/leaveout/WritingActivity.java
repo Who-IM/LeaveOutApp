@@ -10,8 +10,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.icu.text.SimpleDateFormat;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
@@ -56,7 +54,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
@@ -717,7 +714,7 @@ public class WritingActivity extends AppCompatActivity {
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
 
@@ -732,7 +729,7 @@ public class WritingActivity extends AppCompatActivity {
                     chk_n = j.getInt("check_num");
                     location.setLatitude(x);
                     location.setLongitude(y);
-                    product.add(getCurrentAddress(location));
+                    product.add(FomatService.getCurrentAddress(getApplicationContext(),location));
                 }
                 list.setAdapter(adapter);
             }
@@ -740,32 +737,6 @@ public class WritingActivity extends AppCompatActivity {
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
     }
 
-    // GPS를 주소로 변환
-    public String getCurrentAddress(Location location){
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        List<Address> addresses;
-
-        try {
-            addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-        } catch (IOException ioException) {
-            //네트워크 문제
-            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
-            return "지오코더 서비스 사용불가";
-        }
-        if (addresses == null || addresses.size() == 0) {
-            Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
-            return "주소 미발견";
-        } else {
-            Address address = addresses.get(0);
-            return addressToken(address.getAddressLine(0).toString());
-        }
-    }
-
-    // 주소 토큰
-    private String addressToken(String address) {
-        String token1 = "대한민국 ";
-        return address.substring(token1.length());
-    }
 
     // 폰트 바꾸기
     @Override

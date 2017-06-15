@@ -11,10 +11,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
@@ -31,6 +29,8 @@ import whoim.leaveout.Server.ImageDownLoad;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.Server.WebControll;
 import whoim.leaveout.User.UserInfo;
+
+import static whoim.leaveout.R.id.public_view_article_tab;
 
 //모아보기
 public class CollectActivity extends AppCompatActivity {
@@ -65,17 +65,19 @@ public class CollectActivity extends AppCompatActivity {
         setCollect();
 
         //tab layout 등록
-        tabLayout = (TabLayout) findViewById(R.id.public_view_article_tab);
-        tab = new profile_tab("전체");
-        tab = new profile_tab("맛집");
-        tab = new profile_tab("여행지");
-        tab = new profile_tab("서울");
-        tab = new profile_tab("대구");
-        tab = new profile_tab("전체");
-        tab = new profile_tab("맛집");
-        tab = new profile_tab("여행지");
-        tab = new profile_tab("서울");
-        tab = new profile_tab("대구");
+        tabLayout = (TabLayout) findViewById(public_view_article_tab);
+        tabLayout.setVisibility(View.GONE);
+
+//        tab = new profile_tab("전체");
+//        tab = new profile_tab("맛집");
+//        tab = new profile_tab("여행지");
+//        tab = new profile_tab("서울");
+//        tab = new profile_tab("대구");
+//        tab = new profile_tab("전체");
+//        tab = new profile_tab("맛집");
+//        tab = new profile_tab("여행지");
+//        tab = new profile_tab("서울");
+//        tab = new profile_tab("대구");
 
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
@@ -155,36 +157,36 @@ public class CollectActivity extends AppCompatActivity {
         }
         return super.onPrepareOptionsMenu(menu);
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // 메뉴의 항목을 선택(클릭)했을 때 호출되는 콜백메서드
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.collect_menu_location:
-                Toast.makeText(getApplicationContext(), "가까운 위치 순서대로", Toast.LENGTH_SHORT).show();
-                menuCount = 0;
-                return true;
-
-            case R.id.collect_menu_time:
-                Toast.makeText(getApplicationContext(), "최신글 순서대로", Toast.LENGTH_SHORT).show();
-                menuCount = 1;
-                return true;
-
-            case R.id.collect_menu_view:
-                Toast.makeText(getApplicationContext(), "조회수 순서대로", Toast.LENGTH_SHORT).show();
-                menuCount = 2;
-                return true;
-
-            case R.id.collect_menu_recommended:
-                Toast.makeText(getApplicationContext(), "추천수 순서대로", Toast.LENGTH_SHORT).show();
-                menuCount = 3;
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-    // 옵션 버튼 끝
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // 메뉴의 항목을 선택(클릭)했을 때 호출되는 콜백메서드
+//        int id = item.getItemId();
+//
+//        switch (id) {
+//            case R.id.collect_menu_location:
+//                Toast.makeText(getApplicationContext(), "가까운 위치 순서대로", Toast.LENGTH_SHORT).show();
+//                menuCount = 0;
+//                return true;
+//
+//            case R.id.collect_menu_time:
+//                Toast.makeText(getApplicationContext(), "최신글 순서대로", Toast.LENGTH_SHORT).show();
+//                menuCount = 1;
+//                return true;
+//
+//            case R.id.collect_menu_view:
+//                Toast.makeText(getApplicationContext(), "조회수 순서대로", Toast.LENGTH_SHORT).show();
+//                menuCount = 2;
+//                return true;
+//
+//            case R.id.collect_menu_recommended:
+//                Toast.makeText(getApplicationContext(), "추천수 순서대로", Toast.LENGTH_SHORT).show();
+//                menuCount = 3;
+//                return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
+//    // 옵션 버튼 끝
 
     // 텝 설정
     private class profile_tab

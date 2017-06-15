@@ -34,6 +34,8 @@ import whoim.leaveout.Server.ImageDownLoad;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.User.UserInfo;
 
+import static java.lang.Integer.parseInt;
+
 /**
  * Created by Use on 2017-06-13.
  */
@@ -69,6 +71,7 @@ public class ContentAdapter extends BaseAdapter {
         public ListView commentlist;
         public EditText commentedit;
         public Button viewcomment_btn;
+        public Button like_btn;
     }
 
     private Context mContext;
@@ -150,6 +153,7 @@ public class ContentAdapter extends BaseAdapter {
         holder.commentlist = (ListView) convertView.findViewById(R.id.public_view_article_comment_list);
         holder.commentedit = (EditText) convertView.findViewById(R.id.public_view_article_comment_editText);
         holder.viewcomment_btn = (Button) convertView.findViewById(R.id.public_view_article_comment_btn);
+        holder.like_btn = (Button) convertView.findViewById(R.id.public_view_article_like_btn);
     }
 
     @Override
@@ -170,6 +174,7 @@ public class ContentAdapter extends BaseAdapter {
         }
 
         final ContentItem mData = mDataList.get(position);      // 데이터 아이템 꺼내기
+
         // 프로필 이미지 처리 및 댓글 사진 처리
         if (mData.profile != null) {
             holder.profile.setVisibility(View.VISIBLE);           //  게시글 프로필 사진
@@ -188,7 +193,6 @@ public class ContentAdapter extends BaseAdapter {
         holder.recom_num.setText(mData.recom_num);
         holder.views_num.setText(mData.views_num);
         holder.contents.setText(mData.contents);
-
 
         // 게시글 이미지 보여주기
         if (mData.imagelist.size() != 0) {
@@ -228,6 +232,13 @@ public class ContentAdapter extends BaseAdapter {
                     // 빈칸 입력시 입력 x
                     if (view.getText().toString().equals("") == false) {
                         commentInsertSQL(mDataList.get(pos).contentnum, view, finalHolder.commentlist);
+
+                        int view_num = Integer.parseInt(mData.views_num);
+                        viewnumInsertSQL(++view_num, mData.contentnum);
+                        mData.views_num = view_num+"";
+
+                        ContentAdapter.this.notifyDataSetChanged();
+
                         // 입력했는데 감춰져있으면 보이게 셋팅
                         if (finalHolder.commentlist.getVisibility() == View.GONE) {
                             finalHolder.commentlist.setVisibility(View.VISIBLE);
@@ -255,6 +266,18 @@ public class ContentAdapter extends BaseAdapter {
                 setListViewHeightBasedOnChildren(finalHolder.commentlist);
             }
         });
+
+        holder.like_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int rec_cnt = parseInt(mData.recom_num);
+                likeInsertSQL(++rec_cnt, mData.contentnum);
+                mData.recom_num = rec_cnt+"";
+
+                ContentAdapter.this.notifyDataSetChanged();
+            }
+        });
+
         return convertView;
     }
 
@@ -335,6 +358,7 @@ public class ContentAdapter extends BaseAdapter {
                 if (responseData != null) {
                     if (!responseData.get(0).getString("result").equals("error")) {
                         Toast.makeText(mContext, "등록 되었습니다.", Toast.LENGTH_SHORT).show();
+
                         int pos = (int) view.getTag();
 
                         if (responseData.get(1) != null) {
@@ -352,6 +376,76 @@ public class ContentAdapter extends BaseAdapter {
                 else {
                     Toast.makeText(mContext, "다시 시도해 주십시오.", Toast.LENGTH_SHORT).show();
                 }
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(mContext, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);
+    }
+
+    // 댓글 입력 완료 했을시
+    private void likeInsertSQL(final int rec_cnt, final int contentnum) {
+        final String sql = "update content set rec_cnt = ? where content_num = ?";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(rec_cnt);
+                mDataQueryGroup.addInt(contentnum);
+                JSONObject data = SQLDataService.getDynamicSQLJSONData(sql, mDataQueryGroup, 0, "update");       // sql 셋팅
+                return data;
+            }
+
+            @Override
+            public JSONObject getUpLoad(JSONObject resultSQL) {
+               return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if (responseData != null) {
+                    if (!responseData.get(0).getString("result").equals("error")) {
+                        Toast.makeText(mContext, "추천되었습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else {
+                    Toast.makeText(mContext, "다시 시도해 주십시오.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(mContext, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);
+    }
+
+    // 댓글 입력 완료 했을시
+    private void viewnumInsertSQL(final int view_cnt, final int contentnum) {
+        final String sql = "update content set view_cnt = ? where content_num = ?";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(view_cnt);
+                mDataQueryGroup.addInt(contentnum);
+                JSONObject data = SQLDataService.getDynamicSQLJSONData(sql, mDataQueryGroup, 0, "update");       // sql 셋팅
+                return data;
+            }
+
+            @Override
+            public JSONObject getUpLoad(JSONObject resultSQL) {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
             }
         };
         LoadingSQLDialog.SQLSendStart(mContext, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);

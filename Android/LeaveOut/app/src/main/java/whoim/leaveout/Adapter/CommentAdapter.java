@@ -3,7 +3,6 @@ package whoim.leaveout.Adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -105,12 +104,7 @@ public class CommentAdapter extends BaseAdapter {
         holder.commentview.setText(data.comment);
         holder.timeview.setText(data.time);
 
-        holder.nameview.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return false;
-            }
-        });
+        //holder.nameview.setOnClickListener(new Btn(data.user_num));
 
 /*
         int totalHeight = 0;

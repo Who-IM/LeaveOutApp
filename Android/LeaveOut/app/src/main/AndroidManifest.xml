@@ -139,7 +139,7 @@
             android:label="@string/app_name"
             tools:replace="theme"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-			
+
         <service
             android:name=".MapAPI.LocationBackground"
             android:enabled="true"

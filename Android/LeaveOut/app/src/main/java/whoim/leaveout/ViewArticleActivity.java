@@ -10,11 +10,9 @@ import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
@@ -126,35 +124,35 @@ public class ViewArticleActivity extends AppCompatActivity
         return super.onPrepareOptionsMenu(menu);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // 메뉴의 항목을 선택(클릭)했을 때 호출되는 콜백메서드
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.collect_menu_location:
-                Toast.makeText(getApplicationContext(), "가까운 위치 순서대로", Toast.LENGTH_SHORT).show();
-                menuCount = 0;
-                return true;
-
-            case R.id.collect_menu_time:
-                Toast.makeText(getApplicationContext(), "최신글 순서대로", Toast.LENGTH_SHORT).show();
-                menuCount = 1;
-                return true;
-
-            case R.id.collect_menu_view:
-                Toast.makeText(getApplicationContext(), "조회수 순서대로", Toast.LENGTH_SHORT).show();
-                menuCount = 2;
-                return true;
-
-            case R.id.collect_menu_recommended:
-                Toast.makeText(getApplicationContext(), "추천수 순서대로", Toast.LENGTH_SHORT).show();
-                menuCount = 3;
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-    // 옵션 버튼 끝
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // 메뉴의 항목을 선택(클릭)했을 때 호출되는 콜백메서드
+//        int id = item.getItemId();
+//
+//        switch (id) {
+//            case R.id.collect_menu_location:
+//                Toast.makeText(getApplicationContext(), "가까운 위치 순서대로", Toast.LENGTH_SHORT).show();
+//                menuCount = 0;
+//                return true;
+//
+//            case R.id.collect_menu_time:
+//                Toast.makeText(getApplicationContext(), "최신글 순서대로", Toast.LENGTH_SHORT).show();
+//                menuCount = 1;
+//                return true;
+//
+//            case R.id.collect_menu_view:
+//                Toast.makeText(getApplicationContext(), "조회수 순서대로", Toast.LENGTH_SHORT).show();
+//                menuCount = 2;
+//                return true;
+//
+//            case R.id.collect_menu_recommended:
+//                Toast.makeText(getApplicationContext(), "추천수 순서대로", Toast.LENGTH_SHORT).show();
+//                menuCount = 3;
+//                return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
+//    // 옵션 버튼 끝
 
     // 모아보기 listview 셋팅
     private void setCollect() {
@@ -195,7 +193,7 @@ public class ViewArticleActivity extends AppCompatActivity
                             Bitmap contentuserprofile = setProfile(contentdata);
 
                             // 댓글 부분
-                            String commentsql = "select comm_num, rec_cnt, reg_time, files, name, profile " +        // 댓글
+                            String commentsql = "select comm_num, rec_cnt, reg_time, files, name, profile, comment.user_num " +        // 댓글
                                     "from comment join user on comment.user_num = user.user_num " +
                                     "where content_num = " + contentnum;
 
@@ -210,7 +208,10 @@ public class ViewArticleActivity extends AppCompatActivity
                                 for (int j = 0; j < commentresult.length(); j++) {
                                     JSONObject resultdata = commentdata.getJSONArray("result").getJSONObject(j);
                                     profile = setProfile(resultdata);
-                                    commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), resultdata.getString("text"), resultdata.getString("reg_time"));       // 어댑터 추가
+
+                                    // 마지막에 줄띄우기 잘라내기
+                                    String temptext = resultdata.getString("text").substring(0,resultdata.getString("text").length()-2);
+                                    commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), temptext, resultdata.getString("reg_time"), resultdata.getInt("user_num"));       // 어댑터 추가
                                 }
                             }
                             Object[] objects = {contentuserprofile,contentnum, name, address, reg_time, rec_cnt, view_cnt, text, imagelist, commentAdapter};

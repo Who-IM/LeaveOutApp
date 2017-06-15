@@ -25,6 +25,7 @@ public class CommentAdapter extends BaseAdapter {
         public String name;
         public String comment;
         public String time;
+        public int user_num;
     }
 
     private class CommentViewHolder {
@@ -37,13 +38,14 @@ public class CommentAdapter extends BaseAdapter {
     private ArrayList<CommentListData> mListData = new ArrayList<CommentListData>();
 
     // 생성자로 값을 받아 셋팅
-    public void addItem(int contentnum ,Bitmap profile, String name, String comment, String time) {
+    public void addItem(int contentnum ,Bitmap profile, String name, String comment, String time, int user_num) {
         CommentListData addInfo = new CommentListData();
         addInfo.content_num = contentnum;
         addInfo.profile = profile;
         addInfo.name = name;
         addInfo.comment = comment;
         addInfo.time = time;
+        addInfo.user_num = user_num;
 
         mListData.add(addInfo);
     }
@@ -70,7 +72,7 @@ public class CommentAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        CommentViewHolder holder;
+        final CommentViewHolder holder;
         if (convertView == null) {
             holder = new CommentViewHolder();
             Context context = parent.getContext();
@@ -87,7 +89,7 @@ public class CommentAdapter extends BaseAdapter {
             holder = (CommentViewHolder) convertView.getTag();
         }
 
-        CommentListData data = mListData.get(position);
+        final CommentListData data = mListData.get(position);
 
         // 이미지 처리
         if (data.profile != null) {
@@ -101,6 +103,9 @@ public class CommentAdapter extends BaseAdapter {
         holder.nameview.setText(data.name);
         holder.commentview.setText(data.comment);
         holder.timeview.setText(data.time);
+
+        //holder.nameview.setOnClickListener(new Btn(data.user_num));
+
 /*
         int totalHeight = 0;
 

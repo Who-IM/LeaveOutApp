@@ -145,6 +145,7 @@
         android:textSize="30dp"
         android:thumb="@drawable/preferences_switch_selector"
         android:track="@drawable/preferences_switch_track"
+        android:checked="true"
         app:font="custom2" />
 
     <!-- 로그아웃 -->

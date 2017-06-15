@@ -32,7 +32,6 @@ public final class LoadingSQLDialog extends AsyncTask<Void,Integer,Void> {
     private ExecutorService mExecutorService;        // 스레드 풀 시스템
     private SQLWeb sqlWeb;                      // WebSQL 접속 객체
     private ArrayList<JSONObject> responseData = new ArrayList();            // 응답받은 데이터
-    private int mCompleteCount;
 
     // SQL로 보낸 데이터 처리(리스너 구현 및 로딩 다이얼로그 구현)
     public static LoadingSQLDialog SQLSendStart(Context context, LoadingSQLListener loadingSQLListener, int style ,Object caller) {   // caller 어디서 호출 했는지 판단(필요 없을시 null)
@@ -77,15 +76,16 @@ public final class LoadingSQLDialog extends AsyncTask<Void,Integer,Void> {
         try {
             uploadsize = size;
             JSONObject sqldata = mLoadingSqlListener.getSQLQuery();
+            JSONObject resultQuery = null;
             if(sqldata != null) {
                 sqlWeb = new SQLWeb(sqldata);
-                responseData.add(mExecutorService.submit(sqlWeb).get());       // 통신 시작
+                responseData.add((resultQuery = mExecutorService.submit(sqlWeb).get()));       // 통신 시작
                 if(responseData.get(responseData.size()-1) == null) return null;
                 uploadsize = size - 1;
             }
 
             for (int i = 0; i < uploadsize; i++) {    // 업로드 있는지 확인
-                JSONObject UploadData = mLoadingSqlListener.getUpLoad();   // 업로드 셋팅
+                JSONObject UploadData = mLoadingSqlListener.getUpLoad(resultQuery);   // 업로드 셋팅
                 if (UploadData != null) {
                     sqlWeb = new SQLWeb(UploadData);   // 업로드 셋팅 성공하면
                     responseData.add(mExecutorService.submit(sqlWeb).get());       // 통신 시작
@@ -123,7 +123,8 @@ public final class LoadingSQLDialog extends AsyncTask<Void,Integer,Void> {
                 }
             }
             try {
-                if(responseData != null) mLoadingSqlListener.dataProcess(responseData, mCaller);     // WebSQL에서 받은 데이터 처리
+//                if(responseData != null)
+                mLoadingSqlListener.dataProcess(responseData, mCaller);     // WebSQL에서 받은 데이터 처리
             } catch (JSONException e) {
                 e.printStackTrace();
                 Toast.makeText(mContext, "다시 시도해 주십시오.", Toast.LENGTH_SHORT).show();

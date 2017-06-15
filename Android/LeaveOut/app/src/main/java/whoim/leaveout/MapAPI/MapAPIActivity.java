@@ -7,13 +7,10 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -35,11 +32,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
 
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
@@ -85,7 +79,7 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
             "Cast((6371*acos(cos(radians(?))*cos(radians(loc_x))*cos(radians(loc_y) - radians(?))+sin(radians(?))*sin(radians(loc_x)))*1000) as signed integer) AS distance " +
             "from content " +
             "where visibility = 1 and fence = true " +
-            "Having distance <= 100";        // 울타리글 sql
+            "Having distance <= "+ distance;        // 울타리글 sql
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,9 +190,6 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
                 .strokeWidth(0f)  //선너비 0f : 선없음
                 .fillColor(Color.parseColor("#886e6efc")); //배경색
         mCircle = mGoogleMap.addCircle(circle1KM);
-        Log.e("mCircle",mCircle.getCenter().toString());
-        Log.e("mCircle",mCircle.getRadius()+"");
-
     }
 
     // GPS 권한 확인
@@ -266,19 +257,8 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
     // GPS 위치 서비스 활성화 되어있는지 확인
     protected boolean checkLocationServicesStatus() {
         if (mLocationManager == null) mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        boolean checkLocation = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);       // GPS 서비스 확인
-
-        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
-        if (checkLocation && mCurrentLocation != null) {
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 16));       // 초기 화면 셋팅
-            UiSet();
-        }
-
-        return checkLocation;
+        return mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);       // GPS 서비스 확인;
     }
-
-    protected abstract void UiSet();
 
     // GPS 활성화를 위한 화면 표시
     protected void showDialogForLocationServiceSetting() {
@@ -303,34 +283,15 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
         builder.create().show();
     }
 
-    // GPS를 주소로 변환
-    public String getCurrentAddress(Location location){
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        List<Address> addresses;
-
-        try {
-            addresses = geocoder.getFromLocation(
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    1);
-        } catch (IOException ioException) {
-            //네트워크 문제
-            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
-            return "지오코더 서비스 사용불가";
+    protected boolean GPSCheck() {
+        if(mCurrentLocation == null)  {
+            if(checkLocationServicesStatus())   // GPS 설정됬을 시
+                Toast.makeText(this, "잠시후 다시 시도해 주십시오.", Toast.LENGTH_SHORT).show();
+            else         // GPS 설정 안됬을시
+                showDialogForLocationServiceSetting();      // 설정 하라는 다이얼로그 띄우기
+            return false;
         }
-        if (addresses == null || addresses.size() == 0) {
-            Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
-            return "주소 미발견";
-        } else {
-            Address address = addresses.get(0);
-            return addressToken(address.getAddressLine(0).toString());
-        }
-    }
-
-    // 주소 토큰
-    private String addressToken(String address) {
-        String token1 = "대한민국 ";
-        return address.substring(token1.length());
+        return true;
     }
 
     // 울타리글 마커 확인 및 마커 추가 SQL
@@ -344,7 +305,9 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
         FenceThread fenceThread = new FenceThread(new FenceThread.FenceUIListener() {
             @Override
             public void FenceUI(JSONObject result) throws JSONException {
-                addMarkerList(result.getJSONArray("result"));
+                if(result != null) {
+                    addMarkerList(result.getJSONArray("result"));
+                }
             }
         });
         fenceThread.execute(SQLDataService.getDynamicSQLJSONData(mFenceSQL,mDataQueryGroup,5,"select"));
@@ -362,11 +325,15 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
                 return SQLDataService.getSQLJSONData("select content_num,loc_x,loc_y,fence,visibility from content where visibility = 1 and fence = false",-1,"select");
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if(responseData == null) {
+                    Toast.makeText(getApplicationContext(),"서버에 접속할수 없습니다.",Toast.LENGTH_LONG).show();
+                    return;
+                }
                 JSONArray result = responseData.get(0).getJSONArray("result");
                 if(result.length() == 0) return;        // 마커가 없을경우 리턴
                 addMarkerList(result);      // 마커 표시
@@ -392,31 +359,35 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
     // 클러스링 된 마커 클릭한 경우 리스너
     @Override
     public boolean onClusterClick(Cluster<SNSInfoMaker> cluster) {
-        String query = SQLDataService.getDynamicQuery(cluster.getSize());       // ? string 만들기
+        if(GPSCheck()) {
+            String query = SQLDataService.getDynamicQuery(cluster.getSize());       // ? string 만들기
 
-        mDataQueryGroup.clear();
-        Iterator iterator = cluster.getItems().iterator();      // 클러스터링 아이템(마커) 배열 꺼내기
-        while (iterator.hasNext()) {
-            SNSInfoMaker snsInfoMaker = (SNSInfoMaker) iterator.next();     // 한개씩 가져오기
-            mDataQueryGroup.addInt(snsInfoMaker.getContentNum());
+            mDataQueryGroup.clear();
+            Iterator iterator = cluster.getItems().iterator();      // 클러스터링 아이템(마커) 배열 꺼내기
+            while (iterator.hasNext()) {
+                SNSInfoMaker snsInfoMaker = (SNSInfoMaker) iterator.next();     // 한개씩 가져오기
+                mDataQueryGroup.addInt(snsInfoMaker.getContentNum());
+            }
+            selectContentSQL(query);        //  마커 클릭시 이동
         }
-        selectContentSQL(query);        //  마커 클릭시 이동
         return true;
     }
 
     // 일반 마커 클릭한 경우 리스너
     @Override
     public boolean onClusterItemClick(SNSInfoMaker snsInfoMaker) {
-        String query = SQLDataService.getDynamicQuery(1);       // ? string 만들기
-        mDataQueryGroup.clear();
-        mDataQueryGroup.addInt(snsInfoMaker.getContentNum());
-        selectContentSQL(query);        //  마커 클릭시 이동
+        if(GPSCheck()) {
+            String query = SQLDataService.getDynamicQuery(1);       // ? string 만들기
+            mDataQueryGroup.clear();
+            mDataQueryGroup.addInt(snsInfoMaker.getContentNum());
+            selectContentSQL(query);        //  마커 클릭시 이동
+        }
         return true;
     }
 
     private void selectContentSQL(String query) {
 
-        final String sql = "select name, view_cnt, rec_cnt, reg_time,address,files " +
+        final String sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files,profile " +
                 "from content inner join user " +
                 "on content.user_num = user.user_num " +
                 "where content_num in (" + query + ")";
@@ -429,19 +400,22 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
             @Override
             public JSONObject getSQLQuery() {
                 JSONObject data = SQLDataService.getDynamicSQLJSONData(sql, mDataQueryGroup, -1, "select");
-                return SQLDataService.putBundleValue(data,"download","context","files");
+                SQLDataService.putBundleValue(data,"download","context","files");
+                return SQLDataService.putBundleValue(data,"download","context2","profile");
             }
             @Override
-            public JSONObject getUpLoad() {
+            public JSONObject getUpLoad(JSONObject resultSQL) {
                 return null;
             }
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
-                Intent intent = new Intent(getApplicationContext(), ViewArticleActivity.class);
-                intent.putExtra("responseData", responseData.get(0).toString());
-                Log.e("responseData",responseData.get(0).toString());
-                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
+                if(responseData.get(0) != null) {
+                    Intent intent = new Intent(getApplicationContext(), ViewArticleActivity.class);
+                    intent.putExtra("responseData", responseData.get(0).toString());
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                }
+                else Toast.makeText(getApplicationContext(),"잠시후 다시 시도해 주십시오.",Toast.LENGTH_SHORT).show();
             }
         };
         LoadingSQLDialog.SQLSendStart(this, loadingSQLListener,ProgressDialog.STYLE_SPINNER, null);

@@ -1,5 +1,6 @@
 package whoim.leaveout;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -14,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,11 +23,20 @@ import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class FriendListActivity extends AppCompatActivity {
+import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.User.UserInfo;
+
+public class FriendListActivity extends AppCompatActivity  {
 
     ExpandableListAdapter listAdapter;
     ExpandableListView expListView; // 확장 리스트 뷰
@@ -39,37 +50,21 @@ public class FriendListActivity extends AppCompatActivity {
     private ListView friend_searchList;
     ArrayAdapter<String> friend_adapter_search;
     EditText friend_inputSearch;
+    ArrayList<String> products;
+
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
+    List<String> friend_list[];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.friend_list_layout);
 
-        // 확장 listview 생성
-        expListView = (ExpandableListView) findViewById(R.id.friend_list);
-        prepareListData(); // 확장 listview에 데이터 셋팅
-
-        // 어뎁터 생성(header와 child)
-        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
-
-        // 어뎁터 등록
-        expListView.setAdapter(listAdapter);
-
-        // 자식항목(친구 이름) 클릭시 이벤트 처리 (임시)
-        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v,
-                                        int groupPosition, int childPosition, long id) {
-                Toast.makeText(getApplicationContext(),listDataHeader.get(groupPosition)+ " : "
-                                + listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)
-                        , Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
         // 인스턴스 셋팅
         setInstance();
+
+        products = new ArrayList<>();
+        friendlistSelectAndInsertSQL();
 
         // 검색 셋팅
         setSerach();
@@ -77,15 +72,33 @@ public class FriendListActivity extends AppCompatActivity {
     }
 
     private void setInstance() {
-
         // 검색 관련 인스턴스
         friend_searchList = (ListView) findViewById(R.id.friend_search_list);
         friend_inputSearch = (EditText) findViewById(R.id.friend_search);
         friend_search_layout = (LinearLayout) findViewById(R.id.friend_search_layout);
-        String products[] = {"홍길동", "홍길", "길동", "허성문", "성문", "김창석", "창석", "미정" };
+    }
 
-        // 검색 리스트 뷰
-        friend_adapter_search = new ArrayAdapter<String>(this, R.layout.main_search_item, R.id.product_name, products);
+    // 초성
+    public static String toKoChosung(String text)
+    {
+        char[] KO_INIT_S = { 'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ',
+                             'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ' };
+
+        if (text == null) { return null; }
+
+        // 한글자가 한글자와 그대로 대응됨.
+        // 때문에 기존 텍스트를 토대로 작성된다.
+        char[] rv = text.toCharArray();
+        char ch;
+
+        for (int i = 0 ; i < rv.length ; i++) {
+            ch = rv[i];
+            if (ch >= '가' && ch <= '힣') {
+                rv[i] = KO_INIT_S[(ch - '가') / 588]; // 21 * 28
+            }
+        }
+
+        return new String(rv);
     }
 
     // 검색관련 셋팅
@@ -114,29 +127,26 @@ public class FriendListActivity extends AppCompatActivity {
 
     // 확장 리스트뷰 데이터 설정
     private void prepareListData() {
-        dataControl = new ArrayList<>();
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
 
         // 여기부터 데이터 삽입인데 데이터베이스 추가시 수정
         // 작은 목록들 추가
-        List<String> friend_list = new ArrayList<String>();
-        friend_list.add("미정");
+        List<String> templist = new ArrayList();
+        templist.add("없음");
 
         // 큰 목록
         for(int i = 0; i < friends_list_title.length; i++) {
             listDataHeader.add(friends_list_title[i]);
-            setListData(i,friend_list);
+            if(friend_list[i].size() != 0) {
+                listDataChild.put(listDataHeader.get(i), friend_list[i]);
+            }
+            else {
+                listDataChild.put(listDataHeader.get(i), templist);
+            }
         }
         //-------------------------------------------------------
     }
-
-    // child data 셋팅
-    private void setListData(int index, List data) {
-        dataControl.add(index, data);
-        listDataChild.put(listDataHeader.get(index), dataControl.get(index));
-    }
-
 
     // 확장 리스트뷰 어뎁터(친구목록에 사용)
     public class ExpandableListAdapter extends BaseExpandableListAdapter {
@@ -177,6 +187,15 @@ public class FriendListActivity extends AppCompatActivity {
 
             TextView txtListChild = (TextView) convertView.findViewById(R.id.friend_list_item);
             txtListChild.setText(childText);
+
+            ImageView friend_list_item_image = (ImageView) convertView.findViewById(R.id.friend_list_item_image);
+            //db에서 해당유저 이미지 사진넣기
+            if(childText.equals("없음")) {
+                friend_list_item_image.setVisibility(View.GONE);
+            }
+            else {
+                friend_list_item_image.setVisibility(View.VISIBLE);
+            }
 
             return convertView;
         }
@@ -237,6 +256,85 @@ public class FriendListActivity extends AppCompatActivity {
     public void Back(View v) {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
+    }
+
+    private void friendlistSelectAndInsertSQL() {
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+            @Override
+            public JSONObject getSQLQuery() {
+                String sql = "select friend.friend_num, user.name " +
+                             "from friend inner join user " +
+                             "on friend.friend_num = user.user_num " +
+                             "where friend.user_num = ?;";
+
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
+            }
+            @Override
+            public JSONObject getUpLoad(JSONObject resultSQL) {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                JSONArray jsonArray = responseData.get(0).getJSONArray("result");
+                friend_list = new List[14];
+                for (int i = 0; i < friend_list.length; i++) {
+                    friend_list[i] = new ArrayList<>();
+                }
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject friend_Object = jsonArray.getJSONObject(i);
+                    String name = friend_Object.getString("name");
+
+                    // 검색 리스트 뷰
+                    products.add(name);
+
+                    String kochosung = toKoChosung(name.charAt(0) + ""); // 초성
+                    switch (kochosung) {
+                        case "ㄱ":  friend_list[0].add(name);  break;
+                        case "ㄴ":  friend_list[1].add(name);  break;
+                        case "ㄷ":  friend_list[2].add(name);  break;
+                        case "ㄹ":  friend_list[3].add(name);  break;
+                        case "ㅁ":  friend_list[4].add(name);  break;
+                        case "ㅂ":  friend_list[5].add(name);  break;
+                        case "ㅅ":  friend_list[6].add(name);  break;
+                        case "ㅇ":  friend_list[7].add(name);  break;
+                        case "ㅈ":  friend_list[8].add(name);  break;
+                        case "ㅊ":  friend_list[9].add(name);  break;
+                        case "ㅋ":  friend_list[10].add(name);  break;
+                        case "ㅌ":  friend_list[11].add(name);  break;
+                        case "ㅍ":  friend_list[12].add(name);  break;
+                        case "ㅎ":  friend_list[13].add(name);  break;
+                    }
+                }
+                // 검색리스트에 넣기
+                friend_adapter_search = new ArrayAdapter<String>(FriendListActivity.this, R.layout.main_search_item, R.id.product_name, products);
+
+                prepareListData(); // 확장 listview에 데이터 셋팅
+                expListView = (ExpandableListView) findViewById(R.id.friend_list);  // 확장 listview 생성
+                listAdapter = new ExpandableListAdapter(FriendListActivity.this, listDataHeader, listDataChild);  // 어뎁터 생성(header와 child)
+
+                expListView.setAdapter(listAdapter);  // 어뎁터 등록
+                expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() { // 자식항목(친구 이름) 클릭시 이벤트 처리 (임시)
+
+                    @Override
+                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                        Toast.makeText(getApplicationContext(), listDataHeader.get(groupPosition) + " : "
+                                        + listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)
+                                , Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                });
+            }
+        };
+
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
     }
 
     // 폰트 바꾸기

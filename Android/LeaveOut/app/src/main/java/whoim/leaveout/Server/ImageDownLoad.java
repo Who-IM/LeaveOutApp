@@ -2,7 +2,6 @@ package whoim.leaveout.Server;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,13 +12,13 @@ import java.net.URL;
  * Created by SeongMun on 2017-06-11.
  */
 
-public class ImageDownLoad extends AsyncTask<String,Void,Bitmap> {
-    @Override
-    protected Bitmap doInBackground(String... params) {
+public class ImageDownLoad {
+
+    public static Bitmap imageDownLoad(String imageurl) {
         Bitmap bitmap = null;
         InputStream is = null;
         try {
-            URL url = new URL(params[0]); // URL 주소를 이용해서 URL 객체 생성
+            URL url = new URL(imageurl); // URL 주소를 이용해서 URL 객체 생성
 
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setConnectTimeout(3000);  // 접속 제한시간

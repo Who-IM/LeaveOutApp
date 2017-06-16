@@ -14,8 +14,10 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+
 import android.view.Menu;
 import android.view.MotionEvent;
+
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -73,26 +75,20 @@ public class ProfileActivity extends AppCompatActivity {
     //like 버튼
     UserInfo userInfo = UserInfo.getInstance();     // 유저 정보
     Bitmap bitmap = userInfo.getProfile();
-    //친구추가버튼
-    ImageView profile_friend_plus;
+
+    ArrayList<Integer> cate = null;
+    boolean tab_flag = false;
+
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance(); // sql에 필요한 데이터 그룹
+    JSONObject request;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_layout);
 
-       // if(userInfo.getUserNum() == 1) {
-            profile_friend_plus = (ImageView) findViewById(R.id.profile_friend_plus);
-            profile_friend_plus.setVisibility(View.VISIBLE);
-            profile_friend_plus.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    //userInfo.getUserNum();
-                    return false;
-                }
-            });
-      //  }
+        cate = new ArrayList<>();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
@@ -128,6 +124,13 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
+                if(tab.getPosition() != 0) {
+                    int s = tab.getPosition() - 1;
+                    meContentData(cate.get(s));
+                    tab_flag = true;
+                } else if(tab_flag) {
+                    meContentData(0);
+                }
             }
 
             @Override
@@ -140,10 +143,10 @@ public class ProfileActivity extends AppCompatActivity {
 
             }
         });
-        meContentData();
+        meContentData(0);
     }
 
-    //옵션 버튼
+    /*//옵션 버튼
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // 메뉴버튼이 처음 눌러졌을 때 실행되는 콜백메서드
@@ -190,34 +193,34 @@ public class ProfileActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // 메뉴의 항목을 선택(클릭)했을 때 호출되는 콜백메서드
-//        int id = item.getItemId();
-//
-//        switch (id) {
-//            case R.id.profile_menu_location:
-//                Toast.makeText(getApplicationContext(), "가까운 위치 순서대로", Toast.LENGTH_SHORT).show();
-//                menuCount = 0;
-//                return true;
-//
-//            case R.id.profile_menu_time:
-//                Toast.makeText(getApplicationContext(), "최신글 순서대로", Toast.LENGTH_SHORT).show();
-//                menuCount = 1;
-//                return true;
-//
-//            case R.id.profile_menu_view:
-//                Toast.makeText(getApplicationContext(), "조회수 순서대로", Toast.LENGTH_SHORT).show();
-//                menuCount = 2;
-//                return true;
-//
-//            case R.id.profile_menu_recommended:
-//                Toast.makeText(getApplicationContext(), "추천수 순서대로", Toast.LENGTH_SHORT).show();
-//                menuCount = 3;
-//                return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // 메뉴의 항목을 선택(클릭)했을 때 호출되는 콜백메서드
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.profile_menu_location:
+                Toast.makeText(getApplicationContext(), "가까운 위치 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 0;
+                return true;
+
+            case R.id.profile_menu_time:
+                Toast.makeText(getApplicationContext(), "최신글 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 1;
+                return true;
+
+            case R.id.profile_menu_view:
+                Toast.makeText(getApplicationContext(), "조회수 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 2;
+                return true;
+
+            case R.id.profile_menu_recommended:
+                Toast.makeText(getApplicationContext(), "추천수 순서대로", Toast.LENGTH_SHORT).show();
+                menuCount = 3;
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }*/
     // 옵션 버튼 끝
 
     protected class profile_tab
@@ -345,18 +348,38 @@ public class ProfileActivity extends AppCompatActivity {
         return data;
     }
 
-    private void meContentData() {
+    private void meContentData(final int tab_position) {
 
-        final String sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files " +
-                "from content inner join user " +
-                "on content.user_num = user.user_num " +
-                "where user.user_num = " + userInfo.getUserNum();
+        final String sql;
+
+        if(tab_position == 0) {
+            sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files " +
+                    "from content inner join user " +
+                    "on content.user_num = user.user_num " +
+                    "where user.user_num = " + userInfo.getUserNum();
+        } else {
+            sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files " +
+                  "from content inner join user " +
+                  "on content.user_num = user.user_num " +
+                  "where content.content_num in (select content_num " +
+                                                 "from cate_data " +
+                                                 "where cate_seq = ?);";
+        }
+
+        if(tab_position == 0) {
+            request = SQLDataService.getSQLJSONData(sql, -1, "select");
+        } else {
+            mDataQueryGroup.clear();
+            mDataQueryGroup.addInt(tab_position);
+            request = SQLDataService.getDynamicSQLJSONData(sql, mDataQueryGroup, -1, "select");
+            mContentAdapter.removeall();
+        }
 
        new LoadingDialogBin(this) {
 
            @Override
            protected Void doInBackground(Void... params) {
-               JSONObject request = SQLDataService.getSQLJSONData(sql, -1, "select");
+
                SQLDataService.putBundleValue(request, "download", "context", "files");
                result.add(new WebControll().WebLoad(request));
                try {
@@ -367,7 +390,7 @@ public class ProfileActivity extends AppCompatActivity {
                            JSONObject contentdata = resultData.getJSONObject(i);   // 게시글 데이터
 
                            ArrayList<String> imagelist = new ArrayList();          // 이미지 넣을 데이터
-                           JSONArray imageArray = resultData.getJSONObject(i).getJSONArray("image");       // 게시글에서 이미지 가져오기
+                           JSONArray imageArray = resultData.getJSONObject(i).getJSONArray("image");       // 게ik시글에서 이미지 가져오기
                            for (int j = 0; j < imageArray.length(); j++) {
                                imagelist.add(imageArray.getString(j));             // 이미지 배열에 넣기
                            }
@@ -376,6 +399,7 @@ public class ProfileActivity extends AppCompatActivity {
                            String name = contentdata.getString("name");
                            String address = contentdata.getString("address");
                            String reg_time = contentdata.getString("reg_time");
+                           reg_time = reg_time.substring(0,reg_time.length()-2);
                            String rec_cnt = contentdata.getString("rec_cnt");
                            String view_cnt = contentdata.getString("view_cnt");
                            String text = contentdata.getString("text");
@@ -398,9 +422,16 @@ public class ProfileActivity extends AppCompatActivity {
                                    profile = setProfile(resultdata);
 
                                    // 마지막에 줄띄우기 잘라내기
+
+//                                   String temptext = resultdata.getString("text").substring(0,resultdata.getString("text").length()-2);
+//                                   String temptext = resultdata.getString("text");
+//                                   commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), temptext, resultdata.getString("reg_time"), resultdata.getInt("user_num"));       // 어댑터 추가
+
 //                                   String temptext = resultdata.getString("text").substring(0,resultdata.getString("text").length()-2);
                                    String temptext = resultdata.getString("text");
-                                   commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), temptext, resultdata.getString("reg_time"), resultdata.getInt("user_num"));       // 어댑터 추가
+                                   String time = resultdata.getString("reg_time").substring(0,resultdata.getString("reg_time").length()-2);
+                                   commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), temptext, time, resultdata.getInt("user_num"));       // 어댑터 추가
+
                                }
                            }
                            Object[] objects = {contentnum, name, address, reg_time, rec_cnt, view_cnt, text, imagelist, commentAdapter};
@@ -414,8 +445,9 @@ public class ProfileActivity extends AppCompatActivity {
            }
            @Override
            protected void onProgressUpdate(Object... values) {
-               mContentAdapter.addItem(bitmap,(int)values[0],(String)values[1], (String)values[2], (String)values[3],(String)values[4],
-                                       (String)values[5],(String)values[6], (ArrayList<String>) values[7], bitmap,(CommentAdapter)values[8]);
+
+                   mContentAdapter.addItem(bitmap, (int) values[0], (String) values[1], (String) values[2], (String) values[3], (String) values[4],
+                           (String) values[5], (String) values[6], (ArrayList<String>) values[7], bitmap, (CommentAdapter) values[8]);
            }
            @Override
            protected void onPostExecute(Void aVoid) {
@@ -457,7 +489,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void selectCategorySQLData() {
 
-        final String sql = "select user_num, cate_text " +
+        final String sql = "select * " +
                 "from category " +
                 "where (user_num = ?)";
 
@@ -485,6 +517,7 @@ public class ProfileActivity extends AppCompatActivity {
                 for (int i = 0; i < jspn.length(); i++) {
                     JSONObject j = jspn.getJSONObject(i);
                     tab = new profile_tab(j.getString("cate_text"));
+                    cate.add(j.getInt("cate_seq"));
                 }
             }
         };

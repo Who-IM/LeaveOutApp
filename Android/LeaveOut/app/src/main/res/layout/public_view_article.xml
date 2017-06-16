@@ -24,7 +24,7 @@
         android:layout_marginStart="20dp"
         android:layout_toEndOf="@+id/public_view_article_Image"
         android:text="장소"
-        android:textSize="23dp" />
+        android:textSize="19dp" />
 
     <TextView
         android:id="@+id/public_view_article_time"
@@ -227,6 +227,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginBottom="10dp"
             android:layout_marginStart="10dp"
+            android:src="@drawable/basepicture"
             android:layout_marginTop="10dp" />
 
         <EditText

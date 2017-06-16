@@ -10,9 +10,9 @@ Create table comment (
   reg_time datetime,
   files varchar(60),
   constraint fk_comment_content_num 
-	foreign key(content_num) references Content(content_num),
+	foreign key(content_num) references Content(content_num) on delete cascade,
   constraint fk_comment_user_num
-        foreign key(user_num) references User(user_num)
+        foreign key(user_num) references User(user_num) on delete cascade
 );
 
 /* 게시글 */
@@ -30,6 +30,9 @@ address varchar(30),
 files varchar(60),
 constraint fk_content_user_num
 	foreign key(user_num) references User(user_num)
+on delete cascade
+on update cascade
+
 );
 
 /* 유저 */
@@ -42,6 +45,7 @@ name varchar(30),
 email varchar(20),
 phone_num varchar(15),
 profile varchar(200)
+
 );
 
 /* 체크 */
@@ -53,6 +57,8 @@ chk_y double,
 expare_date date,
 constraint fk_checks_user_num 
 	foreign key(user_num) references User(user_num)
+	on delete cascade
+on update cascade
 );
 
 /* 친구 */
@@ -61,9 +67,11 @@ friend_num int not null,
 user_num int not null,
 primary key(friend_num,user_num),
 constraint fk_friend_user_num 
-	foreign key(user_num) references User(user_num),
+	foreign key(user_num) references User(user_num) on delete cascade,
 	constraint fk_friend_friend_num 
 	foreign key(friend_num) references User(user_num)
+	on delete cascade
+on update cascade
 );
 
 /* 태그 */
@@ -72,9 +80,11 @@ friend_num int not null,
 user_num int not null,
 content_num int not null,
 constraint fk_Tagged_friend
-	foreign key(friend_num,user_num) references Friend(friend_num,user_num),
+	foreign key(friend_num,user_num) references Friend(friend_num,user_num) on delete cascade,
 constraint fk_Tagged_content_num 
 	foreign key(content_num) references Content(content_num)
+	on delete cascade
+on update cascade
 );
 
 /* 카테고리 */
@@ -84,6 +94,8 @@ user_num int not null,
 cate_text varchar(10),
 constraint fk_category_user_num 
 	foreign key(user_num) references User(user_num)
+	on delete cascade
+on update cascade
 );
 
 

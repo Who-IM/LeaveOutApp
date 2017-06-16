@@ -124,6 +124,8 @@ public class WritingActivity extends AppCompatActivity {
     private String tagText = null;
 
     ArrayList<String> product = null;
+    ArrayList<Double> x = null;
+    ArrayList<Double> y = null;
 
     int count = 0;
 
@@ -184,6 +186,8 @@ public class WritingActivity extends AppCompatActivity {
         writing_search_layout = (LinearLayout) findViewById(R.id.write_search_layout);
 
         product = new ArrayList<>();
+        x = new ArrayList<>();
+        y = new ArrayList<>();
         checkInsertSQLData();
 
         // 검색 리스트 뷰
@@ -193,6 +197,8 @@ public class WritingActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mAddressText.setText(writing_adapter_search.getItem(position));
+                mCurrentLocation.setLatitude(x.get(position));  // 위도
+                mCurrentLocation.setLongitude(y.get(position));
             }
         });
 
@@ -721,14 +727,15 @@ public class WritingActivity extends AppCompatActivity {
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
                 JSONArray jspn = responseData.get(0).getJSONArray("result");
+                Location location = new Location("checks");
                 for(int i =0; i < jspn.length(); i++) {
                     JSONObject j = jspn.getJSONObject(i);
-                    double x = j.getDouble("chk_x");
-                    double y = j.getDouble("chk_y");
                     chk_n = j.getInt("check_num");
-//                    mCurrentLocation.setLatitude(x);
-//                    mCurrentLocation.setLongitude(y);
-                    product.add(FomatService.getCurrentAddress(getApplicationContext(),mCurrentLocation));
+                    x.add(j.getDouble("chk_x"));
+                    y.add(j.getDouble("chk_y"));
+                    location.setLatitude(j.getDouble("chk_x"));
+                    location.setLongitude(j.getDouble("chk_y"));
+                    product.add(FomatService.getCurrentAddress(getApplicationContext(),location));
                 }
                 list.setAdapter(adapter);
             }

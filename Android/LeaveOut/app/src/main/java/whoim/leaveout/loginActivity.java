@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -412,6 +413,9 @@ public class loginActivity extends AppCompatActivity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+        else {
+            mUserInfo.setProfile(((BitmapDrawable) getResources().getDrawable(R.drawable.basepicture, null)).getBitmap());
         }
     }
 

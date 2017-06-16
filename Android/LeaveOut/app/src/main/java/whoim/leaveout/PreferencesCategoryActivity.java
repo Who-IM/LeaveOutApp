@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -132,6 +133,15 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
 
             }
         });
+
+        check_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getApplicationContext(), CategorySelectActivity.class);
+                intent.putExtra("cate_seq", adapter.getseq(position));
+                startActivity(intent);
+            }
+        });
     }
 
     public void setItem(String text, int cate_number) {
@@ -161,6 +171,8 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
         public Object getItem(int position) {
             return mListData.get(position);
         }
+
+        public int getseq(int position) { return mListData.get(position).cate_number; }
 
         @Override
         public long getItemId(int position) {
@@ -238,7 +250,6 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
         public int cate_number;
     }
     private void insertCategorySQLData(final String text) {
-
         final String sql = "insert into category(user_num, cate_text) values(?, ?);";
 
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {

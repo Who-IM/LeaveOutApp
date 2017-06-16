@@ -14,6 +14,10 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+
+import android.view.Menu;
+import android.view.MotionEvent;
+
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -418,9 +422,16 @@ public class ProfileActivity extends AppCompatActivity {
                                    profile = setProfile(resultdata);
 
                                    // 마지막에 줄띄우기 잘라내기
-                                   String temptext = resultdata.getString("text").substring(0,resultdata.getString("text").length()-2);
+
+//                                   String temptext = resultdata.getString("text").substring(0,resultdata.getString("text").length()-2);
+//                                   String temptext = resultdata.getString("text");
+//                                   commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), temptext, resultdata.getString("reg_time"), resultdata.getInt("user_num"));       // 어댑터 추가
+
+//                                   String temptext = resultdata.getString("text").substring(0,resultdata.getString("text").length()-2);
+                                   String temptext = resultdata.getString("text");
                                    String time = resultdata.getString("reg_time").substring(0,resultdata.getString("reg_time").length()-2);
                                    commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), temptext, time, resultdata.getInt("user_num"));       // 어댑터 추가
+
                                }
                            }
                            Object[] objects = {contentnum, name, address, reg_time, rec_cnt, view_cnt, text, imagelist, commentAdapter};

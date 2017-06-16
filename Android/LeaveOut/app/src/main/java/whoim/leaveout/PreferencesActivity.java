@@ -114,6 +114,8 @@ public class PreferencesActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     PreferencesActivity.this.finish();
                     IDDeleteSQLData(); //계정삭제
+                    mLoginShared.edit().clear().commit();       // 상태 정보 초기화
+                    userInfo.clear();
                     Toast.makeText(PreferencesActivity.this, "계정 탈퇴 실행.", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getApplicationContext(), loginActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -147,7 +149,7 @@ public class PreferencesActivity extends AppCompatActivity {
     //계정삭제 foreign키 걸림
     private void IDDeleteSQLData() {
 
-        final String sql = "delete from user where user_num = ?;";
+        final String sql = "delete from user where user_num = ?";
 
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
 

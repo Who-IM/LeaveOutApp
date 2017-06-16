@@ -72,12 +72,18 @@ public class ProfileActivity extends AppCompatActivity {
     UserInfo userInfo = UserInfo.getInstance();     // 유저 정보
     Bitmap bitmap = userInfo.getProfile();
 
+    ArrayList<Integer> cate = null;
+    boolean tab_flag = false;
+
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance(); // sql에 필요한 데이터 그룹
+    JSONObject request;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_layout);
+
+        cate = new ArrayList<>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
@@ -114,6 +120,13 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
+                if(tab.getPosition() != 0) {
+                    int s = tab.getPosition() - 1;
+                    meContentData(cate.get(s));
+                    tab_flag = true;
+                } else if(tab_flag) {
+                    meContentData(0);
+                }
             }
 
             @Override
@@ -126,7 +139,7 @@ public class ProfileActivity extends AppCompatActivity {
 
             }
         });
-        meContentData();
+        meContentData(0);
     }
 
     /*//옵션 버튼
@@ -331,18 +344,38 @@ public class ProfileActivity extends AppCompatActivity {
         return data;
     }
 
-    private void meContentData() {
+    private void meContentData(final int tab_position) {
 
-        final String sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files " +
-                "from content inner join user " +
-                "on content.user_num = user.user_num " +
-                "where user.user_num = " + userInfo.getUserNum();
+        final String sql;
+
+        if(tab_position == 0) {
+            sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files " +
+                    "from content inner join user " +
+                    "on content.user_num = user.user_num " +
+                    "where user.user_num = " + userInfo.getUserNum();
+        } else {
+            sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files " +
+                  "from content inner join user " +
+                  "on content.user_num = user.user_num " +
+                  "where content.content_num in (select content_num " +
+                                                 "from cate_data " +
+                                                 "where cate_seq = ?);";
+        }
+
+        if(tab_position == 0) {
+            request = SQLDataService.getSQLJSONData(sql, -1, "select");
+        } else {
+            mDataQueryGroup.clear();
+            mDataQueryGroup.addInt(tab_position);
+            request = SQLDataService.getDynamicSQLJSONData(sql, mDataQueryGroup, -1, "select");
+            mContentAdapter.removeall();
+        }
 
        new LoadingDialogBin(this) {
 
            @Override
            protected Void doInBackground(Void... params) {
-               JSONObject request = SQLDataService.getSQLJSONData(sql, -1, "select");
+
                SQLDataService.putBundleValue(request, "download", "context", "files");
                result.add(new WebControll().WebLoad(request));
                try {
@@ -353,7 +386,7 @@ public class ProfileActivity extends AppCompatActivity {
                            JSONObject contentdata = resultData.getJSONObject(i);   // 게시글 데이터
 
                            ArrayList<String> imagelist = new ArrayList();          // 이미지 넣을 데이터
-                           JSONArray imageArray = resultData.getJSONObject(i).getJSONArray("image");       // 게시글에서 이미지 가져오기
+                           JSONArray imageArray = resultData.getJSONObject(i).getJSONArray("image");       // 게ik시글에서 이미지 가져오기
                            for (int j = 0; j < imageArray.length(); j++) {
                                imagelist.add(imageArray.getString(j));             // 이미지 배열에 넣기
                            }
@@ -401,8 +434,9 @@ public class ProfileActivity extends AppCompatActivity {
            }
            @Override
            protected void onProgressUpdate(Object... values) {
-               mContentAdapter.addItem(bitmap,(int)values[0],(String)values[1], (String)values[2], (String)values[3],(String)values[4],
-                                       (String)values[5],(String)values[6], (ArrayList<String>) values[7], bitmap,(CommentAdapter)values[8]);
+
+                   mContentAdapter.addItem(bitmap, (int) values[0], (String) values[1], (String) values[2], (String) values[3], (String) values[4],
+                           (String) values[5], (String) values[6], (ArrayList<String>) values[7], bitmap, (CommentAdapter) values[8]);
            }
            @Override
            protected void onPostExecute(Void aVoid) {
@@ -444,7 +478,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void selectCategorySQLData() {
 
-        final String sql = "select user_num, cate_text " +
+        final String sql = "select * " +
                 "from category " +
                 "where (user_num = ?)";
 
@@ -472,6 +506,7 @@ public class ProfileActivity extends AppCompatActivity {
                 for (int i = 0; i < jspn.length(); i++) {
                     JSONObject j = jspn.getJSONObject(i);
                     tab = new profile_tab(j.getString("cate_text"));
+                    cate.add(j.getInt("cate_seq"));
                 }
             }
         };

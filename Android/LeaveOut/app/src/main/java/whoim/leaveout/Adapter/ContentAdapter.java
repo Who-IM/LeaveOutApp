@@ -133,6 +133,14 @@ public class ContentAdapter extends BaseAdapter {
         return mDataList.get(position);
     }
 
+    public void removeall()
+    {
+/*        for(int i = 0; i < mDataList.size(); i++) {
+             mDataList.remove(i);
+        }*/
+        mDataList.clear();
+    }
+
     @Override
     public long getItemId(int position) {
         return position;

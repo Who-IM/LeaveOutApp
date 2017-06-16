@@ -134,6 +134,13 @@
         </activity>
 
         <activity
+            android:name=".CategorySelectActivity"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"

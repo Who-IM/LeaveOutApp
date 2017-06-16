@@ -251,7 +251,8 @@ public class CollectActivity extends AppCompatActivity {
                                     profile = setProfile(resultdata);
 
                                     // 마지막에 줄띄우기 잘라내기
-                                    String temptext = resultdata.getString("text").substring(0,resultdata.getString("text").length()-2);
+//                                    String temptext = resultdata.getString("text").substring(0,resultdata.getString("text").length()-2);
+                                    String temptext = resultdata.getString("text");
                                     commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), temptext, resultdata.getString("reg_time"), resultdata.getInt("user_num") );       // 어댑터 추가
                                 }
                             }

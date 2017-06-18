@@ -14,17 +14,20 @@ public class UserInfo {
     private String name;            // 이름
     private Bitmap profile;         // 프로필 사진
 
-    private UserInfo() {}
+    private UserInfo() {
+    }
 
     // 싱글톤
     public static UserInfo getInstance() {
-        if(mInstance == null)
+        if (mInstance == null)
             mInstance = new UserInfo();
 
         return mInstance;
     }
 
-    public int getUserNum() { return userNum; }
+    public int getUserNum() {
+        return userNum;
+    }
 
     public void setUserNum(int userNum) {
         this.userNum = userNum;
@@ -67,6 +70,10 @@ public class UserInfo {
     }
 
     public void clear() {
-        mInstance = null;
+        userNum = 0;
+        facebookId = null;
+        email = null;
+        name = null;
+        profile = null;
     }
 }

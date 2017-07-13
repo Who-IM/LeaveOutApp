@@ -147,30 +147,15 @@
     </RelativeLayout>
 
     <!--사진 띄울울 공간-->
-    <ScrollView
-        android:id="@+id/hori_scroll_view"
+    <ListView
+        android:id="@+id/Image_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="false"
-        android:foregroundGravity="left"
-        android:paddingBottom="1dp"
+        android:dividerHeight="0px"
+        android:foregroundGravity="center"
         android:layout_below="@+id/write_textarea"
-        android:layout_above="@+id/write_line3"
-        android:paddingTop="1dp" >
-
-        <LinearLayout
-            android:id="@+id/selected_photos_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="left"
-            android:animateLayoutChanges="true"
-            android:gravity="left"
-            android:orientation="vertical"
-            android:visibility="visible" >
-
-            <!-- images will be added dynamicall to this layout -->
-        </LinearLayout>
-    </ScrollView>
+        android:layout_above="@+id/write_line3">
+    </ListView>
 
 
     <!-- 검은색 선(밑에) -->

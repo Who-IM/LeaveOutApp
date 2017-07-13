@@ -7,12 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.icu.text.SimpleDateFormat;
 import android.location.Location;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +32,6 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -84,9 +81,7 @@ public class WritingActivity extends AppCompatActivity {
     private Location mCurrentLocation;      // GPS 주소 객체
 
     File storageDir = null;
-    ExifInterface exif = null;
     File photoFile = null;
-    int orientation;
 
     // spinner로 나중에 시간나면 바꿀예정
     // checkList
@@ -100,7 +95,6 @@ public class WritingActivity extends AppCompatActivity {
     private static final int PICK_FROM_ALBUM = 2;  //앨범에서 사진 가져오기
     //    ImageView iv = null;
     Uri photoUri;
-    Bitmap thumbImage = null;
     private String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}; //권한 설정 변수
 
@@ -135,17 +129,12 @@ public class WritingActivity extends AppCompatActivity {
     ArrayList<Double> x = null;
     ArrayList<Double> y = null;
 
-    int count = 0;
-
     //임시
-    private static final String TAG = MainActivity.class.getSimpleName();
-
     private static final int INTENT_REQUEST_GET_IMAGES = 13;
     private static final int INTENT_REQUEST_GET_N_IMAGES = 14;
 
     private Context mContext;
 
-    private ViewGroup mSelectedImagesContainer;
     HashSet<Uri> mMedia = new HashSet<Uri>();
     HashSet<Image> mMediaImages = new HashSet<Image>();
 
@@ -171,7 +160,7 @@ public class WritingActivity extends AppCompatActivity {
         checkPermissions(); //권한 묻기
 
         // 매뉴 구성
-        //list = (ListView) findViewById(R.id.write_listview);
+        list = (ListView) findViewById(R.id.Image_listview);
         adapter = new write_DataAdapter(WritingActivity.this);  // 데이터를 받기위해 데이터어댑터 객체 선언
 
         page = (RelativeLayout) findViewById(R.id.write_whether_layout);
@@ -198,7 +187,6 @@ public class WritingActivity extends AppCompatActivity {
         }
 
         mContext = WritingActivity.this;
-        mSelectedImagesContainer = (ViewGroup) findViewById(R.id.selected_photos_container);
     }
 
     private void setInstance() {
@@ -249,11 +237,6 @@ public class WritingActivity extends AppCompatActivity {
         });
     }
 
-    public void addWriteAdapter(Bitmap th) {
-        // 카메라, 겔러리 사진 업데이트
-        adapter.addItem(th);
-    }
-
     private class Writing_Holder {
         public ImageView Image;
     }
@@ -286,10 +269,12 @@ public class WritingActivity extends AppCompatActivity {
         }
 
         // 생성자로 값을 받아 셋팅
-        public void addItem(Bitmap image) {
+        public void addItem(Bitmap image, int width, int height) {
             writing_ListData addInfo = null;
             addInfo = new writing_ListData();
             addInfo.Image = image;
+            addInfo.width = width;
+            addInfo.height = height;
 
             mListData.add(addInfo);
         }
@@ -316,6 +301,8 @@ public class WritingActivity extends AppCompatActivity {
             // 이미지 처리
             if (mData.Image != null) {
                 holder.Image.setVisibility(View.VISIBLE);
+                holder.Image.getLayoutParams().height = mData.height;
+                holder.Image.getLayoutParams().width = mData.width;
                 holder.Image.setImageBitmap(mData.Image);
             }else{
                 holder.Image.setVisibility(View.GONE);
@@ -328,6 +315,8 @@ public class WritingActivity extends AppCompatActivity {
     // 메뉴의 실제 데이터를 저장할 class
     class writing_ListData {
         public Bitmap Image;
+        public int width;
+        public int height;
     }
 
     // 카메라 사진에 받은 값을 직접 할당(bitmap)
@@ -528,51 +517,6 @@ public class WritingActivity extends AppCompatActivity {
         public void onAnimationRepeat(Animation animation) {}
     }
 
-    // 이미지 돌리기(삼성폰경우 90도 회전되기때문에)
-    public static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
-
-        Matrix matrix = new Matrix();
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_NORMAL:
-                return bitmap;
-            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                matrix.setScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                matrix.setRotate(180);
-                break;
-            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                matrix.setRotate(180);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_TRANSPOSE:
-                matrix.setRotate(90);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                matrix.setRotate(90);
-                break;
-            case ExifInterface.ORIENTATION_TRANSVERSE:
-                matrix.setRotate(-90);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                matrix.setRotate(-90);
-                break;
-            default:
-                return bitmap;
-        }
-        try {
-            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-            bitmap.recycle();
-            return bmRotated;
-        }
-        catch (OutOfMemoryError e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     @Override
     protected void onDestroy() {
         // bitmaap 삭제
@@ -758,11 +702,6 @@ public class WritingActivity extends AppCompatActivity {
                 System.arraycopy(parcelableOrientations, 0, orientations, 0, parcelableOrientations.length);
 
                 if (uris != null) {
-                    /*for (Uri uri : uris) {
-                        Log.i(TAG, " uri: " + uri);
-                        mMedia.add(uri);
-
-                    }*/
                     for (int i=0; i<orientations.length; i++) {
 
                         mMediaImages.add(new Image(uris[i], orientations[i]));
@@ -773,44 +712,19 @@ public class WritingActivity extends AppCompatActivity {
             }
         }
     }
-    //이미지 추출
-    protected void imageExtraction(Uri photoUri) throws IOException {
-
-        //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-        if (bitmap.getWidth() >= 5000 || bitmap.getHeight() >= 2600) {
-            options.inSampleSize = 4;
-        } else if ((bitmap.getWidth() < 5000 && bitmap.getWidth() >= 3750) ||
-                (bitmap.getHeight() < 2600 && bitmap.getHeight() >= 1950)) {
-            options.inSampleSize = 3;
-        } else if ((bitmap.getWidth() < 3750 && bitmap.getWidth() >= 2500) ||
-                (bitmap.getHeight() < 1950 && bitmap.getHeight() >= 1300)) {
-            options.inSampleSize = 2;
-        }
-        bitmap.recycle();
-        thumbImage= BitmapFactory.decodeStream(getContentResolver().openInputStream(photoUri),null,options);
-    }
-
 
     private void showMedia() {
         // Remove all views before
         // adding the new ones.
-        mSelectedImagesContainer.removeAllViews();
+        // mSelectedImagesContainer.removeAllViews();
 
         Iterator<Image> iterator = mMediaImages.iterator();
         ImageInternalFetcher imageFetcher = new ImageInternalFetcher(this, 500);
         while (iterator.hasNext()) {
             Image image = iterator.next();
-
-            if (mMedia.size() >= 1) {
-                mSelectedImagesContainer.setVisibility(View.VISIBLE);
-            }
+            Bitmap bitmap = null;
 
             View imageHolder = LayoutInflater.from(this).inflate(R.layout.write, null);
-
-            // View removeBtn = imageHolder.findViewById(R.id.remove_media);
-            // initRemoveBtn(removeBtn, imageHolder, uri);
             ImageView thumbnail = (ImageView) imageHolder.findViewById(R.id.write_input_picture);
 
             if (!image.mUri.toString().contains("content://")) {
@@ -818,22 +732,24 @@ public class WritingActivity extends AppCompatActivity {
                 image.mUri = Uri.fromFile(new File(image.mUri.toString()));
 
                 try {
-                    imageExtraction(image.mUri);
+                    bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), image.mUri);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
 
             imageFetcher.loadImage(image.mUri, thumbnail, image.mOrientation);
-
-            mSelectedImagesContainer.addView(imageHolder);
 
             // set the dimension to correctly
             // show the image thumbnail.
             int wdpx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, getResources().getDisplayMetrics());
             int htpx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
-            thumbnail.setLayoutParams(new FrameLayout.LayoutParams(wdpx, htpx));
+            Log.e("창석", String.valueOf(wdpx));
+            Log.e("창석", String.valueOf(htpx));
+
+
+            adapter.addItem(bitmap, wdpx, htpx);
+            list.setAdapter(adapter);
         }
     }
 }

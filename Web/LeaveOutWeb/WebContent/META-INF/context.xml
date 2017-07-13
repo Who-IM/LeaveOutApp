@@ -7,7 +7,7 @@
 		url="jdbc:mysql://localhost:3306/leaveout"
 		type="javax.sql.DataSource"
 		username="root"
-		password="root"
+		password="tjdrhd12"
 		maxActive="500"
 		maxIDle="100">
 	</Resource>

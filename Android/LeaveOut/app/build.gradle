@@ -13,6 +13,15 @@ android {
     }
     repositories {
         mavenCentral()
+        maven {
+            url "https://repo.commonsware.com.s3.amazonaws.com"
+        }
+
+        // for downloading poly-picker now we are using jitpack.
+        // Goodbye Maven Central
+        maven {
+            url "https://jitpack.io"
+        }
     }
     buildTypes {
         release {
@@ -42,4 +51,7 @@ dependencies {
     compile 'com.tsengvn:Typekit:1.0.0'
     compile 'com.facebook.android:facebook-android-sdk:4.+'
     compile 'com.android.support:recyclerview-v7:21.+'
+    compile project(':pp')
+    compile project(':camera')
+
 }

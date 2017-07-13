@@ -1,6 +1,7 @@
 package whoim.leaveout;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -12,17 +13,17 @@ import android.graphics.Matrix;
 import android.icu.text.SimpleDateFormat;
 import android.location.Location;
 import android.media.ExifInterface;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -53,8 +55,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
+import nl.changer.polypicker.Config;
+import nl.changer.polypicker.ImagePickerActivity;
+import nl.changer.polypicker.model.Image;
+import nl.changer.polypicker.utils.ImageInternalFetcher;
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.Server.SQLDataService;
@@ -129,6 +137,18 @@ public class WritingActivity extends AppCompatActivity {
 
     int count = 0;
 
+    //임시
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    private static final int INTENT_REQUEST_GET_IMAGES = 13;
+    private static final int INTENT_REQUEST_GET_N_IMAGES = 14;
+
+    private Context mContext;
+
+    private ViewGroup mSelectedImagesContainer;
+    HashSet<Uri> mMedia = new HashSet<Uri>();
+    HashSet<Image> mMediaImages = new HashSet<Image>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,7 +171,7 @@ public class WritingActivity extends AppCompatActivity {
         checkPermissions(); //권한 묻기
 
         // 매뉴 구성
-        list = (ListView) findViewById(R.id.write_listview);
+        //list = (ListView) findViewById(R.id.write_listview);
         adapter = new write_DataAdapter(WritingActivity.this);  // 데이터를 받기위해 데이터어댑터 객체 선언
 
         page = (RelativeLayout) findViewById(R.id.write_whether_layout);
@@ -176,6 +196,9 @@ public class WritingActivity extends AppCompatActivity {
             // 여기다 db 내용 + tagText 하면됨
             write_input.setText(tagText);
         }
+
+        mContext = WritingActivity.this;
+        mSelectedImagesContainer = (ViewGroup) findViewById(R.id.selected_photos_container);
     }
 
     private void setInstance() {
@@ -405,13 +428,16 @@ public class WritingActivity extends AppCompatActivity {
 
     //앨범 불러오기 버튼
     public void goToAlbumButton(View v) {
-        Intent intent = new Intent(Intent.ACTION_PICK); //ACTION_PICK 즉 사진을 고르겠다!
-        intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+//        Intent intent = new Intent(Intent.ACTION_PICK); //ACTION_PICK 즉 사진을 고르겠다!
+//        intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+//
+//        startActivityForResult(intent, PICK_FROM_ALBUM);     //requestCode가 PICK_FROM_ALBUM으로 이동
 
-        startActivityForResult(intent, PICK_FROM_ALBUM);     //requestCode가 PICK_FROM_ALBUM으로 이동
+        getImages();
+
     }
 
-    //카메라 및 갤러리 기능 활성화
+    /*//카메라 및 갤러리 기능 활성화
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(count == 20)
@@ -458,55 +484,7 @@ public class WritingActivity extends AppCompatActivity {
                 Log.e("ERROR", e.getMessage().toString());
             }
         }
-    }
-
-    //이미지 추출
-    protected void imageExtraction(int requestCode) throws IOException {
-
-        //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
-//        iv = (ImageView) findViewById(R.id.write_input_picture);
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-        if (bitmap.getWidth() >= 5000 || bitmap.getHeight() >= 2600) {
-            options.inSampleSize = 4;
-        } else if ((bitmap.getWidth() < 5000 && bitmap.getWidth() >= 3750) ||
-                (bitmap.getHeight() < 2600 && bitmap.getHeight() >= 1950)) {
-            options.inSampleSize = 3;
-        } else if ((bitmap.getWidth() < 3750 && bitmap.getWidth() >= 2500) ||
-                (bitmap.getHeight() < 1950 && bitmap.getHeight() >= 1300)) {
-            options.inSampleSize = 2;
-        }
-        bitmap.recycle();
-        thumbImage= BitmapFactory.decodeStream(getContentResolver().openInputStream(photoUri),null,options);
-
-//        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
-//        thumbImage = ThumbnailUtils.extractThumbnail(bitmap, 1024, 768);  //사진 크기를 조절
-//        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-
-        if (requestCode == PICK_FROM_CAMERA) {
-            // 파일 경로 저장
-            try {
-                exif = new ExifInterface(photoFile.getPath());
-                orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        /*else if (requestCode == PICK_FROM_ALBUM){
-            try {
-                exif = new ExifInterface(storageDir.toURI().getPath());
-                orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }*/
-
-        // 이미지 돌리기
-        thumbImage = rotateBitmap(thumbImage, orientation);
-//        thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bs); //이미지가 클 경우 OutOfMemoryException 발생이 예상되어 압축
-//        bs.close();
-    }
-
+    }*/
 
     //공개여부
     public void whether_open_button()
@@ -737,7 +715,6 @@ public class WritingActivity extends AppCompatActivity {
                     location.setLongitude(j.getDouble("chk_y"));
                     product.add(FomatService.getCurrentAddress(getApplicationContext(),location));
                 }
-                list.setAdapter(adapter);
             }
         };
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
@@ -747,5 +724,116 @@ public class WritingActivity extends AppCompatActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
+    }
+
+    //이미지 갯수 제한
+    private void getImages() {
+        Intent intent = new Intent(mContext, ImagePickerActivity.class);
+        Config config = new Config.Builder()
+                .setTabBackgroundColor(R.color.white)    // set tab background color. Default white.
+                .setTabSelectionIndicatorColor(R.color.blue)
+                .setCameraButtonColor(R.color.orange)
+                .setSelectionLimit(10)    // set photo selection limit. Default unlimited selection.
+                .build();
+        ImagePickerActivity.setConfig(config);
+        startActivityForResult(intent, INTENT_REQUEST_GET_N_IMAGES);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resuleCode, Intent intent) {
+        super.onActivityResult(requestCode, resuleCode, intent);
+
+        if (resuleCode == Activity.RESULT_OK) {
+            if (requestCode == INTENT_REQUEST_GET_IMAGES || requestCode == INTENT_REQUEST_GET_N_IMAGES) {
+                Parcelable[] parcelableUris = intent.getParcelableArrayExtra(ImagePickerActivity.EXTRA_IMAGE_URIS);
+                int[] parcelableOrientations = intent.getIntArrayExtra((ImagePickerActivity.EXTRA_IMAGE_ORIENTATIONS));
+                if (parcelableUris == null) {
+                    return;
+                }
+
+                // Java doesn't allow array casting, this is a little hack
+                Uri[] uris = new Uri[parcelableUris.length];
+                int[] orientations = new int[parcelableUris.length];
+                System.arraycopy(parcelableUris, 0, uris, 0, parcelableUris.length);
+                System.arraycopy(parcelableOrientations, 0, orientations, 0, parcelableOrientations.length);
+
+                if (uris != null) {
+                    /*for (Uri uri : uris) {
+                        Log.i(TAG, " uri: " + uri);
+                        mMedia.add(uri);
+
+                    }*/
+                    for (int i=0; i<orientations.length; i++) {
+
+                        mMediaImages.add(new Image(uris[i], orientations[i]));
+                    }
+
+                    showMedia();
+                }
+            }
+        }
+    }
+    //이미지 추출
+    protected void imageExtraction(Uri photoUri) throws IOException {
+
+        //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoUri);
+        if (bitmap.getWidth() >= 5000 || bitmap.getHeight() >= 2600) {
+            options.inSampleSize = 4;
+        } else if ((bitmap.getWidth() < 5000 && bitmap.getWidth() >= 3750) ||
+                (bitmap.getHeight() < 2600 && bitmap.getHeight() >= 1950)) {
+            options.inSampleSize = 3;
+        } else if ((bitmap.getWidth() < 3750 && bitmap.getWidth() >= 2500) ||
+                (bitmap.getHeight() < 1950 && bitmap.getHeight() >= 1300)) {
+            options.inSampleSize = 2;
+        }
+        bitmap.recycle();
+        thumbImage= BitmapFactory.decodeStream(getContentResolver().openInputStream(photoUri),null,options);
+    }
+
+
+    private void showMedia() {
+        // Remove all views before
+        // adding the new ones.
+        mSelectedImagesContainer.removeAllViews();
+
+        Iterator<Image> iterator = mMediaImages.iterator();
+        ImageInternalFetcher imageFetcher = new ImageInternalFetcher(this, 500);
+        while (iterator.hasNext()) {
+            Image image = iterator.next();
+
+            if (mMedia.size() >= 1) {
+                mSelectedImagesContainer.setVisibility(View.VISIBLE);
+            }
+
+            View imageHolder = LayoutInflater.from(this).inflate(R.layout.write, null);
+
+            // View removeBtn = imageHolder.findViewById(R.id.remove_media);
+            // initRemoveBtn(removeBtn, imageHolder, uri);
+            ImageView thumbnail = (ImageView) imageHolder.findViewById(R.id.write_input_picture);
+
+            if (!image.mUri.toString().contains("content://")) {
+                // probably a relative uri
+                image.mUri = Uri.fromFile(new File(image.mUri.toString()));
+
+                try {
+                    imageExtraction(image.mUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            imageFetcher.loadImage(image.mUri, thumbnail, image.mOrientation);
+
+            mSelectedImagesContainer.addView(imageHolder);
+
+            // set the dimension to correctly
+            // show the image thumbnail.
+            int wdpx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, getResources().getDisplayMetrics());
+            int htpx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
+            thumbnail.setLayoutParams(new FrameLayout.LayoutParams(wdpx, htpx));
+        }
     }
 }

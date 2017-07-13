@@ -15,6 +15,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />    //카메라 퍼미션
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />     //갤러리 퍼미션
 
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
     <application
         android:name=".CustomFont.CustomStartApp"
         android:allowBackup="true"
@@ -62,6 +64,10 @@
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait">
         </activity>
+
+        <activity
+            android:name="nl.changer.polypicker.ImagePickerActivity"
+            android:theme="@style/AppTheme"/>
 
         <!--환경설정 화면-->
         <activity

@@ -7,17 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.icu.text.SimpleDateFormat;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -51,7 +49,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -80,9 +77,6 @@ public class WritingActivity extends AppCompatActivity {
     private TextView mAddressText;          // 주소 이름
     private Location mCurrentLocation;      // GPS 주소 객체
 
-    File storageDir = null;
-    File photoFile = null;
-
     // spinner로 나중에 시간나면 바꿀예정
     // checkList
     LinearLayout writing_search_layout;
@@ -90,11 +84,6 @@ public class WritingActivity extends AppCompatActivity {
     ArrayAdapter<String> writing_adapter_search;
     ImageButton writing_inputSearch;
 
-    //카메라 앨범 변수
-    private static final int PICK_FROM_CAMERA = 1; //카메라 촬영으로 사진 가져오기
-    private static final int PICK_FROM_ALBUM = 2;  //앨범에서 사진 가져오기
-    //    ImageView iv = null;
-    Uri photoUri;
     private String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}; //권한 설정 변수
 
@@ -383,97 +372,11 @@ public class WritingActivity extends AppCompatActivity {
         finish();
     }
 
-    // Android M에서는 Uri.fromFile 함수를 사용하였으나 7.0부터는 이 함수를 사용할 시 FileUriExposedException이
-    // 발생하므로 아래와 같이 함수를 작성합니다.
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("HHmmss").format(new Date());   //그림저장할때 파일명 지정
-        String imageFileName = "IP" + timeStamp + "_";
-        storageDir = new File(Environment.getExternalStorageDirectory() + "/LeaveOut/"); //LeaveOut라는 경로에 이미지를 저장하기 위함
-        if (!storageDir.exists()) {
-            storageDir.mkdirs();
-        }
-
-        File image = File.createTempFile(imageFileName, ".png", storageDir);    //확장자를 .jpg로 저장
-        return image;
-    }
-
-    //카메라 불러오기 버튼
-    public void takePhotoButton(View v) {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //사진을 찍기 위하여 설정
-        try {
-            photoFile = createImageFile();  //찍은 사진정보
-        } catch (IOException e) {
-            Toast.makeText(WritingActivity.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
-            finish();
-        }
-        if (photoFile != null) {
-            //URI에 대해 임시 액세스 권한을 부여하기 위해서 FileProvider 클래스를 사용
-            photoUri = FileProvider.getUriForFile(WritingActivity.this, "whoim.leaveout.provider", photoFile);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri); //사진을 찍어 해당 Content uri를 photoUri에 적용시키기 위함
-            startActivityForResult(intent, PICK_FROM_CAMERA);   //requestCode가 PICK_FROM_CAMERA으로 이동
-        }
-    }
-
     //앨범 불러오기 버튼
     public void goToAlbumButton(View v) {
-//        Intent intent = new Intent(Intent.ACTION_PICK); //ACTION_PICK 즉 사진을 고르겠다!
-//        intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
-//
-//        startActivityForResult(intent, PICK_FROM_ALBUM);     //requestCode가 PICK_FROM_ALBUM으로 이동
-
         getImages();
 
     }
-
-    /*//카메라 및 갤러리 기능 활성화
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(count == 20)
-        {
-            Toast.makeText(WritingActivity.this, "이미지 갯수 "+count+"개 초과 더이상 등록할수 없습니다..", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        count++;
-
-        //카메라나 갤러리 창을 종료 했을 경우
-        if (resultCode != RESULT_OK) {
-            Toast.makeText(WritingActivity.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
-        }
-
-        //앨범
-        if (requestCode == PICK_FROM_ALBUM) {
-            if (data == null) {
-                return;
-            }
-            photoUri = data.getData();  //Uri 주소값을 받아온다
-            try {
-                imageExtraction(requestCode);  //이미지 추출
-                addWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
-                list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
-                thumbImage = null;
-            } catch (Exception e) {
-                Log.e("ERROR", e.getMessage().toString());
-            }
-        }
-        //카메라
-        else if (requestCode == PICK_FROM_CAMERA) {
-            MediaScannerConnection.scanFile(WritingActivity.this, //앨범에 사진을 보여주기 위해 Scan을 합니다.
-                    new String[]{photoUri.getPath()}, null,
-                    new MediaScannerConnection.OnScanCompletedListener() {
-                        public void onScanCompleted(String path, Uri uri) {}
-                    });
-            try {
-                imageExtraction(requestCode);  //이미지 추출
-                addWriteAdapter(thumbImage);    //ImageView에 setImageBitmap을 활용하여 해당 이미지에 그림을 띄우기
-                list.setAdapter(adapter);   // 리스트뷰에 어댑터 연결
-                thumbImage = null;
-
-            } catch (Exception e    ) {
-                Log.e("ERROR", e.getMessage().toString());
-            }
-        }
-    }*/
 
     //공개여부
     public void whether_open_button()
@@ -733,6 +636,18 @@ public class WritingActivity extends AppCompatActivity {
 
                 try {
                     bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), image.mUri);
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    if (bitmap.getWidth() >= 5000 || bitmap.getHeight() >= 2600) {
+                        options.inSampleSize = 4;
+                    } else if ((bitmap.getWidth() < 5000 && bitmap.getWidth() >= 3750) ||
+                            (bitmap.getHeight() < 2600 && bitmap.getHeight() >= 1950)) {
+                        options.inSampleSize = 3;
+                    } else if ((bitmap.getWidth() < 3750 && bitmap.getWidth() >= 2500) ||
+                            (bitmap.getHeight() < 1950 && bitmap.getHeight() >= 1300)) {
+                        options.inSampleSize = 2;
+                    }
+                    bitmap.recycle();
+                    bitmap= BitmapFactory.decodeStream(getContentResolver().openInputStream(image.mUri),null,options);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

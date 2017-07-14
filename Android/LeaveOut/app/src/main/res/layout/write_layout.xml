@@ -147,30 +147,15 @@
     </RelativeLayout>
 
     <!--사진 띄울울 공간-->
-    <ScrollView
-        android:id="@+id/hori_scroll_view"
+    <ListView
+        android:id="@+id/Image_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="false"
-        android:foregroundGravity="left"
-        android:paddingBottom="1dp"
+        android:dividerHeight="0px"
+        android:foregroundGravity="center"
         android:layout_below="@+id/write_textarea"
-        android:layout_above="@+id/write_line3"
-        android:paddingTop="1dp" >
-
-        <LinearLayout
-            android:id="@+id/selected_photos_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="left"
-            android:animateLayoutChanges="true"
-            android:gravity="left"
-            android:orientation="vertical"
-            android:visibility="visible" >
-
-            <!-- images will be added dynamicall to this layout -->
-        </LinearLayout>
-    </ScrollView>
+        android:layout_above="@+id/write_line3">
+    </ListView>
 
 
     <!-- 검은색 선(밑에) -->
@@ -190,7 +175,7 @@
         android:layout_alignTop="@+id/write_line3"
         android:orientation="horizontal"
         android:layout_marginTop="3dp"
-        android:weightSum="4">
+        android:weightSum="3">
 
         <!-- 친구태그 -->
         <ImageButton
@@ -203,16 +188,6 @@
             android:background="#00000000"
             app:srcCompat="@drawable/write_friend" />
 
-        <!-- 카메라 -->
-        <ImageButton
-            android:id="@+id/camera"
-            android:layout_width="wrap_content"
-            android:layout_height="64dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="1"
-            android:onClick="takePhotoButton"
-            android:background="#00000000"
-            app:srcCompat="@drawable/write_camera" />
 
         <!-- 사진 -->
         <ImageButton
@@ -223,7 +198,7 @@
             android:layout_weight="1"
             android:background="#00000000"
             android:onClick="goToAlbumButton"
-            app:srcCompat="@drawable/write_image" />
+            app:srcCompat="@drawable/write_camera" />
 
         <!-- 공개여부 -->
         <ImageButton

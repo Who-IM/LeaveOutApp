@@ -203,7 +203,7 @@ public class ViewArticleActivity extends AppCompatActivity
                             JSONObject commentdata = new WebControll().WebLoad(request);     // SQL 돌리기
                             if (commentdata != null && commentdata.getJSONArray("result").length() != 0) {
                                 Bitmap profile = null;                                   // 댓글 유저의 프로필
-                                commentAdapter = new CommentAdapter();
+                                commentAdapter = new CommentAdapter(ViewArticleActivity.this);
                                 JSONArray commentresult = commentdata.getJSONArray("result");
                                 for (int j = 0; j < commentresult.length(); j++) {
                                     JSONObject resultdata = commentdata.getJSONArray("result").getJSONObject(j);
@@ -217,6 +217,7 @@ public class ViewArticleActivity extends AppCompatActivity
 
 //                                    String temptext = resultdata.getString("text").substring(0,resultdata.getString("text").length()-2);
                                     String temptext = resultdata.getString("text");
+                                    temptext = temptext.substring(0, temptext.length()-2);
                                     String time = resultdata.getString("reg_time").substring(0,resultdata.getString("reg_time").length()-2);
                                     commentAdapter.addItem(contentnum, profile, resultdata.getString("name"), temptext, time, resultdata.getInt("user_num"));       // 어댑터 추가
 

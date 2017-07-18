@@ -1,5 +1,10 @@
 package whoim.leaveout;
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -10,21 +15,40 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import whoim.leaveout.Loading.LoadingSQLDialog;
+import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Server.ImageDownLoad;
+import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.User.UserInfo;
 
 /**
  * Created by bu456 on 2017-06-09.
  */
 
 public class CommentActivity extends AppCompatActivity {
+    private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();
+    private ExecutorService service = Executors.newCachedThreadPool();      // 스레드 풀
+
     // 리사이클 뷰
     RecyclerView lecyclerView = null;
     ArrayList<Button> comment_item_btn2 = null;
@@ -38,11 +62,23 @@ public class CommentActivity extends AppCompatActivity {
 
     // 실제 데이터
     List<comment_data> comment_list = null;
+    CommentAdapter adapter = null;
+
+    // db관련
+    UserInfo user = UserInfo.getInstance();
+    int content_num;
+    int comm_num;
+    int user_num;
+
+    // keyborad
+    private InputMethodManager imm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.public_recomment_layout);
+
+        imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE); //키보드 숨기기위해 인풋메니저 등록
 
         // 댓글 카운터
         comment_count = (TextView) findViewById(R.id.comment_count);
@@ -56,46 +92,47 @@ public class CommentActivity extends AppCompatActivity {
         comment_edit_text = (EditText) findViewById(R.id.comment_edit_text);
 
         // db에서 자기사진 추가
-        comment_edit_image.setImageResource(R.drawable.basepicture);
-
-        // 데이터 셋팅(db에서)
+        comment_edit_image.setImageBitmap(user.getProfile());
         comment_list = new ArrayList<comment_data>();
-        SimpleDateFormat sdfNow = new SimpleDateFormat("MM월 dd일 HH:mm:ss");
-        String time = sdfNow.format(new Date(System.currentTimeMillis()));
-        for (int i = 0; i < 5; i ++){
-            comment_data album = new comment_data();
-            album.setName("허성문");
-            album.setContents("태스트중");
-            album.setImage(R.drawable.basepicture);
-            album.setTime(time);
-            comment_list.add(album);
-        }
-        comment_count.setText(comment_list.size() + "");
 
-        lecyclerView.setAdapter(new CommentAdapter(comment_list));
         lecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         lecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        // 초기 데이터 셋팅
+        Intent tagintent = getIntent();
+        if(tagintent != null) {
+            content_num = tagintent.getIntExtra("content_num", 0);
+            comm_num = tagintent.getIntExtra("comm_num", 0);
+            user_num = tagintent.getIntExtra("user_num", 0);
+
+            recomment_select(content_num, comm_num);
+        }
 
         comment_edit_text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    // 시간
-                    SimpleDateFormat sdfNow = new SimpleDateFormat("MM월 dd일 HH:mm:ss");
+
+                    Insert_recomm_data(comment_edit_text.getText().toString());
+
+                    SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String time = sdfNow.format(new Date(System.currentTimeMillis()));
 
-                    // 데이터 추가
                     comment_data album = new comment_data();
-                    album.setName("허성문");  // db에서 이름 따오기
+                    album.setName(user.getName());
                     album.setContents(comment_edit_text.getText().toString());
-                    album.setImage(R.drawable.basepicture);  // db에서 이미지 따오기
                     album.setTime(time);
+                    album.setImage(user.getProfile());
                     comment_list.add(album);
-                    lecyclerView.setAdapter(new CommentAdapter(comment_list));
+
+                    adapter.notifyDataSetChanged();
+                    lecyclerView.setAdapter(adapter);
 
                     // 댓글 수 및 내용 초기화
                     comment_edit_text.setText("");
                     comment_count.setText(comment_list.size() + "");
+
+                    hideKeyboard();
 
                     return true;
                 }
@@ -106,7 +143,7 @@ public class CommentActivity extends AppCompatActivity {
 
     // 댓글 및 답글에 공용사용
     public class comment_data {
-        private int image;
+        private Bitmap image;
         private String name;
         private String contents;
         private String time;
@@ -125,10 +162,10 @@ public class CommentActivity extends AppCompatActivity {
             this.contents = contents;
         }
 
-        public int getImage() {
+        public Bitmap getImage() {
             return image;
         }
-        public void setImage(int image) {
+        public void setImage(Bitmap image) {
             this.image = image;
         }
 
@@ -162,7 +199,7 @@ public class CommentActivity extends AppCompatActivity {
             comment_data item = comment_list_data.get(position);
             viewHolder.name.setText(item.getName());
             viewHolder.contenst.setText(item.getContents());
-            viewHolder.img.setBackgroundResource(item.getImage());
+            viewHolder.img.setImageBitmap(item.getImage());
             viewHolder.time.setText(item.getTime());
 
             viewHolder.itemView.setTag(item);
@@ -196,4 +233,145 @@ public class CommentActivity extends AppCompatActivity {
         }
     }
     /// ----------------- 여기까지 -----------------------
+
+    // 초기 데이터 셋팅
+    private void recomment_select(final int content_num, final int comm_num) {
+
+        final String sql = "select name, recomm_content, reg_time, user.profile from recomment " +
+                           "inner join user on recomment.user_num = user.user_num " +
+                           "where content_num = ? AND comm_num = ?;";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(content_num);
+                mDataQueryGroup.addInt(comm_num);
+                JSONObject request =  SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
+                SQLDataService.putBundleValue(request,"download","context","files");
+                SQLDataService.putBundleValue(request,"download","context2","profile");
+                return request;
+            }
+            @Override
+            public JSONObject getUpLoad(JSONObject resultSQL) {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                JSONArray jspn = responseData.get(0).getJSONArray("result");
+                for(int i =0; i < jspn.length(); i++) {
+                    JSONObject j = jspn.getJSONObject(i);
+                    comment_data album = new comment_data();
+                    album.setName(j.getString("name"));
+                    album.setContents(j.getString("recomm_content"));
+
+                    // 시간
+                    String reg_time = j.getString("reg_time");
+                    reg_time = reg_time.substring(0,reg_time.length()-2);
+                    album.setTime(reg_time);
+
+                    // 이미지
+                    Bitmap bit = setProfile(j);
+                    album.setImage(bit);
+
+                    // listview에 add
+                    comment_list.add(album);
+                }
+
+                // adapter 셋팅
+                adapter = new CommentAdapter(comment_list);
+                lecyclerView.setAdapter(adapter);
+
+                // 댓글에 댓글수 count
+                comment_count.setText(comment_list.size() + "");
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
+    }
+
+    // sql insert
+    private void Insert_recomm_data(final String recomm_content) {
+        final String sql = "insert into recomment(content_num, comm_num, user_num, recomm_content, reg_time) values(?, ?, ?, ?, now());";     // 유저 추가 sql
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+
+            @Override
+            public JSONObject getSQLQuery() {
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(content_num);
+                mDataQueryGroup.addInt(comm_num);
+                mDataQueryGroup.addInt(user.getUserNum());
+                mDataQueryGroup.addString(recomm_content);
+                return SQLDataService.getDynamicSQLJSONData(sql, mDataQueryGroup, 0, "update");     // update SQL 제이슨
+            }
+
+            @Override
+            public JSONObject getUpLoad(JSONObject resultSQL) {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                // 성공할시 toast 출력
+                if(responseData != null) {
+                    Toast.makeText(CommentActivity.this,"등록 되었습니다.",Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);      // 로딩 다이얼로그 및 sql 전송
+    }
+
+    // 프로필 이미지 셋팅
+    public Bitmap setProfile(final JSONObject data) throws JSONException {
+        Bitmap bitmap = null;
+        Callable<Bitmap> bitmapCallable = new Callable<Bitmap>() {
+            @Override
+            public Bitmap call() throws Exception {
+                Bitmap _bitmap = null;
+                if(data.has("image2")) {      // 있는지 확인
+                    JSONArray profileUri = data.getJSONArray("image2");
+                    if (profileUri.length() != 0) {
+                        _bitmap = ImageDownLoad.imageDownLoad(profileUri.getString(0));
+                    }
+                }
+                else if(data.has("image")) {
+                    JSONArray profileUri = data.getJSONArray("image");
+                    if (profileUri.length() != 0) {
+                        _bitmap = ImageDownLoad.imageDownLoad(profileUri.getString(0));
+                    }
+                }
+                else {
+                    _bitmap = ImageDownLoad.imageDownLoad(data.getString("profile"));
+                }
+                if (_bitmap == null) {
+                    _bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.basepicture, null)).getBitmap();
+                }
+                return _bitmap;
+            }
+        };
+
+        try {
+            bitmap = service.submit(bitmapCallable).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return bitmap;
+    }
+
+    // 키보드 숨기기
+    private void hideKeyboard(){
+        imm.hideSoftInputFromWindow(comment_edit_text.getWindowToken(), 0);
+    }
 }

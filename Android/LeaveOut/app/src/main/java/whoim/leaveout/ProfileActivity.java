@@ -10,6 +10,8 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +23,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import org.json.JSONArray;
@@ -43,7 +51,13 @@ import whoim.leaveout.Services.FomatService;
 import whoim.leaveout.User.UserInfo;
 
 // 환경설정
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
+
+    protected GoogleMap mGoogleMap;                 // 구글 맵
+    protected GoogleApiClient mGoogleApiClient;     // 구글 맵 기능을 적용하는 서비스
+    protected MapFragment mMapFragment;       // 맵 프래그먼트(맵 띄우는 것)
 
     // 프로필 이미지 변경
     private ImageButton mProfileSetImage;
@@ -82,6 +96,9 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_layout);
+
+        buildGoogleApiClient();           // GooglePlayServicesClient 객체를 생성
+        mGoogleApiClient.connect();     // connect 메소드가 성공하면 onConnect() 콜백 메소드를 호출
 
         cate = new ArrayList<>();
 
@@ -141,6 +158,45 @@ public class ProfileActivity extends AppCompatActivity {
         });
         meContentData(0);
     }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        this.mGoogleMap = googleMap;
+
+        mGoogleMap.setMyLocationEnabled(false);     // 자기 자신 위치 마커 셋팅 x
+        mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);   // 자기 자신 위치 버튼 셋팅 x
+        mGoogleMap.setOnMyLocationButtonClickListener(null);        // 자기 자신 위치 버튼 리스너 셋팅 x
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        mMapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.profile_google_map);   // 레이아웃에 구글 맵 프로그먼트 아이디 가져오기
+        mMapFragment.getMapAsync(this);      // 구글 맵을 실행시켜 맵을 띄우기(onMapReady 콜백 메소드)
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+
+    // GooglePlayServicesClient 객체를 생성 메서드(구글 맵 api 가져오기)
+    public synchronized void buildGoogleApiClient() {
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .enableAutoManage(this, this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+    }
+
 
     /*//옵션 버튼
     @Override

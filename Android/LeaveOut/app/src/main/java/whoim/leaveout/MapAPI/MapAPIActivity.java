@@ -66,7 +66,7 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
     protected PendingIntent mLocationPendingIntent; // 다른 컴포넌트에게 인텐트 권한 주기(백그라운드 GPS 위치 서비스)
     protected Intent mLocationIntent;               // 로케이션 백그라운드 서비스
 
-    protected Location mCurrentLocation;            // 디바이스 위치
+    public static Location mCurrentLocation;            // 디바이스 위치
     protected CameraPosition mCameraPosition;       // 지도  카메라 위치 정보(상태 저장용)
 
     private LocationManager mLocationManager;       // 로케이션 매니저(GPS 활성화 여부를 위해 사용)

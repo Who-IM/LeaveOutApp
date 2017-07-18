@@ -85,37 +85,37 @@
         android:textSize="30dp"
         app:font="custom2" />
 
-    <!--추후 다시 만들 예정-->
-    <!--&lt;!&ndash;설정&ndash;&gt;-->
-    <!--<TextView-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginTop="30dp"-->
-        <!--android:layout_marginLeft="10dp"-->
-        <!--android:layout_marginBottom="10dp"-->
-        <!--android:text="설정"-->
-        <!--android:textColor="#FFBBBBBB"-->
-        <!--android:textSize="30dp"-->
-        <!--app:font="custom2" />-->
+    추후 다시 만들 예정
+    <!--설정-->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:text="설정"
+        android:textColor="#FFBBBBBB"
+        android:textSize="30dp"
+        app:font="custom2" />
 
-    <!--<View-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="3dp"-->
-        <!--android:background="#44000000"/>-->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="#44000000"/>
 
-    <!--&lt;!&ndash;알림 &ndash;&gt;-->
-    <!--<Button-->
-        <!--android:id="@+id/preferences_notice"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_weight="0.1"-->
-        <!--android:text="알림"-->
-        <!--android:textSize="30dp"-->
-        <!--android:onClick="preferencesOnclick"-->
-        <!--android:layout_marginLeft="20dp"-->
-        <!--android:gravity="left|center"-->
-        <!--android:background="#00000000"-->
-        <!--app:font="custom2" />-->
+    <!--알림 -->
+    <Button
+        android:id="@+id/preferences_notice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:text="알림"
+        android:textSize="30dp"
+        android:onClick="preferencesOnclick"
+        android:layout_marginLeft="20dp"
+        android:gravity="left|center"
+        android:background="#00000000"
+        app:font="custom2" />
 
     <TextView
         android:layout_width="wrap_content"

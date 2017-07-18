@@ -71,12 +71,12 @@ public class PreferencesActivity extends AppCompatActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
 
-        } /*else if (v.getId() == R.id.preferences_notice) {        //알림
+        } else if (v.getId() == R.id.preferences_notice) {        //알림
             Intent intent = new Intent(getApplicationContext(), PreferencesNoticeActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
 
-        }*/ else if (v.getId() == R.id.preferences_logout) {       //로그아웃
+        } else if (v.getId() == R.id.preferences_logout) {       //로그아웃
             AlertDialog.Builder d = new AlertDialog.Builder(PreferencesActivity.this);
             d.setTitle("로그아웃");
             d.setMessage("로그아웃을 하시겠습니까?");

@@ -25,7 +25,7 @@ import whoim.leaveout.R;
 /**
  * 클러스트 기능 관리 및 제공 클래스
  */
-public class ClusterMaker {
+public class ProfileClusterMaker {
 
     private Context mContext;
     private GoogleMap mGoogleMap;
@@ -33,7 +33,7 @@ public class ClusterMaker {
     private ArrayList<SNSInfoMaker> mFenceList = new ArrayList();        // 울타리글 리스트
 
     // 생성자
-    public ClusterMaker(Context mContext, GoogleMap mGoogleMap) {
+    public ProfileClusterMaker(Context mContext, GoogleMap mGoogleMap) {
         this.mContext = mContext;
         this.mGoogleMap = mGoogleMap;
 
@@ -61,7 +61,6 @@ public class ClusterMaker {
     public void clearMakerAll() {
         mClusterManager.clearItems();           // 클러스터링 마커 아이템 삭제
         mFenceList.clear();                     // 울타리 리스트 아이템 삭제
-
     }
 
     public void resetCluster() {mClusterManager.cluster(); }

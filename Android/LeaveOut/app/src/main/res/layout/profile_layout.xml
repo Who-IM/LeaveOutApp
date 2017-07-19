@@ -112,11 +112,35 @@
         android:layout_height="500px"
         android:layout_below="@+id/profile_title_layout"/>
 
+    <RadioGroup
+        android:id="@+id/profile_radiogroup"
+        android:layout_width="match_parent"
+        android:layout_height="100px"
+        android:layout_below="@+id/profile_google_map"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/profile_RadioContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="게시글"
+            android:layout_marginRight="20px"/>
+
+        <RadioButton
+            android:id="@+id/profile_RadioCheck"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="체크" />
+
+
+    </RadioGroup>
+
     <ListView
         android:id="@+id/proflie_list"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@+id/profile_google_map"
+        android:layout_below="@+id/profile_radiogroup"
         android:choiceMode="singleChoice" />
 
 </RelativeLayout>

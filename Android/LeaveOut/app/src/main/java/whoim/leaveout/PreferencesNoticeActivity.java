@@ -1,7 +1,6 @@
 package whoim.leaveout;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -159,8 +158,7 @@ public class PreferencesNoticeActivity extends AppCompatActivity  {
 
     // 뒤로가기
     public void Back(View v) {
-        Intent intent = new Intent(getApplicationContext(), PreferencesActivity.class);
-        startActivity(intent);
+        finish();
     }
 
     // 폰트 바꾸기

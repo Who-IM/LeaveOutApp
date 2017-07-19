@@ -35,8 +35,6 @@ public class CustomImageView extends ImageView {
         }
     }
 
-
-
     //Squares the thumbnail
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec){

@@ -4,21 +4,23 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,6 +65,8 @@ import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.Services.FomatService;
 import whoim.leaveout.SingleClick.OnSingleClickListener;
 import whoim.leaveout.User.UserInfo;
+
+import static whoim.leaveout.Services.FomatService.getCurrentAddress;
 
 // 글쓰기
 public class WritingActivity extends AppCompatActivity {
@@ -118,7 +122,7 @@ public class WritingActivity extends AppCompatActivity {
     ArrayList<Double> x = null;
     ArrayList<Double> y = null;
 
-    //임시
+    // 카메라 관련
     private static final int INTENT_REQUEST_GET_IMAGES = 13;
     private static final int INTENT_REQUEST_GET_N_IMAGES = 14;
 
@@ -126,6 +130,11 @@ public class WritingActivity extends AppCompatActivity {
 
     HashSet<Uri> mMedia = new HashSet<Uri>();
     HashSet<Image> mMediaImages = new HashSet<Image>();
+
+    // 사진 위치정보
+    ArrayList<ExifInterface> image_exif;
+    ArrayAdapter location_adapter;
+    Location first_location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +148,9 @@ public class WritingActivity extends AppCompatActivity {
         if (data != null) {
             mAddressText.setText(data.getStringExtra("address"));  // 주소 창 표시
             mCurrentLocation = data.getParcelableExtra("loc");     // GPS 주소 객체
+            first_location = new Location("first");
+            first_location.setLatitude(mCurrentLocation.getLatitude());
+            first_location.setLongitude(mCurrentLocation.getLongitude());
         }
 
         toolbar = (Toolbar) findViewById(R.id.toolbar); //툴바설정
@@ -176,10 +188,35 @@ public class WritingActivity extends AppCompatActivity {
         }
 
         mContext = WritingActivity.this;
+        image_exif = new ArrayList<>();
+
+        // 이미지 롱클릭시 삭제
+        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                // 위치정보 있는지 확인하고 이름 받아오기
+                GeoDegree geoDegree = new GeoDegree();
+                String lo_name = geoDegree.getLocationName(adapter.getItem(position).exif);
+
+                // 이미지 삭제
+                adapter.getList().remove(position);
+                adapter.notifyDataSetChanged();
+                list.setAdapter(adapter);
+
+                // 위치정보 이름 : 현재 위치정보 ---> 처음 위치정보로 셋팅
+                if(lo_name.equals(mAddressText.getText().toString())) {
+                    mAddressText.setText(getCurrentAddress(getApplicationContext(),first_location));
+                    mCurrentLocation.setLatitude(first_location.getLatitude());
+                    mCurrentLocation.setLongitude(first_location.getLongitude());
+                }
+
+                return false;
+            }
+        });
     }
 
+    // 인스턴스 셋팅
     private void setInstance() {
-
         // 검색 관련 인스턴스
         writing_searchList = (ListView) findViewById(R.id.write_search_list);
         writing_inputSearch = (ImageButton) findViewById(R.id.open_list);
@@ -258,12 +295,13 @@ public class WritingActivity extends AppCompatActivity {
         }
 
         // 생성자로 값을 받아 셋팅
-        public void addItem(Bitmap image, int width, int height) {
+        public void addItem(Bitmap image, int width, int height, ExifInterface exif) {
             writing_ListData addInfo = null;
             addInfo = new writing_ListData();
             addInfo.Image = image;
             addInfo.width = width;
             addInfo.height = height;
+            addInfo.exif = exif;
 
             mListData.add(addInfo);
         }
@@ -306,6 +344,7 @@ public class WritingActivity extends AppCompatActivity {
         public Bitmap Image;
         public int width;
         public int height;
+        public ExifInterface exif;
     }
 
     // 카메라 사진에 받은 값을 직접 할당(bitmap)
@@ -446,6 +485,7 @@ public class WritingActivity extends AppCompatActivity {
         }
     }
 
+    // 게시하기
     private void contentUpdateSQLData() {
 
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
@@ -526,6 +566,7 @@ public class WritingActivity extends AppCompatActivity {
         startActivity(it);
     }
 
+    // 체크항목넣기 db
     private void checkInsertSQLData() {
 
         final String sql = "select * " +
@@ -560,7 +601,7 @@ public class WritingActivity extends AppCompatActivity {
                     y.add(j.getDouble("chk_y"));
                     location.setLatitude(j.getDouble("chk_x"));
                     location.setLongitude(j.getDouble("chk_y"));
-                    product.add(FomatService.getCurrentAddress(getApplicationContext(),location));
+                    product.add(getCurrentAddress(getApplicationContext(),location));
                 }
             }
         };
@@ -586,6 +627,7 @@ public class WritingActivity extends AppCompatActivity {
         startActivityForResult(intent, INTENT_REQUEST_GET_N_IMAGES);
     }
 
+    // 카메라, 엘범 결과
     @Override
     protected void onActivityResult(int requestCode, int resuleCode, Intent intent) {
         super.onActivityResult(requestCode, resuleCode, intent);
@@ -598,7 +640,6 @@ public class WritingActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Java doesn't allow array casting, this is a little hack
                 Uri[] uris = new Uri[parcelableUris.length];
                 int[] orientations = new int[parcelableUris.length];
                 System.arraycopy(parcelableUris, 0, uris, 0, parcelableUris.length);
@@ -606,7 +647,6 @@ public class WritingActivity extends AppCompatActivity {
 
                 if (uris != null) {
                     for (int i=0; i<orientations.length; i++) {
-
                         mMediaImages.add(new Image(uris[i], orientations[i]));
                     }
 
@@ -616,10 +656,8 @@ public class WritingActivity extends AppCompatActivity {
         }
     }
 
+    // 이미지 보여주기
     private void showMedia() {
-        // Remove all views before
-        // adding the new ones.
-        // mSelectedImagesContainer.removeAllViews();
 
         Iterator<Image> iterator = mMediaImages.iterator();
         ImageInternalFetcher imageFetcher = new ImageInternalFetcher(this, 500);
@@ -630,6 +668,7 @@ public class WritingActivity extends AppCompatActivity {
             View imageHolder = LayoutInflater.from(this).inflate(R.layout.write, null);
             ImageView thumbnail = (ImageView) imageHolder.findViewById(R.id.write_input_picture);
 
+            // 이미지 크기 조절
             if (!image.mUri.toString().contains("content://")) {
                 // probably a relative uri
                 image.mUri = Uri.fromFile(new File(image.mUri.toString()));
@@ -659,12 +698,179 @@ public class WritingActivity extends AppCompatActivity {
             // show the image thumbnail.
             int wdpx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, getResources().getDisplayMetrics());
             int htpx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
-            Log.e("창석", String.valueOf(wdpx));
-            Log.e("창석", String.valueOf(htpx));
 
+            try {
+                ExifInterface exif = new ExifInterface(image.mUri.getPath());
+                adapter.addItem(bitmap, wdpx, htpx, exif);
+                image_exif.add(exif);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-            adapter.addItem(bitmap, wdpx, htpx);
             list.setAdapter(adapter);
+        }
+
+        // 위치정보 셋팅
+        setLocation_Image();
+        image_exif = null;
+        image_exif = new ArrayList<>();
+    }
+
+    // image에있는 location정보 불러와 셋팅
+    public void setLocation_Image() {
+        final GeoDegree geoDegree = new GeoDegree(image_exif);
+
+        // gps정보가 있으면
+        if (geoDegree.isValid()) {  // gps가 사진에 있는지
+            AlertDialog.Builder dialog = new AlertDialog.Builder(WritingActivity.this);
+            dialog.setTitle("사진 위치정보가 있습니다." +"\n"+ "사진위치에 글을 등록하시겠습니까?");
+
+            // 위치정보 list에 셋팅
+            Location lo = new Location("image");
+            final String temp[] = new String[geoDegree.getSize()];
+            for(int i = 0; i < geoDegree.getSize(); i++) {
+                lo.setLatitude(geoDegree.getLatitude(i));
+                lo.setLongitude(geoDegree.getLongitude(i));
+                temp[i] = getCurrentAddress(getApplicationContext(),lo);
+            }
+
+            // dialog에 위치정보 list추가 및 list item 클릭시 이벤트 처리
+            location_adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, temp);
+            dialog.setAdapter(location_adapter, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mAddressText.setText(temp[which]); // 위치정보 textview 셋팅
+                    mCurrentLocation.setLatitude(geoDegree.getLatitude(which)); // 위치정보 수정
+                    mCurrentLocation.setLongitude(geoDegree.getLongitude(which)); // 위치정보 수정
+                }
+            });
+
+            // dialog 보여주기
+            dialog.show();
+        }
+
+    }
+
+    // 사진 위치정보 저장할 클레스
+    public class location_class {
+        Float latitude;
+        Float longitude;
+    }
+
+    // 이미지 gps 경로
+    public class GeoDegree {
+        private boolean valid = false;
+        private ArrayList<location_class> location;
+
+        public GeoDegree() {}
+
+        public GeoDegree(ArrayList list_exif) {
+            location = new ArrayList<>();
+
+            for(int i = 0; i < list_exif.size(); i++) {
+                ExifInterface exif = (ExifInterface) list_exif.get(i);
+                setLocation(exif);
+            }
+        };
+
+        // 이미지 위치정보 셋팅
+        public void setLocation(ExifInterface exif) {
+            String attrLATITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+            String attrLATITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF);
+            String attrLONGITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+            String attrLONGITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF);
+
+            if ((attrLATITUDE != null) && (attrLATITUDE_REF != null) && (attrLONGITUDE != null) && (attrLONGITUDE_REF != null)) {
+                location_class lo_class = new location_class();
+                valid = true;
+
+                if (attrLATITUDE_REF.equals("N")) {
+                    lo_class.latitude = convertToDegree(attrLATITUDE);
+                } else {
+                    lo_class.latitude = 0 - convertToDegree(attrLATITUDE);
+                }
+
+                if (attrLONGITUDE_REF.equals("E")) {
+                    lo_class.longitude = convertToDegree(attrLONGITUDE);
+                } else {
+                    lo_class.longitude = 0 - convertToDegree(attrLONGITUDE);
+                }
+                location.add(lo_class);
+            }
+        }
+
+        // 이미지 위치정보 이름반환
+        public String getLocationName(ExifInterface exif) {
+            String attrLATITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+            String attrLATITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF);
+            String attrLONGITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+            String attrLONGITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF);
+
+            if ((attrLATITUDE != null) && (attrLATITUDE_REF != null) && (attrLONGITUDE != null) && (attrLONGITUDE_REF != null)) {
+                valid = true;
+                Location lo = new Location("image_equal");
+
+                if (attrLATITUDE_REF.equals("N")) {
+                    lo.setLatitude(convertToDegree(attrLATITUDE));
+                } else {
+                    lo.setLatitude(0 - convertToDegree(attrLATITUDE));
+                }
+
+                if (attrLONGITUDE_REF.equals("E")) {
+                    lo.setLongitude(convertToDegree(attrLONGITUDE));
+                } else {
+                    lo.setLongitude(0 - convertToDegree(attrLONGITUDE));
+                }
+
+                return getCurrentAddress(getApplicationContext(),lo);
+            }
+
+            return "";
+        }
+
+        private Float convertToDegree(String stringDMS) {
+            Float result = null;
+            String[] DMS = stringDMS.split(",", 3);
+
+            String[] stringD = DMS[0].split("/", 2);
+            Double D0 = new Double(stringD[0]);
+            Double D1 = new Double(stringD[1]);
+            Double FloatD = D0 / D1;
+
+            String[] stringM = DMS[1].split("/", 2);
+            Double M0 = new Double(stringM[0]);
+            Double M1 = new Double(stringM[1]);
+            Double FloatM = M0 / M1;
+
+            String[] stringS = DMS[2].split("/", 2);
+            Double S0 = new Double(stringS[0]);
+            Double S1 = new Double(stringS[1]);
+            Double FloatS = S0 / S1;
+            result = new Float(FloatD + (FloatM / 60) + (FloatS / 3600));
+            return result;
+        };
+
+        public boolean isValid() {
+            return valid;
+        }
+
+        public String toString(int i) {
+            location_class lo_class = location.get(i);
+            return lo_class.latitude + ", " + lo_class.longitude;
+        }
+
+        public Float getLatitude(int i) {
+            location_class lo_class = location.get(i);
+            return lo_class.latitude;
+        }
+
+        public Float getLongitude(int i) {
+            location_class lo_class = location.get(i);
+            return lo_class.longitude;
+        }
+
+        public int getSize() {
+            return location.size();
         }
     }
 }

@@ -68,7 +68,6 @@ public class CommentActivity extends AppCompatActivity {
     UserInfo user = UserInfo.getInstance();
     int content_num;
     int comm_num;
-    int user_num;
 
     // keyborad
     private InputMethodManager imm;
@@ -103,18 +102,20 @@ public class CommentActivity extends AppCompatActivity {
         if(tagintent != null) {
             content_num = tagintent.getIntExtra("content_num", 0);
             comm_num = tagintent.getIntExtra("comm_num", 0);
-            user_num = tagintent.getIntExtra("user_num", 0);
 
             recomment_select(content_num, comm_num);
         }
 
+        // 글입력 했을 시
         comment_edit_text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
 
+                    // db추가
                     Insert_recomm_data(comment_edit_text.getText().toString());
 
+                    // recierview 추가
                     SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String time = sdfNow.format(new Date(System.currentTimeMillis()));
 
@@ -132,6 +133,7 @@ public class CommentActivity extends AppCompatActivity {
                     comment_edit_text.setText("");
                     comment_count.setText(comment_list.size() + "");
 
+                    // 키보드 숨기기
                     hideKeyboard();
 
                     return true;

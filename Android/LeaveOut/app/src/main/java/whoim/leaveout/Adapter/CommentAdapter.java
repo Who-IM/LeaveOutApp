@@ -171,7 +171,6 @@ public class CommentAdapter extends BaseAdapter {
                 Intent recomment = new Intent(mContext.getApplicationContext(), CommentActivity.class);
                 recomment.putExtra("content_num", content_num);
                 recomment.putExtra("comm_num", comm_num);
-                recomment.putExtra("user_num", user_num);
                 mContext.startActivity(recomment);
             }
         };

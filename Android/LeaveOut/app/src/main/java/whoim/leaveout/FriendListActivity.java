@@ -2,7 +2,6 @@ package whoim.leaveout;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -252,12 +251,6 @@ public class FriendListActivity extends AppCompatActivity  {
         }
     }
 
-    // 뒤로가기
-    public void Back(View v) {
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(intent);
-    }
-
     private void friendlistSelectAndInsertSQL() {
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
             @Override
@@ -335,6 +328,11 @@ public class FriendListActivity extends AppCompatActivity  {
         };
 
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
+    }
+
+    // 뒤로가기
+    public void Back(View v) {
+        finish();
     }
 
     // 폰트 바꾸기

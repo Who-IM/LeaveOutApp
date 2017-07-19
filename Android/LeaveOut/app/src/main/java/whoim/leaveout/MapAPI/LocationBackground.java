@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.IBinder;
 import android.util.Log;
@@ -13,6 +14,7 @@ import com.google.android.gms.location.LocationResult;
 
 import whoim.leaveout.PreferencesNoticeActivity;
 import whoim.leaveout.R;
+import whoim.leaveout.WritingActivity;
 
 /**
  * 액티비티를 없어도 작동이 되게 서비스를 제공
@@ -22,6 +24,7 @@ public class LocationBackground extends IntentService {
     public static final String ACTION_LOCATION_BROADCAST = LocationBackground.class.getName() + "broadcast";
     public static final String EXTRA_CURRENT_LOCATION = "current_location";
     private Intent mBroadcastIntent;
+    SharedPreferences mLocationNotice;
 
     public LocationBackground() {
         super("LocationBackground");
@@ -55,24 +58,26 @@ public class LocationBackground extends IntentService {
                     Log.d("mCurrentLocation", "x : " + location.getLatitude() + "y : " + location.getLongitude());
                     mBroadcastIntent.putExtra(EXTRA_CURRENT_LOCATION, location);
                     sendBroadcast(mBroadcastIntent);
-                    SeoulLocation(location);
+                    Location_Notice(location);
                 }
             }
         }
     }
 
-    public void SeoulLocation(Location location)
-    {
+    public void Location_Notice(Location location) {
+        mLocationNotice = getSharedPreferences("count", MODE_PRIVATE);
+        SharedPreferences.Editor editor = mLocationNotice.edit();
         KoreaLocation KRLocation = new KoreaLocation();
-        if (PreferencesNoticeActivity.swLocation == true && KRLocation.deagu_count == 0) {
-            KRLocation.deagu_count++;
+        if (PreferencesNoticeActivity.swLocation == true && mLocationNotice.getInt("count", 0) == 0) {
+            editor.putInt("count", 1);
+            editor.commit();
             if ((KRLocation.deagu_left.latitude <= location.getLatitude() && KRLocation.deagu_left.longitude <= location.getLongitude()) &&
                     KRLocation.deagu_right.latitude >= location.getLatitude() && KRLocation.deagu_right.longitude >= location.getLongitude()) {
                 NotificationManager notificationManager = (NotificationManager) getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
 
 
                 Intent intent1 = new Intent(LocationBackground.this.getApplicationContext(),
-                        PreferencesNoticeActivity.class); //인텐트 생성.
+                        WritingActivity.class); //인텐트 생성.
 
                 Notification.Builder builder = new Notification.Builder(getApplicationContext());
 
@@ -88,7 +93,7 @@ public class LocationBackground extends IntentService {
                 //FLAG_ONE_SHOT - >이 플래그를 사용해 생성된 PendingIntent는 단 한번밖에 사용할 수 없습니다
 
                 builder.setSmallIcon(R.drawable.preferences_icon).setTicker("HETT").setWhen(System.currentTimeMillis())
-                        .setNumber(1).setContentTitle("새로운 위치에 도착하였습니다.").setContentText("해당 위치에 처음 도착 하였습니다.")
+                        .setNumber(1).setContentTitle("새로운 위치에 도착하였습니다.").setContentText("새로운 위치에 글을 등록 하세요.")
                         .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE).
                         setContentIntent(pendingNotificationIntent).setAutoCancel(true).setOngoing(true);
                 //해당 부분은 API 4.1버전부터 작동합니다.
@@ -100,7 +105,6 @@ public class LocationBackground extends IntentService {
                 //setConentText->푸쉬내용
 
                 notificationManager.notify(1, builder.build()); // Notification send
-
             }
         }
     }

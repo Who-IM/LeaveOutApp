@@ -218,7 +218,7 @@ public class ContentAdapter extends BaseAdapter {
 
         // 댓글 부분
         if (mDataList.get(position).commentAdapter == null) {
-            mDataList.get(position).commentAdapter = new CommentAdapter();     // 어뎁터 없을경우 생성 (재활용을 위해)
+            mDataList.get(position).commentAdapter = new CommentAdapter(mContext);     // 어뎁터 없을경우 생성 (재활용을 위해)
         }
 
         holder.commentlist.setAdapter(mDataList.get(position).commentAdapter);   // 어뎁터 등록

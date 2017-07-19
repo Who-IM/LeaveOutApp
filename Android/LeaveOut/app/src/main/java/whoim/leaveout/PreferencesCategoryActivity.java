@@ -382,8 +382,7 @@ public class PreferencesCategoryActivity extends AppCompatActivity {
 
     // 뒤로가기
     public void Back(View v) {
-        Intent intent = new Intent(getApplicationContext(), PreferencesActivity.class);
-        startActivity(intent);
+        finish();
     }
 
     // 폰트 바꾸기

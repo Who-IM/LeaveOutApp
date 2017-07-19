@@ -3,7 +3,8 @@ package whoim.leaveout.MapAPI;
 import com.google.android.gms.maps.model.LatLng;
 
 public class KoreaLocation {
-    int deagu_count = 0;
+
+    static int deagu_count = 0;
     LatLng seoul_left = new LatLng(37.5205240, 126.9151980);
     LatLng seoul_right = new LatLng(37.6087670, 127.06489501);
 

@@ -265,11 +265,9 @@ public class ViewArticleActivity extends AppCompatActivity
     }
 
 
-
     // 뒤로가기
     public void Back(View v) {
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(intent);
+        finish();
     }
 
     // 폰트 바꾸기

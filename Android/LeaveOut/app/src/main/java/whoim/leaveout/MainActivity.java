@@ -38,15 +38,24 @@ import android.widget.Toast;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.MapAPI.LocationBackground;
@@ -111,6 +120,8 @@ public class MainActivity extends MapAPIActivity {
         super.onCreate(savedInstanceState);
         restoreState(savedInstanceState);     // 상태 불러오기
 
+        sendRegistrationToServer(FirebaseInstanceId.getInstance().getToken());
+
         // 화면 캡쳐 방지
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.main_layout);
@@ -161,6 +172,38 @@ public class MainActivity extends MapAPIActivity {
                 return true;
             }
         });*/
+    }
+
+    public void sendRegistrationToServer(final String token) {
+        // Add custom implementation, as needed.
+        new Thread() {
+            @Override
+            public void run() {
+                    final OkHttpClient client = new OkHttpClient();
+                    RequestBody body = new FormBody.Builder()
+                            .add("Token", token)
+                            .build();
+
+                    //request
+                    final Request request = new Request.Builder()
+                            .url("http://106.249.39.40:8080/FCMControll")
+                            .post(body)
+                            .build();
+
+
+                    client.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+
+                        }
+                    });
+            }
+        }.run();
     }
 
     // 인스턴스 셋팅

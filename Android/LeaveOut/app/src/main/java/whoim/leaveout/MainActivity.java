@@ -1,4 +1,4 @@
-﻿package whoim.leaveout;
+package whoim.leaveout;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -180,29 +180,29 @@ public class MainActivity extends MapAPIActivity {
         new Thread() {
             @Override
             public void run() {
-                    final OkHttpClient client = new OkHttpClient();
-                    RequestBody body = new FormBody.Builder()
-                            .add("Token", token)
-                            .build();
+                final OkHttpClient client = new OkHttpClient();
+                RequestBody body = new FormBody.Builder()
+                        .add("Token", token)
+                        .build();
 
-                    //request
-                    final Request request = new Request.Builder()
-                            .url("http://106.249.39.40:8080/FCMControll")
-                            .post(body)
-                            .build();
+                //request
+                final Request request = new Request.Builder()
+                        .url("http://106.249.39.40:8080/FCMControll")
+                        .post(body)
+                        .build();
 
 
-                    client.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
 
-                        }
+                    }
 
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
 
-                        }
-                    });
+                    }
+                });
             }
         }.run();
     }

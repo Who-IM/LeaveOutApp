@@ -10,6 +10,8 @@ import android.widget.Switch;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
+import whoim.leaveout.User.UserInfo;
+
 //알림 현재 숨김표시 해놓음
 public class PreferencesNoticeActivity extends AppCompatActivity  {
     Switch all; //스위치 전체
@@ -69,17 +71,20 @@ public class PreferencesNoticeActivity extends AppCompatActivity  {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked == true) {
                     ++count;
-                    editor.putBoolean("newLocation", isChecked);
+                    editor.putBoolean("newLocation" + UserInfo.getInstance().getUserNum(), isChecked);
+                    editor.putBoolean("swLocation" + UserInfo.getInstance().getUserNum(), isChecked);
+
                     if (count == 5) {
                         all.setChecked(true);
                     }
-                    swLocation = true;
+//                    swLocation = true;
                 } else {
                     --count;
-                    editor.putBoolean("newLocation", isChecked);
+                    editor.putBoolean("newLocation" + UserInfo.getInstance().getUserNum(), isChecked);
+                    editor.putBoolean("swLocation" + UserInfo.getInstance().getUserNum(), isChecked);
                     switch_flag = false;
                     all.setChecked(false);
-                    swLocation = false;
+//                    swLocation = false;
                 }
                 editor.commit();
             }
@@ -90,14 +95,14 @@ public class PreferencesNoticeActivity extends AppCompatActivity  {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked == true) {
                     ++count;
-                    editor.putBoolean("fence", isChecked);
+                    editor.putBoolean("fence" + UserInfo.getInstance().getUserNum(), isChecked);
                     if (count == 5) {
                         all.setChecked(true);
                     }
                     swFence = true;
                 } else {
                     --count;
-                    editor.putBoolean("newLocation", isChecked);
+                    editor.putBoolean("fence" + UserInfo.getInstance().getUserNum(), isChecked);
                     switch_flag = false;
                     all.setChecked(false);
                     swFence = false;
@@ -111,13 +116,13 @@ public class PreferencesNoticeActivity extends AppCompatActivity  {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked == true) {
                     ++count;
-                    editor.putBoolean("comment", isChecked);
+                    editor.putBoolean("comment" + UserInfo.getInstance().getUserNum(), isChecked);
                     if (count == 5) {
                         all.setChecked(true);
                     }
                 } else {
                     --count;
-                    editor.putBoolean("newLocation", isChecked);
+                    editor.putBoolean("comment" + UserInfo.getInstance().getUserNum(), isChecked);
                     switch_flag = false;
                     all.setChecked(false);
                 }
@@ -130,13 +135,13 @@ public class PreferencesNoticeActivity extends AppCompatActivity  {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked == true) {
                     ++count;
-                    editor.putBoolean("addFriend", isChecked);
+                    editor.putBoolean("addFriend" + UserInfo.getInstance().getUserNum(), isChecked);
                     if (count == 5) {
                         all.setChecked(true);
                     }
                 } else {
                     --count;
-                    editor.putBoolean("newLocation", isChecked);
+                    editor.putBoolean("addFriend" + UserInfo.getInstance().getUserNum(), isChecked);
                     switch_flag = false;
                     all.setChecked(false);
                 }
@@ -149,13 +154,13 @@ public class PreferencesNoticeActivity extends AppCompatActivity  {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked == true) {
                     ++count;
-                    editor.putBoolean("tagFriend", isChecked);
+                    editor.putBoolean("tagFriend" + UserInfo.getInstance().getUserNum(), isChecked);
                     if (count == 5) {
                         all.setChecked(true);
                     }
                 } else {
                     --count;
-                    editor.putBoolean("newLocation", isChecked);
+                    editor.putBoolean("tagFriend" + UserInfo.getInstance().getUserNum(), isChecked);
                     switch_flag = false;
                     all.setChecked(false);
 
@@ -166,11 +171,11 @@ public class PreferencesNoticeActivity extends AppCompatActivity  {
     }
 
     public void SwLoad() {
-        newLocation.setChecked(mSwitch.getBoolean("newLocation", false));
-        fence.setChecked(mSwitch.getBoolean("fence", false));
-        comment.setChecked(mSwitch.getBoolean("comment", false));
-        addFriend.setChecked(mSwitch.getBoolean("addFriend", false));
-        tagFriend.setChecked(mSwitch.getBoolean("tagFriend", false));
+        newLocation.setChecked(mSwitch.getBoolean("newLocation" + UserInfo.getInstance().getUserNum(), false));
+        fence.setChecked(mSwitch.getBoolean("fence" + UserInfo.getInstance().getUserNum(), false));
+        comment.setChecked(mSwitch.getBoolean("comment" + UserInfo.getInstance().getUserNum(), false));
+        addFriend.setChecked(mSwitch.getBoolean("addFriend" + UserInfo.getInstance().getUserNum(), false));
+        tagFriend.setChecked(mSwitch.getBoolean("tagFriend" + UserInfo.getInstance().getUserNum(), false));
     }
 
     // 뒤로가기

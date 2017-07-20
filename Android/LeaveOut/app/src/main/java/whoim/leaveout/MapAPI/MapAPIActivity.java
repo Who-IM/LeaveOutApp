@@ -2,6 +2,8 @@ package whoim.leaveout.MapAPI;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -37,8 +39,11 @@ import java.util.Iterator;
 
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.MainActivity;
+import whoim.leaveout.PreferencesNoticeActivity;
 import whoim.leaveout.R;
 import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.Services.SharedDatabase;
 import whoim.leaveout.StartSetting.Permission;
 import whoim.leaveout.ViewArticleActivity;
 
@@ -81,11 +86,15 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
             "where visibility = 1 and fence = true " +
             "Having distance <= "+ distance;        // 울타리글 sql
 
+    SharedDatabase database;        // 상태 저장 데이터베이스
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mLocationIntent = new Intent(this, LocationBackground.class);
+
+        database = new SharedDatabase(getApplicationContext(),null,1);
     }
 
     @Override
@@ -198,8 +207,8 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
     protected void getDeviceLocation() {
         if (Permission.checkPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
             mLocationPermissionGranted = true;
-//            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
-//            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);   // 내 위치의 업데이트 각 기능 주기 등 셋팅
+            // mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);       // 디바이스 위치 가져오기
+            // LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);   // 내 위치의 업데이트 각 기능 주기 등 셋팅
             mLocationPendingIntent = PendingIntent.getService(this, 0, mLocationIntent, PendingIntent.FLAG_UPDATE_CURRENT);   // 다른 컴포넌트에게 인텐트 권한 주기
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, mLocationPendingIntent);   // 내 위치의 업데이트 각 기능 주기 등 셋팅 및 백그라운드에서 GPS 위치 찾기
         }
@@ -307,6 +316,12 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
             public void FenceUI(JSONObject result) throws JSONException {
                 if(result != null) {
                     addMarkerList(result.getJSONArray("result"));
+                    for(int i = 0; i < mClusterMaker.getmFenceList().size(); i++) {
+                        if(database.getFenceQuery(mClusterMaker.getmFenceList().get(i).getContentNum()) == false) {
+                            fence_Notice();
+                            break;
+                        }
+                    }
                 }
             }
         });
@@ -354,7 +369,6 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
         }
         mClusterMaker.resetCluster();
     }
-
 
     // 클러스링 된 마커 클릭한 경우 리스너
     @Override
@@ -419,6 +433,47 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
             }
         };
         LoadingSQLDialog.SQLSendStart(this, loadingSQLListener,ProgressDialog.STYLE_SPINNER, null);
+    }
+
+    public void fence_Notice() {
+
+        if(PreferencesNoticeActivity.swFence == true) {
+            for(int i = 0; i< mClusterMaker.getmFenceList().size(); i++) {
+                database.fenceInsert(mClusterMaker.getmFenceList().get(i).getContentNum());
+            }
+
+            NotificationManager notificationManager = (NotificationManager) getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
+
+            Intent intent1 = new Intent(getApplicationContext(),
+                    MainActivity.class); //인텐트 생성.
+
+            Notification.Builder builder = new Notification.Builder(getApplicationContext());
+
+            //현재 액티비티를 최상으로 올리고, 최상의 액티비티를 제외한 모든 액티비티를없앤다.
+            intent1.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+            PendingIntent pendingNotificationIntent = PendingIntent.getActivity(MapAPIActivity.this, 0,
+                    intent1, PendingIntent.FLAG_UPDATE_CURRENT);
+            //PendingIntent는 일회용 인텐트 같은 개념입니다.
+            //FLAG_UPDATE_CURRENT - > 만일 이미 생성된 PendingIntent가 존재 한다면, 해당 Intent의 내용을 변경함.
+            //FLAG_CANCEL_CURRENT - .이전에 생성한 PendingIntent를 취소하고 새롭게 하나 만든다.
+            //FLAG_NO_CREATE -> 현재 생성된 PendingIntent를 반환합니다.
+            //FLAG_ONE_SHOT - >이 플래그를 사용해 생성된 PendingIntent는 단 한번밖에 사용할 수 없습니다
+
+            builder.setSmallIcon(R.drawable.preferences_icon).setTicker("HETT").setWhen(System.currentTimeMillis())
+                    .setNumber(1).setContentTitle("근처에 울타리글이 있습니다.").setContentText("울타리글을 확인하세요")
+                    .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE).
+                    setContentIntent(pendingNotificationIntent).setAutoCancel(true).setOngoing(true);
+            //해당 부분은 API 4.1버전부터 작동합니다.
+
+            //setSmallIcon - > 작은 아이콘 이미지
+            //setTicker - > 알람이 출력될 때 상단에 나오는 문구.
+            //setWhen -> 알림 출력 시간.
+            //setContentTitle-> 알림 제목
+            //setConentText->푸쉬내용
+
+            notificationManager.notify(1, builder.build()); // Notification send
+        }
     }
 }
 

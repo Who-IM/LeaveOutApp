@@ -1,4 +1,4 @@
-package whoim.leaveout;
+﻿package whoim.leaveout;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -111,6 +111,7 @@ public class MainActivity extends MapAPIActivity {
 
     UserInfo userInfo = UserInfo.getInstance();     // 유저 정보
     Bitmap profile = null;      // 프로파일
+
 
     // SQL
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
@@ -724,28 +725,27 @@ public class MainActivity extends MapAPIActivity {
     // 브로드 캐스트 만들기(로케이션)
     private void registerReceiver() {
         // 이미 브로드캐스트 수신 설정 했으면 안하기
-        if(mBroadcastCheck == true) return;
+        if (mBroadcastCheck == true) return;
 
-        if(mBroadcastLocation == null) {
+        if (mBroadcastLocation == null) {
             // 사용자 위치 정보 브로드캐스트 수신 객체
             mBroadcastLocation = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     Location tempLocation = intent.getExtras().getParcelable(LocationBackground.EXTRA_CURRENT_LOCATION);        // 주소 가져오기
-                    if(mCurrentLocation == null) {
+                    if (mCurrentLocation == null) {
                         MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
                         circleSet();        // 원그리기
-                        mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(),mCurrentLocation));       // View에 주소 표시
+                        mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(), mCurrentLocation));       // View에 주소 표시
                         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                 new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 16));       // 초기 화면 셋팅
                         fenceSQLStart();
-                    }
-                    else if (mCurrentLocation.getLatitude() != tempLocation.getLatitude() || mCurrentLocation.getLongitude() != tempLocation.getLongitude()) {   // 전과 후의 위치가 다르면 바꾸기
+                    } else if (mCurrentLocation.getLatitude() != tempLocation.getLatitude() || mCurrentLocation.getLongitude() != tempLocation.getLongitude()) {   // 전과 후의 위치가 다르면 바꾸기
                         MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
                         circleSet();        // 원그리기
-                        mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(),mCurrentLocation));       // View에 주소 표시
+                        mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(), mCurrentLocation));       // View에 주소 표시
 
-                        if(mClusterMaker.getmFenceList().size() == 0) {     // 전에 울타리글 마커가 없었을 경우
+                        if (mClusterMaker.getmFenceList().size() == 0) {     // 전에 울타리글 마커가 없었을 경우
                             fenceSQLStart();        // 울타리글 가져와서 마커 추가하기
                         }
                         else {  // 전에 있었을 경우
@@ -927,10 +927,10 @@ public class MainActivity extends MapAPIActivity {
         LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
     }
 
-
     // 폰트 바꾸기
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
+
 }

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -33,7 +34,7 @@ public class CommentAdapter extends BaseAdapter {
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();
     Context mContext = null;
     int comm_num;
-
+    ImageButton declaration;
     public CommentAdapter(Context context) {
         mContext = context;
     }
@@ -102,7 +103,6 @@ public class CommentAdapter extends BaseAdapter {
             holder.nameview = (TextView) convertView.findViewById(R.id.public_view_article_comment_name);
             holder.commentview = (TextView) convertView.findViewById(R.id.public_view_article_comment_text);
             holder.timeview = (TextView) convertView.findViewById(R.id.public_view_article_comment_time);
-
             convertView.setTag(holder);
         }else{
             holder = (CommentViewHolder) convertView.getTag();
@@ -133,7 +133,6 @@ public class CommentAdapter extends BaseAdapter {
                 select_Comment_num(data.user_num, data.time, data.content_num);
             }
         });
-
         return convertView;
     }
 

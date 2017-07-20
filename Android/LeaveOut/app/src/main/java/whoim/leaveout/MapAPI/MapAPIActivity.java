@@ -436,7 +436,6 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
     }
 
     public void fence_Notice() {
-
         if(PreferencesNoticeActivity.swFence == true) {
             for(int i = 0; i< mClusterMaker.getmFenceList().size(); i++) {
                 database.fenceInsert(mClusterMaker.getmFenceList().get(i).getContentNum());
@@ -462,9 +461,8 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
 
             builder.setSmallIcon(R.drawable.preferences_icon).setTicker("HETT").setWhen(System.currentTimeMillis())
                     .setNumber(1).setContentTitle("근처에 울타리글이 있습니다.").setContentText("울타리글을 확인하세요")
-                    .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE).
-                    setContentIntent(pendingNotificationIntent).setAutoCancel(true).setOngoing(true);
-            //해당 부분은 API 4.1버전부터 작동합니다.
+                    .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
+                    .setContentIntent(pendingNotificationIntent).setAutoCancel(true);
 
             //setSmallIcon - > 작은 아이콘 이미지
             //setTicker - > 알람이 출력될 때 상단에 나오는 문구.

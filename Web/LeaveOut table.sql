@@ -99,12 +99,20 @@ on update cascade
 );
 
 /* 카테고리 데이터 */
-CREATE TABLE `cate_data` (
-	`cate_seq` INT(11) NOT NULL,
-	`cate_data_text` VARCHAR(50) NOT NULL,
-	`content_num` INT(11) NOT NULL,
-	INDEX `cate_seq` (`cate_seq`),
-	CONSTRAINT `cate_data_ibfk_1` FOREIGN KEY (`cate_seq`) REFERENCES `category` (`cate_seq`) ON UPDATE CASCADE ON DELETE CASCADE
+CREATE TABLE cate_data (
+	cate_seq INT(11) NOT NULL,
+	content_num INT(11) NOT NULL,
+	INDEX cate_seq (cate_seq),
+	
+	CONSTRAINT fk_cate_data_cate_seq 
+	FOREIGN KEY(cate_seq) REFERENCES category(cate_seq) 
+	ON UPDATE CASCADE 
+	ON DELETE CASCADE,
+	
+	CONSTRAINT fk_cate_data_content_num
+	FOREIGN KEY(content_num) REFERENCES Content(content_num) 
+	ON UPDATE CASCADE 
+	ON DELETE CASCADE
 );
 
 /* 댓글에 댓글 데이터 */

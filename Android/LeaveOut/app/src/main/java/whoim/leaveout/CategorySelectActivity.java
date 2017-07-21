@@ -74,7 +74,7 @@ public class CategorySelectActivity extends AppCompatActivity {
             public void onClick(View v) {
                 for(int i = 0; i < adapter.getCount(); i++) {
                     if(check_image.get(i).getVisibility() == View.VISIBLE) {
-                        categoryInsertSQLData(seq, adapter.getItem(i).address_data, adapter.getItem(i).content_num);
+                        categoryInsertSQLData(seq, adapter.getItem(i).content_num);
                     }
                 }
             }
@@ -192,8 +192,8 @@ public class CategorySelectActivity extends AppCompatActivity {
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
     }
 
-    private void categoryInsertSQLData(final int seq, final String address, final int content_num) {
-        final String sql = "insert into cate_data(cate_seq, cate_data_text, content_num) values(?, ?, ?);";
+    private void categoryInsertSQLData(final int seq, final int content_num) {
+        final String sql = "insert into cate_data(cate_seq, content_num) values(?, ?);";
 
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
             @Override
@@ -205,7 +205,6 @@ public class CategorySelectActivity extends AppCompatActivity {
             public JSONObject getSQLQuery() {
                 mDataQueryGroup.clear();
                 mDataQueryGroup.addInt(seq);
-                mDataQueryGroup.addString(address);
                 mDataQueryGroup.addInt(content_num);
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
             }

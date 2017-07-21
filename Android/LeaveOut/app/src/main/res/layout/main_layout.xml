@@ -76,8 +76,7 @@
                 android:id="@+id/main_google_map"
                 class="com.google.android.gms.maps.MapFragment"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_above="@+id/main_button_layout" />
+                android:layout_height="match_parent"/>
 
             <!--위치 정보 칸 지도 넣으면 변경-->
             <TextView
@@ -97,8 +96,9 @@
             <LinearLayout
                 android:id="@+id/main_button_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="35dp"
                 android:orientation="horizontal"
+
                 android:background="@drawable/public_button"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="true">
@@ -113,7 +113,7 @@
                     android:text="글쓰기"
                     app:font="custom1"
                     android:textColor="#FFFFFFFF"
-                    android:textSize="30dp"
+                    android:textSize="20dp"
                     android:onClick="nextActivityButton"/>
 
                 <!-- 체크 버튼 -->
@@ -126,7 +126,20 @@
                     android:onClick="nextActivityButton"
                     android:text="체크"
                     android:textColor="#FFFFFFFF"
-                    android:textSize="30dp"
+                    android:textSize="20dp"
+                    app:font="custom1" />
+
+                <!-- 체크 버튼 -->
+                <Button
+                    android:id="@+id/main_imagecheck"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="#00000000"
+                    android:onClick="nextActivityButton"
+                    android:text="사진체크"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="20dp"
                     app:font="custom1" />
 
                 <!-- 모아보기 버튼 -->
@@ -139,7 +152,7 @@
                     android:text="모아보기"
                     app:font="custom1"
                     android:textColor="#FFFFFFFF"
-                    android:textSize="30dp"
+                    android:textSize="20dp"
                     android:onClick="nextActivityButton"/>
             </LinearLayout>
 

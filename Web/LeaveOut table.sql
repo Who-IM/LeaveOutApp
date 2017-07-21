@@ -123,5 +123,29 @@ Create table recomment (
   on update cascade
 );
 
+/* 신고 테이블 */
+Create table Declaration (
+	content_num int not null,
+	user_num int not null,
+	decl_text varchar(100),
+	constraint fk_declaration_content_num
+	foreign key(content_num) references Content(content_num) 
+	on delete cascade,
+	constraint fk_declaration_user_num
+	foreign key(user_num) references User(user_num)
+	on delete cascade
+);
+
+/* 알림 테이블 */
+Create table FCM (
+	user_num int not null,
+	token varchar(200),
+	constraint fk_FCM_user_num
+	foreign key(user_num) references User(user_num)
+	on delete cascade
+);
+
+
+
 
 

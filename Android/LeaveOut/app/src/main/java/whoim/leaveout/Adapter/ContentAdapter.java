@@ -243,7 +243,8 @@ public class ContentAdapter extends BaseAdapter {
                 // OK 버튼 이벤트
                 dialog.setPositiveButton("보내기", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(mContext, "전송되었습니다. 내용 : "+etEdit.getText(), Toast.LENGTH_LONG).show();
+                        declarationInsertSQLData(mData.contentnum, etEdit.getText().toString());
+                        Toast.makeText(mContext, "전송되었습니다. 내용 : " + etEdit.getText(), Toast.LENGTH_LONG).show();
                     }
                 });
                 // Cancel 버튼 이벤트
@@ -255,6 +256,7 @@ public class ContentAdapter extends BaseAdapter {
                 dialog.show();
             }
         });
+
         // 댓글 쳐서 보여주기기
         holder.commentedit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -482,6 +484,39 @@ public class ContentAdapter extends BaseAdapter {
             }
         };
         LoadingSQLDialog.SQLSendStart(mContext, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);
+    }
+
+    // 신고하기 게시물 확인
+    private void declarationInsertSQLData(final int contentnum, final String text) {
+
+            final String sql = "Insert into declaration " +
+                    "Values (?, ?, ?);";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }   //쿼리 겟수
+
+            @Override
+            public JSONObject getSQLQuery() {   //쿼리 처리
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(contentnum);
+                mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+                mDataQueryGroup.addString(text);
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
+            }
+            @Override
+            public JSONObject getUpLoad(JSONObject resultSQL) {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(mContext,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
     }
 
     // 댓글 추가

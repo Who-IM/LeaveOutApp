@@ -23,6 +23,7 @@ public class WebControll {
         try {
             URL url = new URL("http://172.19.1.129:8080/controll"); // URL화 한다.
 
+
             mCon = (HttpURLConnection) url.openConnection();                 // 접속 객체 생성
 //            mCon.setRequestProperty("Content-Type", "application/json");      // 타입설정(application/json) 형식으로 전송
             mCon.setRequestProperty("Content-Type", "text/html");               // 타입설

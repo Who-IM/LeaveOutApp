@@ -11,6 +11,9 @@ import android.support.v4.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 import whoim.leaveout.MainActivity;
 import whoim.leaveout.R;
 
@@ -24,7 +27,12 @@ public class FCMMessageService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         //추가한것
-        sendNotification(remoteMessage.getData().get("message"));
+        String msg = remoteMessage.getData().get("message");
+        try {
+            sendNotification(URLDecoder.decode(msg,"UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     private void sendNotification(String messageBody) {

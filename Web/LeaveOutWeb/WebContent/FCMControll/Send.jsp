@@ -1,4 +1,4 @@
-<%@page import="DBSQLServer.DBSQL"%>
+﻿<%@page import="DBSQLServer.DBSQL"%>
 <%@page import="java.net.URLEncoder"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
@@ -21,9 +21,10 @@
     Statement stmt = null; 
     ResultSet rs = null;
     
-    request.setCharacterEncoding("UTF-8");
-    String msg = request.getParameter("message");;
-    msg = new String(msg.getBytes("UTF-8"), "UTF-8");   //메시지 한글깨짐 처리
+   	request.setCharacterEncoding("UTF-8");
+    String msg = request.getParameter("message");
+    //msg = new String(msg.getBytes("UTF-8"), "UTF-8");   //메시지 한글깨짐 처리
+    msg = URLEncoder.encode(msg, "UTF-8");
     
     if(msg==null || msg.equals("")){
         msg="";

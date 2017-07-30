@@ -147,7 +147,7 @@ Create table Declaration (
 /* 알림 테이블 */
 Create table FCM (
 	user_num int not null,
-	token varchar(200),
+	token varchar(200) unique key,
 	constraint fk_FCM_user_num
 	foreign key(user_num) references User(user_num)
 	on delete cascade

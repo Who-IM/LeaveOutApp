@@ -43,6 +43,7 @@ import android.widget.Toast;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import org.json.JSONArray;
@@ -57,6 +58,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import whoim.leaveout.FCMPush.FCMInstanceIDService;
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.MapAPI.LocationBackground;
@@ -122,6 +124,8 @@ public class MainActivity extends MapAPIActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         restoreState(savedInstanceState);     // 상태 불러오기
+
+        FCMInstanceIDService.sendRegistrationToServer(String.valueOf(userInfo.getUserNum()),FirebaseInstanceId.getInstance().getToken());
 
         // 화면 캡쳐 방지
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

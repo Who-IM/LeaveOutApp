@@ -164,6 +164,23 @@
             android:enabled="true"
             android:exported="false" />
 
+
+        <!--FCM 전용 알림 메세지 수신-->
+        <service
+            android:name=".FCMPush.FCMMessageService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <!--FCM 전용 알림 서비스스-->
+        <service
+            android:name=".FCMPush.FCMInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
         <!--구글 Map-->
         <meta-data
             android:name="com.google.android.geo.API_KEY"

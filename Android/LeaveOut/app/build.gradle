@@ -54,4 +54,11 @@ dependencies {
     compile project(':pp')
     compile project(':camera')
 
+    // FCM 사용
+    compile 'com.google.firebase:firebase-core:10.2.1'
+    compile 'com.google.firebase:firebase-messaging:10.2.1'
+    // 데이터 통신
+    compile 'com.squareup.okhttp3:okhttp:3.2.0'
 }
+
+apply plugin: 'com.google.gms.google-services'

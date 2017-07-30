@@ -20,10 +20,10 @@ import org.json.simple.JSONObject;
 
 public class DBSQL {
 	
-	DataSource ds;	// 데이터 소스 정보
-	Connection con; // db 접속
-	PreparedStatement pstmt;		// sql 쿼리
-	ResultSet rs;	// SQL 결과
+	private DataSource ds;	// 데이터 소스 정보
+	private Connection con; // db 접속
+	private PreparedStatement pstmt;		// sql 쿼리
+	private ResultSet rs;	// SQL 결과
 	
 	public DBSQL() {
 		try {
@@ -35,12 +35,21 @@ public class DBSQL {
 		}
 	}
 	
+	public Connection getConnection() {
+		try {
+			con = ds.getConnection();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}			// SQL 서버 접속
+		return con;
+	}
+
 	// 폰 연동 한 select 문
 	@SuppressWarnings("unchecked")
 	public JSONObject getPhoneSelect(String sql, int size) {
 		
 		JSONObject resJSON = null;		// 응답용 데이터
-		
 		try {
 			con = ds.getConnection();			// SQL 서버 접속
 			pstmt = con.prepareStatement(sql);	// SQL 쿼리문 객체 생성

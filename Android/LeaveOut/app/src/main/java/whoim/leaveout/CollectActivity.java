@@ -231,6 +231,7 @@ public class CollectActivity extends AppCompatActivity {
                             String rec_cnt = contentdata.getString("rec_cnt");
                             String view_cnt = contentdata.getString("view_cnt");
                             String text = contentdata.getString("text");
+                            String email = contentdata.getString("email");
                             Bitmap contentuserprofile = setProfile(contentdata);
 
                             // 댓글 부분
@@ -264,7 +265,7 @@ public class CollectActivity extends AppCompatActivity {
 
                                 }
                             }
-                            Object[] objects = {contentuserprofile,contentnum, name, address, reg_time, rec_cnt, view_cnt, text, imagelist, commentAdapter};
+                            Object[] objects = {contentuserprofile,contentnum, name, address, reg_time, rec_cnt, view_cnt, text, imagelist, commentAdapter,email};
                             publishProgress(objects);
                         }
                     }
@@ -276,7 +277,7 @@ public class CollectActivity extends AppCompatActivity {
             @Override
             protected void onProgressUpdate(Object... values) {
                 mContentAdapter.addItem((Bitmap) values[0], (int)values[1], (String)values[2], (String)values[3], (String)values[4],(String)values[5],
-                        (String)values[6],(String)values[7], (ArrayList<String>) values[8], mUserInfo.getProfile(), (CommentAdapter)values[9]);
+                        (String)values[6],(String)values[7], (ArrayList<String>) values[8], mUserInfo.getProfile(), (CommentAdapter)values[9], (String) values[10]);
             }
 
             @Override

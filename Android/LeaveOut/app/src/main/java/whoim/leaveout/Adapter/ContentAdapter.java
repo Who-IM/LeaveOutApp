@@ -1,7 +1,9 @@
 package whoim.leaveout.Adapter;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
@@ -15,6 +17,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -72,6 +75,7 @@ public class ContentAdapter extends BaseAdapter {
         public EditText commentedit;
         public Button viewcomment_btn;
         public Button like_btn;
+        public ImageButton declaration_btn;
     }
 
     private Context mContext;
@@ -149,6 +153,7 @@ public class ContentAdapter extends BaseAdapter {
     private void findViews(ContentViewHolder holder, View convertView) {
         holder.profile = (ImageView) convertView.findViewById(R.id.public_view_article_Image);
         holder.name = (TextView) convertView.findViewById(R.id.public_view_article_name);
+        holder.declaration_btn = (ImageButton) convertView.findViewById(R.id.public_view_article_declaration);  //왜이럼???
         holder.location = (TextView) convertView.findViewById(R.id.public_view_article_location);
         holder.time = (TextView) convertView.findViewById(R.id.public_view_article_time);
         holder.recom_num = (TextView) convertView.findViewById(R.id.public_view_article_recom_num);
@@ -226,6 +231,31 @@ public class ContentAdapter extends BaseAdapter {
 
         holder.commentedit.setTag(position);
         final ContentViewHolder finalHolder = holder;
+
+        //신고하기
+        holder.declaration_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final EditText etEdit = new EditText(mContext);
+                AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
+                dialog.setTitle("신고 내용을 입력하주세요");
+                dialog.setView(etEdit);
+                // OK 버튼 이벤트
+                dialog.setPositiveButton("보내기", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        declarationInsertSQLData(mData.contentnum, etEdit.getText().toString());
+                        Toast.makeText(mContext, "전송되었습니다. 내용 : " + etEdit.getText(), Toast.LENGTH_LONG).show();
+                    }
+                });
+                // Cancel 버튼 이벤트
+                dialog.setNegativeButton("취소",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                dialog.show();
+            }
+        });
 
         // 댓글 쳐서 보여주기기
         holder.commentedit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -454,6 +484,39 @@ public class ContentAdapter extends BaseAdapter {
             }
         };
         LoadingSQLDialog.SQLSendStart(mContext, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);
+    }
+
+    // 신고하기 게시물 확인
+    private void declarationInsertSQLData(final int contentnum, final String text) {
+
+            final String sql = "Insert into declaration " +
+                    "Values (?, ?, ?);";
+
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }   //쿼리 겟수
+
+            @Override
+            public JSONObject getSQLQuery() {   //쿼리 처리
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(contentnum);
+                mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+                mDataQueryGroup.addString(text);
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
+            }
+            @Override
+            public JSONObject getUpLoad(JSONObject resultSQL) {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+
+            }
+        };
+        LoadingSQLDialog.SQLSendStart(mContext,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
     }
 
     // 댓글 추가

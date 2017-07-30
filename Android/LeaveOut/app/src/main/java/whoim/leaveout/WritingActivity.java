@@ -1,12 +1,10 @@
 package whoim.leaveout;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -16,8 +14,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -53,7 +49,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 
 import nl.changer.polypicker.Config;
 import nl.changer.polypicker.ImagePickerActivity;
@@ -88,10 +83,10 @@ public class WritingActivity extends AppCompatActivity {
     ArrayAdapter<String> writing_adapter_search;
     ImageButton writing_inputSearch;
 
-    private String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
+    /*private String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}; //권한 설정 변수
 
-    private static final int MULTIPLE_PERMISSIONS = 101; //권한 동의 여부 문의 후 CallBack 함수에 쓰일 변수
+    private static final int MULTIPLE_PERMISSIONS = 101; //권한 동의 여부 문의 후 CallBack 함수에 쓰일 변수*/
     //카메라 앨범 끝
 
     //글 공개 여부 변수
@@ -158,7 +153,7 @@ public class WritingActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
         getSupportActionBar().setDisplayShowTitleEnabled(false);        //액션바에 표시되는 제목의 표시유무를 설정합니다.
 
-        checkPermissions(); //권한 묻기
+        //checkPermissions(); //권한 묻기
 
         // 매뉴 구성
         list = (ListView) findViewById(R.id.Image_listview);
@@ -359,7 +354,7 @@ public class WritingActivity extends AppCompatActivity {
         }        // getter
     }
 
-    private boolean checkPermissions() {
+   /* private boolean checkPermissions() {
         int result;
         List<String> permissionList = new ArrayList<>();
         for (String pm : permissions) {
@@ -409,12 +404,11 @@ public class WritingActivity extends AppCompatActivity {
     private void showNoPermissionToastAndFinish() {
         Toast.makeText(this, "권한 요청에 동의 해주셔야 이용 가능합니다. 설정에서 권한 허용 하시기 바랍니다.", Toast.LENGTH_SHORT).show();
         finish();
-    }
+    }*/
 
     //앨범 불러오기 버튼
     public void goToAlbumButton(View v) {
         getImages();
-
     }
 
     //공개여부

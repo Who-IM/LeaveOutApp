@@ -1,5 +1,6 @@
 package whoim.leaveout;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -117,4 +118,13 @@ public class FriendRequestActivity extends AppCompatActivity {
         }
     }
     /// ----------------- 여기까지 -----------------------
+
+
+    // 뒤로가기
+    public void Back(View v) {
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        finish();
+        startActivity(intent);
+    }
 }

@@ -11,7 +11,12 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
@@ -38,15 +43,22 @@ import android.widget.Toast;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
+import whoim.leaveout.FCMPush.FCMInstanceIDService;
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.MapAPI.LocationBackground;
@@ -103,6 +115,7 @@ public class MainActivity extends MapAPIActivity {
     UserInfo userInfo = UserInfo.getInstance();     // 유저 정보
     Bitmap profile = null;      // 프로파일
 
+    Uri photoUri;
 
     // SQL
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
@@ -112,6 +125,7 @@ public class MainActivity extends MapAPIActivity {
         super.onCreate(savedInstanceState);
         restoreState(savedInstanceState);     // 상태 불러오기
 
+        FCMInstanceIDService.sendRegistrationToServer(String.valueOf(userInfo.getUserNum()),FirebaseInstanceId.getInstance().getToken());
 
         // 화면 캡쳐 방지
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -163,6 +177,7 @@ public class MainActivity extends MapAPIActivity {
                 return true;
             }
         });*/
+        Permission.cameraCheckPermissions(this);
     }
 
     // 인스턴스 셋팅
@@ -256,6 +271,7 @@ public class MainActivity extends MapAPIActivity {
         adapter.addItem(profile, userInfo.getName(), userInfo.getEmail());
         adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.profile_icon, null)).getBitmap(),"프로필", null);
         adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.friends_icon, null)).getBitmap(),"친구목록", null);
+        adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.basepicture, null)).getBitmap(),"친구요청", null);
         adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.preferences_icon, null)).getBitmap(),"환경설정", null);
     }
 
@@ -285,7 +301,12 @@ public class MainActivity extends MapAPIActivity {
                     button.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(button);
                     break;
-                case 3: // 환경설정으로 이동
+                case 3: // 친구요청으로 이동
+                    button = new Intent(getApplicationContext(), FriendRequestActivity.class);
+                    button.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(button);
+                    break;
+                case 4: // 환경설정으로 이동
                     button = new Intent(getApplicationContext(), PreferencesActivity.class);
                     button.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(button);
@@ -664,20 +685,32 @@ public class MainActivity extends MapAPIActivity {
 
                 super.updateLocationUI();       // 구글맵 자신 GPS UI 셋팅
                 break;
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
 
-    // startActivityForResult 함수를 호출한 액티비티에서 종료했을때 콜백 메소드
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        switch (requestCode) {
-            case MapAPIActivity.GPS_ENABLE_REQUEST_CODE: // GPS 서비스 요청 코드
-                if(!checkLocationServicesStatus()) Toast.makeText(getApplicationContext(),"위치 서비스를 사용 할 수 없습니다.",Toast.LENGTH_SHORT).show();
+            case Permission.MULTIPLE_PERMISSIONS: {
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < permissions.length; i++) {
+                        if (permissions[i].equals(Permission.CAMERA_PERMISSIONS[0])) {
+                            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                                showNoPermissionToastAndFinish();
+                            }
+                        } else if (permissions[i].equals(Permission.CAMERA_PERMISSIONS[1])) {
+                            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                                showNoPermissionToastAndFinish();
+                            }
+                        } else if (permissions[i].equals(Permission.CAMERA_PERMISSIONS[2])) {
+                            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                                showNoPermissionToastAndFinish();
+                            }
+                        }
+                    }
+                } else {
+                    showNoPermissionToastAndFinish();
+                }
                 break;
+            }
         }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     // 브로드 캐스트 만들기(로케이션)
@@ -727,30 +760,6 @@ public class MainActivity extends MapAPIActivity {
         if(mBroadcastLocation != null) {
             registerReceiver(mBroadcastLocation, new IntentFilter(LocationBackground.ACTION_LOCATION_BROADCAST));
             mBroadcastCheck = true; // 브로드캐스트 설정 완료
-        }
-    }
-
-    // 글쓰기, 체크, 모아보기 메뉴 onClick 메소드
-    public void nextActivityButton(View v) {
-        Intent intent = null;
-        switch (v.getId()) {
-            case R.id.main_write:       // 글쓰기 버튼(글쓰기 액티비티 이동)
-                if(GPSCheck()) {        // GPS서비스 확인
-                    intent = new Intent(getApplicationContext(), WritingActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    intent.putExtra("address", mAddressView.getText().toString());           // 주소 이름
-                    intent.putExtra("loc", mCurrentLocation);                                // 주소 값 (위도,경도)
-                    startActivity(intent);
-                }
-                break;
-            case R.id.main_check:       // 체크 버튼(토스트 출력)
-                if(GPSCheck())          // GPS서비스 확인
-                    checkSelectAndInsertSQL();
-                break;
-            case R.id.main_collect:     // 모아보기 버튼(모아보기 액티비티 이동)
-                if(GPSCheck())          // GPS서비스 확인
-                    contentsLocationSelectSQLData();
-                break;
         }
     }
 
@@ -885,10 +894,91 @@ public class MainActivity extends MapAPIActivity {
         LoadingSQLDialog.SQLSendStart(this, loadingSQLListener, ProgressDialog.STYLE_SPINNER, null);       // sql 시작
     }
 
+    // 글쓰기, 체크, 모아보기 메뉴 onClick 메소드
+    public void nextActivityButton(View v) {
+        Intent intent = null;
+        switch (v.getId()) {
+            case R.id.main_write:       // 글쓰기 버튼(글쓰기 액티비티 이동)
+                if (GPSCheck()) {        // GPS서비스 확인
+                    intent = new Intent(getApplicationContext(), WritingActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.putExtra("address", mAddressView.getText().toString());           // 주소 이름
+                    intent.putExtra("loc", mCurrentLocation);                                // 주소 값 (위도,경도)
+                    startActivity(intent);
+                }
+                break;
+            case R.id.main_check:       // 체크 버튼(토스트 출력)
+                if (GPSCheck())          // GPS서비스 확인
+                    checkSelectAndInsertSQL();
+                break;
+            case R.id.main_imagecheck:  // 이미지체크 버튼
+                if (GPSCheck())          // GPS서비스 확인
+                {
+                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    File photoFile = null;
+                    try {
+                        photoFile = createImageFile();
+                    } catch (IOException e) {
+                        Toast.makeText(MainActivity.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                    if (photoFile != null) {
+                        photoUri = FileProvider.getUriForFile(MainActivity.this, "whoim.leaveout.provider", photoFile); //FileProvider의 경우 이전 포스트를 참고하세요.
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri); //사진을 찍어 해당 Content uri를 photoUri에 적용시키기 위함
+                        startActivityForResult(intent, 1);
+                    }
+                }
+                break;
+            case R.id.main_collect:     // 모아보기 버튼(모아보기 액티비티 이동)
+                if(GPSCheck())          // GPS서비스 확인
+                    contentsLocationSelectSQLData();
+                break;
+        }
+    }
+
+    // startActivityForResult 함수를 호출한 액티비티에서 종료했을때 콜백 메소드
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case MapAPIActivity.GPS_ENABLE_REQUEST_CODE: // GPS 서비스 요청 코드
+                if(!checkLocationServicesStatus()) Toast.makeText(getApplicationContext(),"위치 서비스를 사용 할 수 없습니다.",Toast.LENGTH_SHORT).show();
+                break;
+            case 1: //앨범에 사진을 보여주기 위해 Scan을 합니다.
+                MediaScannerConnection.scanFile(MainActivity.this, new String[]{photoUri.getPath()}, null,
+                        new MediaScannerConnection.OnScanCompletedListener() {
+                            public void onScanCompleted(String path, Uri uri) {
+                            }
+                        });
+                break;
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.KOREA).format(new Date());
+        String imageFileName = "Photo_" + timeStamp;
+
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        if (!storageDir.exists()) {
+            storageDir.mkdirs();
+        }
+
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        this.sendBroadcast(new Intent( Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(image)) );
+        return image;
+    }
+
+    //권한 획득에 동의를 하지 않았을 경우 아래 Toast 메세지를 띄우며 해당 Activity를 종료시킵니다.
+    private void showNoPermissionToastAndFinish() {
+        Toast.makeText(this, "권한 요청에 동의 해주셔야 이용 가능합니다. 설정에서 권한 허용 하시기 바랍니다.", Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
     // 폰트 바꾸기
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
     }
-
 }

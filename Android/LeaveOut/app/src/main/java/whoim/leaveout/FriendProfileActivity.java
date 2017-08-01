@@ -284,6 +284,7 @@ public class FriendProfileActivity extends AppCompatActivity {
 
         //  툴바 제목
         friendtextview = (TextView) findViewById(R.id.profile_title);
+        friendtextview.setText(name + " 프로필");
 
         // 프로필 사진
         profile_image = (ImageView) findViewById(R.id.profile_title_image);

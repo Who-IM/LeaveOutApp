@@ -601,6 +601,16 @@ public class MainActivity extends MapAPIActivity {
         if(super.mGoogleApiClient.isConnected()) {
             getDeviceLocation();
         }
+        if(getIntent() == null) {
+            String action = getIntent().getStringExtra("moveAction");
+            if(action != null) {
+                if (action.equals("FriendRequestActivity")) {
+                    Intent intent = new Intent(getApplicationContext(), FriendRequestActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                }
+            }
+        }
         super.onResume();
     }
 

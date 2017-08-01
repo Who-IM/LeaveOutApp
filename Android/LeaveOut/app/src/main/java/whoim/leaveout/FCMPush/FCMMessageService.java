@@ -17,6 +17,8 @@ import java.net.URLDecoder;
 import whoim.leaveout.FriendRequestActivity;
 import whoim.leaveout.MainActivity;
 import whoim.leaveout.R;
+import whoim.leaveout.Services.ApplicationPackageRetriever;
+import whoim.leaveout.loginActivity;
 
 /**
  * Created by Admin on 2017-07-20.
@@ -31,7 +33,7 @@ public class FCMMessageService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         try {
             title = URLDecoder.decode(remoteMessage.getData().get("title"), "UTF-8");
-            if(title.equals("friendadd")) {
+            if(title.equals("friendadd")) {     // 친구 추가 알림
                 String name = URLDecoder.decode(remoteMessage.getData().get("name"), "UTF-8");
                 friendAddPush(name);
             }
@@ -68,8 +70,17 @@ public class FCMMessageService extends FirebaseMessagingService {
     }
 
     private void friendAddPush(String name) {
-        Intent intent = new Intent(this, FriendRequestActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Intent intent = new Intent();
+        ApplicationPackageRetriever applicationPackageRetriever = new ApplicationPackageRetriever(this);    // 앱 켜져있는지 확인
+        if((applicationPackageRetriever.get())[0].equals("whoim.leaveout")) {       // 앱이 켜져있으면
+            intent.setClass(this, FriendRequestActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        }
+        else {
+            intent.setClass(this, loginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.putExtra("moveAction","FriendRequestActivity");      // 친구 요청 목록 까지 보내기
+        }
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 

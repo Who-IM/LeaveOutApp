@@ -392,6 +392,9 @@ public class loginActivity extends AppCompatActivity {
         mPassEditText.setText("");
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);        // 메인 화면으로
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if(getIntent() == null) {
+            intent.putExtra("moveAction", getIntent().getStringExtra("moveAction"));
+        }
         loginActivity.this.startActivity(intent);       // 다음 액티비티
 //        loginActivity.this.finish();                    // 액티비티 종료
     }

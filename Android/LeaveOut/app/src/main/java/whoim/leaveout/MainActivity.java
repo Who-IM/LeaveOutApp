@@ -436,8 +436,9 @@ public class MainActivity extends MapAPIActivity {
                 else if(position == 3)
                 {
                     holder.count = (TextView) convertView.findViewById(R.id.menu_friend_count);
-
                     holder.count.setVisibility(View.VISIBLE);
+                    holder.count.setText("53");   //친구 추가 카운트
+
                 }
             }
 

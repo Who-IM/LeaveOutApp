@@ -72,11 +72,12 @@ public class FCMMessageService extends FirebaseMessagingService {
     private void friendAddPush(String name) {
         Intent intent = new Intent();
         ApplicationPackageRetriever applicationPackageRetriever = new ApplicationPackageRetriever(this);    // 앱 켜져있는지 확인
-        if((applicationPackageRetriever.get())[0].equals("whoim.leaveout")) {       // 앱이 켜져있으면
+        String[] PackageString = applicationPackageRetriever.get();
+        if(PackageString.length > 0 && PackageString[0].equals("whoim.leaveout") && loginActivity.LOGIN_CHECK == true) {       // 앱이 켜져있고 로그인 완료 했을 시
             intent.setClass(this, FriendRequestActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         }
-        else {
+        else {      // 앱이 꺼져있으면
             intent.setClass(this, loginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intent.putExtra("moveAction","FriendRequestActivity");      // 친구 요청 목록 까지 보내기

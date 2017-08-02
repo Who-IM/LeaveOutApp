@@ -178,6 +178,21 @@ public class MainActivity extends MapAPIActivity {
             }
         });*/
         Permission.cameraCheckPermissions(this);
+
+        // 푸시(알림)로/으로 진입 했을시
+        if(getIntent() != null) {
+            String action = getIntent().getStringExtra("moveAction");
+            if(action != null) {
+                if (action.equals("FriendRequestActivity")) {       // 친구 추가 알림
+                    Intent intent = new Intent(getApplicationContext(), FriendRequestActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                }
+            }
+            if(getIntent().getExtras() != null) {
+                getIntent().removeExtra("moveAction");
+            }
+        }
     }
 
     // 인스턴스 셋팅
@@ -601,16 +616,6 @@ public class MainActivity extends MapAPIActivity {
         if(super.mGoogleApiClient.isConnected()) {
             getDeviceLocation();
         }
-        if(getIntent() == null) {
-            String action = getIntent().getStringExtra("moveAction");
-            if(action != null) {
-                if (action.equals("FriendRequestActivity")) {
-                    Intent intent = new Intent(getApplicationContext(), FriendRequestActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    startActivity(intent);
-                }
-            }
-        }
         super.onResume();
     }
 
@@ -763,6 +768,14 @@ public class MainActivity extends MapAPIActivity {
                             }   // for -- END --
                         }
                     }   //if -- END --
+                    else {      // 그대로면 기본 셋팅
+                        MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
+                        circleSet();        // 원그리기
+                        mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(), mCurrentLocation));       // View에 주소 표시
+                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 16));       // 초기 화면 셋팅
+                        fenceSQLStart();
+                    }
                 }   // onReceive -- END --
             };  // new BroadcastReceiver -- END --
         }

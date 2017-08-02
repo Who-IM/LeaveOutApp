@@ -8,21 +8,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import whoim.leaveout.Loading.LoadingDialogBin;
 import whoim.leaveout.Server.ImageDownLoad;
 import whoim.leaveout.Server.SQLDataService;
@@ -129,31 +137,14 @@ public class FriendRequestActivity extends AppCompatActivity {
             viewHolder.okbutton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    friendrequest_data data = request_list.get(position);
-                    final String sql = "update friend set request = 0 where user_num = " + data.getUsernum();
-
-                    new LoadingDialogBin(FriendRequestActivity.this) {
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            JSONObject result = new WebControll().WebLoad(SQLDataService.getSQLJSONData(sql,0,"update"));
-                            Log.d("test",result.toString());
-                            return null;
-                        }
-
-                        @Override
-                        protected void onPostExecute(Void aVoid) {
-                            viewHolder.delete();
-                            super.onPostExecute(aVoid);
-                        }
-                    }.execute();
-
+                    viewHolder.AddFriend_OK();
                 }
             });
 
             viewHolder.cancelbutton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    viewHolder.delete();
+                    viewHolder.AddFriend_NO();
                 }
             });
 
@@ -185,11 +176,124 @@ public class FriendRequestActivity extends AppCompatActivity {
                 cancelbutton = (Button) itemView.findViewById(R.id.friendrequest_button2);
 
             }
-            public void delete() {
-                int position = getAdapterPosition();
-                request_list.remove(position);
-                friendrequestAdapter.this.notifyItemRemoved(position);
+            public void AddFriend_OK() {        // 친구 추가 수락
+                final int position = getAdapterPosition();
+                final String sql = "update friend set request = 0 where user_num = " + request_list.get(position).getUsernum();
+                new LoadingDialogBin(FriendRequestActivity.this) {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        JSONObject result = new WebControll().WebLoad(SQLDataService.getSQLJSONData(sql,0,"update"));
+                        Object[] objects = new Object[1];
+                        try {
+                            if(result.getInt("result") == 1) {
+                                final OkHttpClient client = new OkHttpClient();
+                                RequestBody body = new FormBody.Builder()
+                                        .add("requestdata","AddFriend_OK")
+                                        .add("user_num", String.valueOf(request_list.get(position).getUsernum()))
+                                        .add("friend_num",String.valueOf(userInfo.getUserNum()))
+                                        .build();
+
+                                //request
+                                final Request request = new Request.Builder()
+                                        .url(WebControll.WEB_IP + "/FCMPush")
+                                        .post(body)
+                                        .build();
+
+                                client.newCall(request).enqueue(new Callback() {        // 서버로 보내기
+                                    @Override
+                                    public void onFailure(Call call, IOException e) { }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException { }
+                                });
+                                objects[0] = true;
+                                publishProgress(objects);
+                            }   // if -- end
+                            else {
+                                objects[0] = false;
+                                publishProgress(objects);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onProgressUpdate(Object... values) {
+                        if(((boolean)values[0]) == true) {
+                            Toast.makeText(getApplicationContext(),"수락 하였습니다",Toast.LENGTH_SHORT).show();
+                            request_list.remove(position);
+                            friendrequestAdapter.this.notifyItemRemoved(position);
+                        }
+                        else {
+                            Toast.makeText(getApplicationContext(),"잠시후 다시 시도해 주십시오.",Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                }.execute();
             }
+
+            public void AddFriend_NO() {        // 친구 추가 거절
+                final int position = getAdapterPosition();
+                final String sql = "delete from friend where user_num = " + request_list.get(position).getUsernum();
+                new LoadingDialogBin(FriendRequestActivity.this) {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        JSONObject result = new WebControll().WebLoad(SQLDataService.getSQLJSONData(sql,0,"update"));
+                        Object[] objects = new Object[1];
+                        try {
+                            if(result.getInt("result") == 1) {
+                                final OkHttpClient client = new OkHttpClient();
+                                RequestBody body = new FormBody.Builder()
+                                        .add("requestdata","AddFriend_NO")
+                                        .add("user_num", String.valueOf(request_list.get(position).getUsernum()))
+                                        .add("friend_num",String.valueOf(userInfo.getUserNum()))
+                                        .build();
+
+                                //request
+                                final Request request = new Request.Builder()
+                                        .url(WebControll.WEB_IP + "/FCMPush")
+                                        .post(body)
+                                        .build();
+
+                                client.newCall(request).enqueue(new Callback() {        // 서버로 보내기
+                                    @Override
+                                    public void onFailure(Call call, IOException e) { }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException { }
+                                });
+                                objects[0] = true;
+                                publishProgress(objects);
+                            }   // if -- end
+                            else {
+                                objects[0] = false;
+                                publishProgress(objects);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onProgressUpdate(Object... values) {
+                        if(((boolean)values[0]) == true) {
+                            Toast.makeText(getApplicationContext(),"거절 하였습니다",Toast.LENGTH_SHORT).show();
+                            request_list.remove(position);
+                            friendrequestAdapter.this.notifyItemRemoved(position);
+                        }
+                        else {
+                            Toast.makeText(getApplicationContext(),"잠시후 다시 시도해 주십시오.",Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                }.execute();
+            }
+
         }
     }
     /// ----------------- 여기까지 -----------------------

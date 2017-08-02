@@ -3,6 +3,7 @@ package Controll;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -69,50 +70,148 @@ public class FCMPush extends HttpServlet {
 		out = response.getWriter(); // 웹 출력(응답용) 스트림 생성
 		
 	    DBSQL dbsql = new DBSQL(); 		// 데이터베이스 sql 객체 가져오기
+	    Message message = null;
 	    
 	    requestdata = request.getParameter("requestdata");
-	    if(requestdata.equals("AddFriend")) {		// 친구 추가 요청 푸시 알림
-	    	con = dbsql.getConnection();
-	    	String user_num = request.getParameter("user_num");
-	    	String friend_num = request.getParameter("friend_num");
-	    	
-	    	sql = "select token from fcm where user_num in (select friend_num from friend where user_num = ? and friend_num = ?)";
-	    	pstmt = con.prepareStatement(sql);
-	    	pstmt.setString(1, user_num);
-	    	pstmt.setString(2, friend_num);
-	    	rs = pstmt.executeQuery();//쿼리를 실행 하라는 명령어
-	        while(rs.next()){		  //모든 등록ID를 리스트로 묶음
-	            token.add(rs.getString("token"));
-	        }
-	        
-	        if(token.size() == 0) {
-	        	return;
-	        }
-	        
-	    	sql = "select name from user where user_num = " + user_num;
-	    	pstmt = con.prepareStatement(sql);
-	    	rs = pstmt.executeQuery();
-	    	String name = null;
-	    	while (rs.next()) {
-				name = rs.getString(1);
-			}
-	    	
-	        Message message = new Message.Builder()
-	                .collapseKey(MESSAGE_ID)
-	                .delayWhileIdle(SHOW_ON_IDLE)
-	                .timeToLive(LIVE_TIME)
-	                .addData("title", "friendadd")
-	                .addData("name", name)
-	                .build();
-	        
+		if(requestdata.equals("AddFriend")) {		// 친구 추가 요청 푸시 알림
+			message = addFriend(request);
+		}
+		else if(requestdata.equals("AddFriend_OK")) {	// 친구 추가 수락
+			message = addFriend_OK(request);
+		}
+		else if(requestdata.equals("AddFriend_NO")) {	// 친구 추가 수락
+			message = addFriend_NO(request);
+		}
+		
+	    if(message != null) {
 	        PushStart(message);
-
 	    }
+	    
 		if(out != null) out.close(); // 출력 닫기
 		if(rs != null) rs.close();
 		if(pstmt!=null) try{pstmt.close();}catch(SQLException ex){}
 		if(con!=null) try{con.close();}catch(SQLException ex){}
 	    
+	}
+	
+	// 친구 추가 요청
+	private Message addFriend(HttpServletRequest request) throws UnsupportedEncodingException, SQLException {
+		Message message = null;
+		DBSQL dbsql = new DBSQL(); // 데이터베이스 sql 객체 가져오기
+		con = dbsql.getConnection();
+		String user_num = request.getParameter("user_num");
+		String friend_num = request.getParameter("friend_num");
+
+		sql = "select token from fcm where user_num in (select friend_num from friend where user_num = ? and friend_num = ?)";
+		pstmt = con.prepareStatement(sql);
+		pstmt.setString(1, user_num);
+		pstmt.setString(2, friend_num);
+		rs = pstmt.executeQuery();// 쿼리를 실행 하라는 명령어
+		while (rs.next()) { // 모든 등록ID를 리스트로 묶음
+			token.add(rs.getString("token"));
+		}
+
+		if (token.size() == 0) {
+			return null;
+		}
+
+		sql = "select name from user where user_num = " + user_num;
+		pstmt = con.prepareStatement(sql);
+		rs = pstmt.executeQuery();
+		String name = null;
+		while (rs.next()) {
+			name = rs.getString(1);
+		}
+
+		message = new Message.Builder()
+				.collapseKey(MESSAGE_ID)
+				.delayWhileIdle(SHOW_ON_IDLE)
+				.timeToLive(LIVE_TIME)
+				.addData("title", "friendadd")
+				.addData("name", URLEncoder.encode(name, "UTF-8"))
+				.build();
+
+		return message;
+	}
+	
+	// 친구 추가 수락
+	private Message addFriend_OK(HttpServletRequest request) throws UnsupportedEncodingException, SQLException {
+		Message message = null;
+		DBSQL dbsql = new DBSQL(); // 데이터베이스 sql 객체 가져오기
+		con = dbsql.getConnection();
+		String user_num = request.getParameter("user_num");
+		String friend_num = request.getParameter("friend_num");
+		
+		sql = "select token from fcm where user_num = ?";
+		pstmt = con.prepareStatement(sql);
+		pstmt.setString(1, user_num);
+		rs = pstmt.executeQuery();// 쿼리를 실행 하라는 명령어
+		while (rs.next()) { // 모든 등록ID를 리스트로 묶음
+			token.add(rs.getString("token"));
+		}
+
+		if (token.size() == 0) {
+			return null;
+		}
+
+		sql = "select name from user where user_num = " + friend_num;
+		pstmt = con.prepareStatement(sql);
+		rs = pstmt.executeQuery();
+		String name = null;
+		while (rs.next()) {
+			name = rs.getString(1);
+		}
+
+		message = new Message.Builder()
+				.collapseKey(MESSAGE_ID)
+				.delayWhileIdle(SHOW_ON_IDLE)
+				.timeToLive(LIVE_TIME)
+				.addData("title", "friendadd_ok")
+				.addData("name", URLEncoder.encode(name, "UTF-8"))
+				.build();
+		
+		return message;
+		
+	}
+	
+	// 친구 추가 거절
+	private Message addFriend_NO(HttpServletRequest request) throws UnsupportedEncodingException, SQLException {
+		Message message = null;
+		DBSQL dbsql = new DBSQL(); // 데이터베이스 sql 객체 가져오기
+		con = dbsql.getConnection();
+		String user_num = request.getParameter("user_num");
+		String friend_num = request.getParameter("friend_num");
+		
+		sql = "select token from fcm where user_num = ?";
+		pstmt = con.prepareStatement(sql);
+		pstmt.setString(1, user_num);
+		rs = pstmt.executeQuery();// 쿼리를 실행 하라는 명령어
+		while (rs.next()) { // 모든 등록ID를 리스트로 묶음
+			token.add(rs.getString("token"));
+		}
+
+		if (token.size() == 0) {
+			return null;
+		}
+
+		sql = "select name from user where user_num = " + friend_num;
+		pstmt = con.prepareStatement(sql);
+		rs = pstmt.executeQuery();
+		String name = null;
+		while (rs.next()) {
+			name = rs.getString(1);
+		}
+
+		message = new Message.Builder()
+				.collapseKey(MESSAGE_ID)
+				.delayWhileIdle(SHOW_ON_IDLE)
+				.timeToLive(LIVE_TIME)
+				.addData("title", "friendadd_no")
+				.addData("name", URLEncoder.encode(name, "UTF-8"))
+				.build();
+		
+		return message;
+		
 	}
 	
 	private void PushStart(Message message) throws IOException {

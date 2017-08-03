@@ -286,7 +286,7 @@ public class MainActivity extends MapAPIActivity {
         adapter.addItem(profile, userInfo.getName(), userInfo.getEmail());
         adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.profile_icon, null)).getBitmap(),"프로필", null);
         adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.friends_icon, null)).getBitmap(),"친구목록", null);
-        adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.basepicture, null)).getBitmap(),"친구요청", null);
+        adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.addfriend_icon, null)).getBitmap(),"친구요청", null);
         adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.preferences_icon, null)).getBitmap(),"환경설정", null);
     }
 
@@ -337,6 +337,7 @@ public class MainActivity extends MapAPIActivity {
     private class menu_ViewHolder {
         public ImageView Image;
         public TextView name;
+        public TextView count;
         public TextView email;
     }
 
@@ -445,6 +446,14 @@ public class MainActivity extends MapAPIActivity {
                             }
                         }
                     });
+                }
+                //친구 추가
+                else if(position == 3)
+                {
+                    holder.count = (TextView) convertView.findViewById(R.id.menu_friend_count);
+                    holder.count.setVisibility(View.VISIBLE);
+                    holder.count.setText("53");   //친구 추가 카운트
+
                 }
             }
 

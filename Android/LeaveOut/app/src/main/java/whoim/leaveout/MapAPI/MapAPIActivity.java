@@ -401,7 +401,7 @@ public abstract class MapAPIActivity extends AppCompatActivity implements OnMapR
 
     private void selectContentSQL(String query) {
 
-        final String sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files,profile " +
+        final String sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files,profile,email " +
                 "from content inner join user " +
                 "on content.user_num = user.user_num " +
                 "where content_num in (" + query + ")";

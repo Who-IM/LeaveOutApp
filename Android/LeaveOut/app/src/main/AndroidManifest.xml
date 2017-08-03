@@ -14,6 +14,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />    //카메라 퍼미션
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />     //갤러리 퍼미션
 
+    <uses-permission android:name="android.permission.GET_TASKS" />
+
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
     <application
@@ -126,6 +128,14 @@
         <activity
             android:name=".TagFriendListActivity"
             android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!--친구 프로필 화면-->
+        <activity
+            android:name=".FriendProfileActivity"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait">
         </activity>
 

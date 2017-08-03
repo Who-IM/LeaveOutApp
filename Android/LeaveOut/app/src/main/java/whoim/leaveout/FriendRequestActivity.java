@@ -207,33 +207,40 @@ public class FriendRequestActivity extends AppCompatActivity {
             public void AddFriend_OK() {        // 친구 추가 수락
                 final int position = getAdapterPosition();
                 final String sql = "update friend set request = 0 where user_num = " + request_list.get(position).getUsernum();
+                final String FriendAddSQL = "insert into friend values(" + userInfo.getUserNum() + "," + request_list.get(position).getUsernum() +",0) ON DUPLICATE KEY UPDATE request = 0";
+
                 new LoadingDialogBin(FriendRequestActivity.this) {
                     @Override
                     protected Void doInBackground(Void... params) {
                         JSONObject result = new WebControll().WebLoad(SQLDataService.getSQLJSONData(sql,0,"update"));
                         Object[] objects = new Object[1];
                         try {
-                            if(result.getInt("result") == 1) {
-                                final OkHttpClient client = new OkHttpClient();
-                                RequestBody body = new FormBody.Builder()
-                                        .add("requestdata","AddFriend_OK")
-                                        .add("user_num", String.valueOf(request_list.get(position).getUsernum()))
-                                        .add("friend_num",String.valueOf(userInfo.getUserNum()))
-                                        .build();
+                            if(result.getInt("result") == 1) {      // 요청한 한 데이터베이스 수정 완료(친구 요청 수락 완료)
+                                JSONObject result2 = new WebControll().WebLoad(SQLDataService.getSQLJSONData(FriendAddSQL,0,"update"));
+                                if(result2.getInt("result") == 1) {     // 내 자신에도 친구 목록 추가(친구 수락 한뒤 자신에도 친구 DB 추가)
+                                    final OkHttpClient client = new OkHttpClient();
+                                    RequestBody body = new FormBody.Builder()
+                                            .add("requestdata", "AddFriend_OK")
+                                            .add("user_num", String.valueOf(request_list.get(position).getUsernum()))
+                                            .add("friend_num", String.valueOf(userInfo.getUserNum()))
+                                            .build();
 
-                                //request
-                                final Request request = new Request.Builder()
-                                        .url(WebControll.WEB_IP + "/FCMPush")
-                                        .post(body)
-                                        .build();
+                                    //request
+                                    final Request request = new Request.Builder()
+                                            .url(WebControll.WEB_IP + "/FCMPush")
+                                            .post(body)
+                                            .build();
 
-                                client.newCall(request).enqueue(new Callback() {        // 서버로 보내기
-                                    @Override
-                                    public void onFailure(Call call, IOException e) { }
+                                    client.newCall(request).enqueue(new Callback() {        // 서버로 보내기
+                                        @Override
+                                        public void onFailure(Call call, IOException e) {
+                                        }
 
-                                    @Override
-                                    public void onResponse(Call call, Response response) throws IOException { }
-                                });
+                                        @Override
+                                        public void onResponse(Call call, Response response) throws IOException {
+                                        }
+                                    });
+                                }
                                 objects[0] = true;
                                 publishProgress(objects);
                             }   // if -- end

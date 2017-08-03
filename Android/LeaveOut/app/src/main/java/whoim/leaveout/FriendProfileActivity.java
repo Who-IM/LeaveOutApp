@@ -108,6 +108,7 @@ public class FriendProfileActivity extends AppCompatActivity {
         }
         else { // 친구 목록, 친구 요청에서 눌럿을 경우
             new LoadingDialogBin(this) {
+                boolean flag = false;
                 @Override
                 protected Void doInBackground(Void... params) {
                     String sql = "select content_num from content where user_num = " + mDataBundle.getInt("user_num") + " LIMIT 1";
@@ -121,13 +122,30 @@ public class FriendProfileActivity extends AppCompatActivity {
                             SQLDataService.putBundleValue(data, "download", "context2", "profile");
                             responsedata = new WebControll().WebLoad(data);     // SQL 돌리기
                             Log.d("test2",responsedata.toString());
-//                            JSONArray result = responsedata.getJSONArray("result")
-//                            profilebitmap = setProfile(contentdata);     // 친구 프로필 사진 한번만 가져오기
+                            JSONArray result = responsedata.getJSONArray("result");
+                            if(result.length() != 0) {
+                                profilebitmap = setProfile(result.getJSONObject(0));
+                            }
+                            flag = false;
+                        }
+                        else {  // 게시글 정보가 한개 이상 있을 경우 게시글 불러오기
+                            JSONArray result = responsedata.getJSONArray("result");
+                            mContentnum = String.valueOf(result.getJSONObject(0).getInt("content_num"));
+                            flag = true;
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                     return null;
+                }
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    if(flag == false) {
+                        profile_image.setImageBitmap(profilebitmap);
+                        mContentlist.requestLayout();
+                    }
+                    super.onPostExecute(aVoid);
+                    if (flag == true) meContentData(0);
                 }
             }.execute();
         }
@@ -204,7 +222,7 @@ public class FriendProfileActivity extends AppCompatActivity {
                             Toast.makeText(FriendProfileActivity.this,"잠시 후 다시 시도해 주십시오.",Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            Toast.makeText(FriendProfileActivity.this,"친구 추가 요청을 했습니다..",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FriendProfileActivity.this,"친구 추가 요청을 했습니다.",Toast.LENGTH_SHORT).show();
                             mFriendAddButton.setVisibility(View.INVISIBLE);
                         }
                     }
@@ -345,6 +363,8 @@ public class FriendProfileActivity extends AppCompatActivity {
 
         new LoadingDialogBin(this) {
 
+            int addfriend_visible;
+
             @Override
             protected Void doInBackground(Void... params) {
 
@@ -413,22 +433,37 @@ public class FriendProfileActivity extends AppCompatActivity {
 
                    // 내 자신 프로필 보는경우면 친구 추가 버튼 안보이게 하기
                    if(userInfo.getUserNum() == friendnum) {
-                       mFriendAddButton.setVisibility(View.INVISIBLE);
+                       addfriend_visible = View.INVISIBLE;
                    }
+                   else {
+                       // 친구 확인 부분
+                       String friendSql = "select request " +
+                               "from friend " +
+                               "where user_num = " + userInfo.getUserNum() + " and " +
+                               "friend_num = (select user_num from user where user_num = " + friendnum + ")";
+                       request = SQLDataService.getSQLJSONData(friendSql, -1, "select");
+                       JSONObject frienddata = new WebControll().WebLoad(request);
 
-                   // 친구 확인 부분
-                   String friendSql = "select request " +
-                                      "from friend " +
-                                      "where user_num = " + userInfo.getUserNum() +" and " +
-                                      "friend_num = (select user_num from user where user_num = " + friendnum +")";
-                   request = SQLDataService.getSQLJSONData(friendSql, -1, "select");
-                   JSONObject frienddata = new WebControll().WebLoad(request);
-
-                   if (frienddata != null && frienddata.getJSONArray("result").length() != 0) {
-                       JSONArray friendresult = frienddata.getJSONArray("result");      // 결과값
-                       JSONObject resultdata = friendresult.getJSONObject(0);
-                       if (resultdata.getInt("request") == 1) {
-                           mFriendAddButton.setVisibility(View.INVISIBLE);
+                       if (frienddata != null && frienddata.getJSONArray("result").length() != 0) {     // 친구 요청 했었는지 확인
+                           JSONArray friendresult = frienddata.getJSONArray("result");      // 결과값
+                           JSONObject resultdata = friendresult.getJSONObject(0);
+                           if (resultdata.getInt("request") == 1) {
+                               addfriend_visible = View.INVISIBLE;
+                           }
+                       } else {       // 반대 쪽에서도 확인
+                           friendSql = "select request " +
+                                   "from friend " +
+                                   "where user_num = " + friendnum + " and " +
+                                   "friend_num = (select user_num from user where user_num = " + userInfo.getUserNum() + ")";
+                           request = SQLDataService.getSQLJSONData(friendSql, -1, "select");
+                           frienddata = new WebControll().WebLoad(request);
+                           if (frienddata != null && frienddata.getJSONArray("result").length() != 0) {     // 친구 요청 했었는지 확인
+                               JSONArray friendresult = frienddata.getJSONArray("result");      // 결과값
+                               JSONObject resultdata = friendresult.getJSONObject(0);
+                               if (resultdata.getInt("request") == 1) {
+                                   addfriend_visible = View.INVISIBLE;
+                               }
+                           }
                        }
                    }
 
@@ -444,6 +479,7 @@ public class FriendProfileActivity extends AppCompatActivity {
            }
            @Override
            protected void onPostExecute(Void aVoid) {
+               mFriendAddButton.setVisibility(addfriend_visible);
                profile_image.setImageBitmap(profilebitmap);
                mContentlist.requestLayout();
                super.onPostExecute(aVoid);

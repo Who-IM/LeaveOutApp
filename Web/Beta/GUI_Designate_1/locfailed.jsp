@@ -189,8 +189,8 @@
                        <div class="input-group input-group-sm" style="max-width:360px;">
                          <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
                          <div class="input-group-btn">
-                           <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-                         </div>
+                           <a href="contentDetails.jsp?user_num=<%=userNumString%>" class="btn btn-default" role="button" type="submit"><i class="glyphicon glyphicon-search"></i></a>
+					     </div>
                        </div>
                    </form>
 			  </li>

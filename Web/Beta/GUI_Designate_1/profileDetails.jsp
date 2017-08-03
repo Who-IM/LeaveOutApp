@@ -276,15 +276,36 @@
 				</button>
 			</a>
 			<div class="media-body">
-				<h4 class="media-heading">최수디 님</h4>
+				<h2 class="media-heading">최수디 님</h2>
 				"Lorem ipsum dolor sit amet, consectetur adipiscing elit"<br>
 			</div>
 		</div>
-		
-		<div id="map" class="col-md-6"></div>
 		<div class="col-md-6">
-		여기 카테고리 넣을꺼에요.<br>
+			<h5><i class="glyphicon glyphicon-info-sign"></i>최수디님이 어디어디에 글을 썼는지 확인해보세요.</h5>
+			<div id="map"></div>
+		</div>
+		<div class="col-md-6">
+		<h5><i class="glyphicon glyphicon-info-sign"></i>최수디님이 어떤 카테고리로 글을 썼는지 확인해보세요.</h5>
+		<button type="button" class="btn btn btn-primary">
+			<i class="glyphicon glyphicon-tags"></i> 영진전문대
+		</button>
+		<button type="button" class="btn btn btn-success">
+			<i class="glyphicon glyphicon-tags"></i> 먹방
+		</button>
+		<button type="button" class="btn btn btn-info">
+			<i class="glyphicon glyphicon-tags"></i> 여행
+		</button>
+		<button type="button" class="btn btn-warning">
+			<i class="glyphicon glyphicon-tags"></i> 탈주!
+		</button>
+		<button type="button" class="btn btn-danger">
+			<i class="glyphicon glyphicon-tags"></i> 일상
+		</button>
+		<button type="button" class="btn btn-default">
+			<i class="glyphicon glyphicon-tags"></i> 경주
+		</button>
 		
+		<br><br>
 		<ul class="list-group">
 			<li class="list-group-item">
 				<div class="media">

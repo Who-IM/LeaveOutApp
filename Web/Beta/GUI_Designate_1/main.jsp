@@ -198,7 +198,7 @@
                        <div class="input-group input-group-sm" style="max-width:360px;">
                          <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
                          <div class="input-group-btn">
-                           <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+							<a href="contentDetails.jsp?user_num=<%=userNumString%>" class="btn btn-default" role="button" type="submit"><i class="glyphicon glyphicon-search"></i></a>
                          </div>
                        </div>
                    </form>
@@ -233,10 +233,23 @@
 				</div>
 				<div class="modal-body">
 					<div class="row hide" data-step="1" data-title="finding checks">
-						<div class="well"><%=userNameString%>님이 저장하신 체크입니다. 글 쓰기에 이용할 체크를 골라주세요.</div>
+						  <center><i class="glyphicon glyphicon-ok"></i> <%=userNameString%>님이 저장하신 체크입니다. 글 쓰기에 이용할 체크를 골라주세요.</center><br>
+						<div class="col-md-6">여기에 지도 넣기<br></div>
+						<div class="col-md-6">
+							체크 1<br>
+							체크 2<br>
+							체크 3<br>
+						</div>
 					</div>
 					<div class="row hide" data-step="2" data-title="posting contents">
-						<div class="well">선택한 체크로 글을 작성합니다. 글 쓴 이후에는 해당 체크가 삭제됩니다.</div>
+					 <center><i class="glyphicon glyphicon-alert"></i> 선택한 체크로 글을 작성합니다. 글 쓴 이후에는 해당 체크가 삭제됩니다.</center><br>
+						<form class="form center-block">
+						<div class="form-group">
+							<textarea class="form-control input-lg" autofocus="" placeholder="What do you want to share?"></textarea>
+						</div>
+						<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-camera"></i> 사진 추가 </button>
+						Not Pictures Found
+					</form>
 					</div>
 				</div>
 				<div class="modal-footer">

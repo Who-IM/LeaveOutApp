@@ -157,6 +157,7 @@
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 	<script src="js/scripts.js"></script>
 	<script src="js/bootstrap.min.js"></script>
+		<script src="jquery-bootstrap-modal-steps.js"></script>
 	<script type="text/javascript">
 	// iframe resize
 	function autoResize(i)
@@ -217,30 +218,45 @@
 	
 	<!-- Posting Modal Menu -->
 	
-	<div id="postModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="postModal" tabindex="-1" role="dialog" aria-labelledby="postModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-					Update Status
+					<h4>글 쓰기</h4>
 				</div>
 				<div class="modal-body">
-					<form class="form center-block">
-				<div class="form-group">
-					<textarea class="form-control input-lg" autofocus="" placeholder="What do you want to share?"></textarea>
+					<div class="row hide" data-step="1" data-title="finding checks">
+						  <center><i class="glyphicon glyphicon-ok"></i> <%=userNameString%>님이 저장하신 체크입니다. 글 쓰기에 이용할 체크를 골라주세요.</center><br>
+						<div class="col-md-6">여기에 지도 넣기<br></div>
+						<div class="col-md-6">
+							체크 1<br>
+							체크 2<br>
+							체크 3<br>
 						</div>
+					</div>
+					<div class="row hide" data-step="2" data-title="posting contents">
+					 <center><i class="glyphicon glyphicon-alert"></i> 선택한 체크로 글을 작성합니다. 글 쓴 이후에는 해당 체크가 삭제됩니다.</center><br>
+						<form class="form center-block">
+						<div class="form-group">
+							<textarea class="form-control input-lg" autofocus="" placeholder="What do you want to share?"></textarea>
+						</div>
+						<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-camera"></i> 사진 추가 </button>
+						Not Pictures Found
 					</form>
+					</div>
 				</div>
-			<div class="modal-footer">
-				<div>
-					<button class="btn btn-primary btn-sm" data-dismiss="modal" aria-hidden="true">Post</button>
-						<ul class="pull-left list-inline"><li><a href=""><i class="glyphicon glyphicon-upload"></i></a></li><li><a href=""><i class="glyphicon glyphicon-camera"></i></a></li><li><a href=""><i class="glyphicon glyphicon-map-marker"></i></a></li></ul>
-					</div>	
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default js-btn-step pull-left" data-orientation="cancel" data-dismiss="modal"></button>
+					<button type="button" class="btn btn-default js-btn-step" data-orientation="previous"></button>
+					<button type="button" class="btn btn-default js-btn-step" data-orientation="next"></button>
 				</div>
 			</div>
 		</div>
 	</div>
 	
+	<script>
+	$('#postModal').modalSteps();
+	</script>
 			<div id="settingModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">

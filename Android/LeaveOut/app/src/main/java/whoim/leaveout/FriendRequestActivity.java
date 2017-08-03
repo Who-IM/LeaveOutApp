@@ -80,13 +80,15 @@ public class FriendRequestActivity extends AppCompatActivity {
         private int usernum;
         private Bitmap image;
         private String name;
+        private String email;
 
         public friendrequest_data() {}
 
-        public friendrequest_data(int usernum, Bitmap image, String name) {
+        public friendrequest_data(int usernum, Bitmap image, String name, String email) {
             this.usernum = usernum;
             this.image = image;
             this.name = name;
+            this.email = email;
         }
 
         public String getName() {
@@ -108,6 +110,13 @@ public class FriendRequestActivity extends AppCompatActivity {
         }
         public void setUsernum(int usernum) {
             this.usernum = usernum;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+        public void setEmail(String email) {
+            this.email = email;
         }
     }
 
@@ -133,6 +142,13 @@ public class FriendRequestActivity extends AppCompatActivity {
             final friendrequest_data item = friendrequest_list_data.get(position);
             viewHolder.name.setText(item.getName());
             viewHolder.img.setImageBitmap(item.getImage());
+
+            viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    viewHolder.nextFriendProfile();
+                }
+            });
 
             viewHolder.okbutton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -176,6 +192,18 @@ public class FriendRequestActivity extends AppCompatActivity {
                 cancelbutton = (Button) itemView.findViewById(R.id.friendrequest_button2);
 
             }
+
+            public void nextFriendProfile() {
+                final int position = getAdapterPosition();
+                friendrequest_data data = request_list.get(position);
+                Intent intent = new Intent(getApplicationContext(),FriendProfileActivity.class);
+                intent.putExtra("user_num",data.getUsernum());
+                intent.putExtra("name",data.getName());
+                intent.putExtra("email",data.getEmail());
+//                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(intent);
+            }
+
             public void AddFriend_OK() {        // 친구 추가 수락
                 final int position = getAdapterPosition();
                 final String sql = "update friend set request = 0 where user_num = " + request_list.get(position).getUsernum();
@@ -299,7 +327,7 @@ public class FriendRequestActivity extends AppCompatActivity {
     /// ----------------- 여기까지 -----------------------
 
     private void setFriendReq() {
-        String sql = "select user.user_num as user_num, name, profile " +
+        String sql = "select user.user_num as user_num, name, email, profile " +
                 "from user inner join friend " +
                 "on user.user_num = friend.user_num " +
                 "where request = 1 and friend_num = " + userInfo.getUserNum();
@@ -316,9 +344,10 @@ public class FriendRequestActivity extends AppCompatActivity {
                         JSONObject data = resultArr.getJSONObject(i);
                         int user_num = data.getInt("user_num");
                         String name = data.getString("name");
+                        String email = data.getString("email");
                         Bitmap profile = setProfile(data);
 
-                        Object[] objects = {user_num,profile,name};
+                        Object[] objects = {user_num,profile,name,email};
                         publishProgress(objects);
                     }
                 } catch (JSONException e) {
@@ -329,7 +358,7 @@ public class FriendRequestActivity extends AppCompatActivity {
 
             @Override
             protected void onProgressUpdate(Object... values) {
-                friendrequest_data temp = new friendrequest_data((int) values[0], (Bitmap) values[1], (String) values[2]);
+                friendrequest_data temp = new friendrequest_data((int) values[0], (Bitmap) values[1], (String) values[2], (String) values[3]);
                 request_list.add(temp);
             }
 

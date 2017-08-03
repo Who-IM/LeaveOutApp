@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -79,7 +80,6 @@ public class FriendProfileActivity extends AppCompatActivity {
         setContentView(R.layout.profile_layout);
 
         mDataBundle = getIntent().getExtras();
-        mContentnum = String.valueOf(mDataBundle.getInt("contentnum"));
 
         if(userbitmap == null)  // 프로필 사진이 없을 경우
             userbitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.basepicture)).getBitmap();      // 기본값
@@ -101,7 +101,36 @@ public class FriendProfileActivity extends AppCompatActivity {
         // 모아보기 listview 셋팅
         setProfile();
 
-        meContentData(0);
+        int contentnum = mDataBundle.getInt("contentnum");
+        if (contentnum != 0) {       // 게시글에서 눌럿을 경우
+            mContentnum = String.valueOf(mDataBundle.getInt("contentnum"));
+            meContentData(0);
+        }
+        else { // 친구 목록, 친구 요청에서 눌럿을 경우
+            new LoadingDialogBin(this) {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    String sql = "select content_num from content where user_num = " + mDataBundle.getInt("user_num") + " LIMIT 1";
+                    JSONObject data = SQLDataService.getSQLJSONData(sql, -1, "select");
+                    JSONObject responsedata = new WebControll().WebLoad(data);     // SQL 돌리기
+                    Log.d("test",responsedata.toString());
+                    try {
+                        if(responsedata.getJSONArray("result").length() == 0) {     // 게시글 정보가 아에 없을경우 그냥 프로필 이미지만 불러오기
+                            sql = "select profile from user where user_num = " + mDataBundle.getInt("user_num") + " LIMIT 1";
+                            data = SQLDataService.getSQLJSONData(sql, -1, "select");
+                            SQLDataService.putBundleValue(data, "download", "context2", "profile");
+                            responsedata = new WebControll().WebLoad(data);     // SQL 돌리기
+                            Log.d("test2",responsedata.toString());
+//                            JSONArray result = responsedata.getJSONArray("result")
+//                            profilebitmap = setProfile(contentdata);     // 친구 프로필 사진 한번만 가져오기
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+            }.execute();
+        }
     }
 
 
@@ -430,10 +459,10 @@ public class FriendProfileActivity extends AppCompatActivity {
                 bitmap = ImageDownLoad.imageDownLoad(profileUri.getString(0));
             }
         }
-        else {
+        else {      // 없을경우 페이스북 일수도있으니 한번 불어와보기
             bitmap = ImageDownLoad.imageDownLoad(data.getString("profile"));
         }
-        if (bitmap == null) {
+        if (bitmap == null) {   // 불러왓는데도 없을경우 기본 설정
             bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.basepicture, null)).getBitmap();
         }
         return bitmap;

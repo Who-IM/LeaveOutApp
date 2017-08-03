@@ -7,10 +7,10 @@
         var $modal = this;
 
         var settings = $.extend({
-            btnCancelHtml: 'Cancel',
-            btnPreviousHtml: 'Previous',
-            btnNextHtml: 'Next',
-            btnLastStepHtml: 'Complete',
+            btnCancelHtml: '취소',
+            btnPreviousHtml: '이전',
+            btnNextHtml: '다음',
+            btnLastStepHtml: '완료',
             disableNextButton: false,
             completeCallback: function(){},
             callbacks: {}

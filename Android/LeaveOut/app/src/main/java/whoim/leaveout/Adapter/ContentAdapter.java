@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
@@ -30,6 +31,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import whoim.leaveout.FriendProfileActivity;
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.R;
@@ -49,6 +51,7 @@ public class ContentAdapter extends BaseAdapter {
         public int contentnum;
         public Bitmap profile;
         public String name;
+        public String email;
         public String location;
         public String time;
         public String recom_num;
@@ -60,7 +63,7 @@ public class ContentAdapter extends BaseAdapter {
     }
 
     private class ContentViewHolder {
-        public ImageView profile;
+        public ImageButton profile;
         public TextView name;
         public TextView location;
         public TextView time;
@@ -111,7 +114,7 @@ public class ContentAdapter extends BaseAdapter {
 
     // 생성자로 값을 받아 셋팅
     public void addItem(Bitmap profile, int contentnum, String name, String location, String time, String recom_num, String views_num,
-                        String contents, ArrayList<String> imagelist,Bitmap mycommentprofile, CommentAdapter commentAdapter) {
+                        String contents, ArrayList<String> imagelist,Bitmap mycommentprofile, CommentAdapter commentAdapter, String email) {
         ContentItem addInfo = new ContentItem();
         addInfo.contentnum = contentnum;
         addInfo.profile = profile;
@@ -124,6 +127,7 @@ public class ContentAdapter extends BaseAdapter {
         addInfo.imagelist = imagelist;
         addInfo.mycommentprofile = mycommentprofile;
         addInfo.commentAdapter = commentAdapter;
+        addInfo.email = email;
         mDataList.add(addInfo);
     }
 
@@ -151,7 +155,7 @@ public class ContentAdapter extends BaseAdapter {
     }
 
     private void findViews(ContentViewHolder holder, View convertView) {
-        holder.profile = (ImageView) convertView.findViewById(R.id.public_view_article_Image);
+        holder.profile = (ImageButton) convertView.findViewById(R.id.public_view_article_Image);
         holder.name = (TextView) convertView.findViewById(R.id.public_view_article_name);
         holder.declaration_btn = (ImageButton) convertView.findViewById(R.id.public_view_article_declaration);  //왜이럼???
         holder.location = (TextView) convertView.findViewById(R.id.public_view_article_location);
@@ -195,6 +199,21 @@ public class ContentAdapter extends BaseAdapter {
             holder.mycomment.setVisibility(View.VISIBLE);       // 댓글 사진
             holder.mycomment.setImageBitmap(mData.mycommentprofile);
         }
+
+        // 프로필 사진 클릭시
+        holder.profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mData.email == null) return;     // 이메일이 없을 경우 사용 불가하기
+
+                Intent intent = new Intent(mContext, FriendProfileActivity.class);
+                intent.putExtra("name",mData.name);
+                intent.putExtra("email",mData.email);
+                intent.putExtra("contentnum",mData.contentnum);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                mContext.startActivity(intent);
+            }
+        });
 
         // textView 처리(이름 , 주소, 게시글내용,조회수 및 추천수)
         holder.name.setText(mData.name);

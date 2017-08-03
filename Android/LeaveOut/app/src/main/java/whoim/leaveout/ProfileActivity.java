@@ -384,7 +384,7 @@ public class ProfileActivity extends AppCompatActivity implements OnMapReadyCall
 
     private void selectContentSQL(String query) {
 
-        final String sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files,profile " +
+        final String sql = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files,profile,email " +
                 "from content inner join user " +
                 "on content.user_num = user.user_num " +
                 "where content_num in (" + query + ")";
@@ -733,7 +733,7 @@ public class ProfileActivity extends AppCompatActivity implements OnMapReadyCall
            protected void onProgressUpdate(Object... values) {
 
                    mContentAdapter.addItem(bitmap, (int) values[0], (String) values[1], (String) values[2], (String) values[3], (String) values[4],
-                           (String) values[5], (String) values[6], (ArrayList<String>) values[7], bitmap, (CommentAdapter) values[8]);
+                           (String) values[5], (String) values[6], (ArrayList<String>) values[7], bitmap, (CommentAdapter) values[8],null);
            }
            @Override
            protected void onPostExecute(Void aVoid) {

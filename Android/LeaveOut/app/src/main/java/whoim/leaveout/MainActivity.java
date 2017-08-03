@@ -178,6 +178,21 @@ public class MainActivity extends MapAPIActivity {
             }
         });*/
         Permission.cameraCheckPermissions(this);
+
+        // 푸시(알림)로/으로 진입 했을시
+        if(getIntent() != null) {
+            String action = getIntent().getStringExtra("moveAction");
+            if(action != null) {
+                if (action.equals("FriendRequestActivity")) {       // 친구 추가 알림
+                    Intent intent = new Intent(getApplicationContext(), FriendRequestActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                }
+            }
+            if(getIntent().getExtras() != null) {
+                getIntent().removeExtra("moveAction");
+            }
+        }
     }
 
     // 인스턴스 셋팅
@@ -762,6 +777,14 @@ public class MainActivity extends MapAPIActivity {
                             }   // for -- END --
                         }
                     }   //if -- END --
+                    else {      // 그대로면 기본 셋팅
+                        MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
+                        circleSet();        // 원그리기
+                        mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(), mCurrentLocation));       // View에 주소 표시
+                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 16));       // 초기 화면 셋팅
+                        fenceSQLStart();
+                    }
                 }   // onReceive -- END --
             };  // new BroadcastReceiver -- END --
         }
@@ -839,6 +862,7 @@ public class MainActivity extends MapAPIActivity {
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
     }
 
+    // 모아보기 이동
     // 위도좌측 상단,       위도우측 하단,       경도좌측 상단,       경도우측 하단
     // Double northeastLat, Double northeastLng, Double southwestLat, Double southwestLng
     private void contentsLocationSelectSQLData() {
@@ -866,7 +890,7 @@ public class MainActivity extends MapAPIActivity {
         String query = SQLDataService.getDynamicQuery(count);       // sql 동적으로 ? 만들기
 
 
-        final String mSelectSQL = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files, profile " +
+        final String mSelectSQL = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files, profile, email" +
                 "from content inner join user " +
                 "on content.user_num = user.user_num " +
                 "where (loc_x >= ? && loc_x <= ?) AND (loc_y >= ? && loc_y <= ?) AND (fence = false OR content_num in ("+ query +"))";     // 모아보기 sql

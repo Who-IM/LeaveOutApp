@@ -63,8 +63,9 @@ on update cascade
 
 /* 친구 */
 Create table Friend(
-friend_num int not null,
 user_num int not null,
+friend_num int not null,
+request int not null default 1,
 primary key(friend_num,user_num),
 constraint fk_friend_user_num 
 	foreign key(user_num) references User(user_num) on delete cascade,

@@ -812,8 +812,6 @@ public class MainActivity extends MapAPIActivity {
                         MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
                         circleSet();        // 원그리기
                         mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(), mCurrentLocation));       // View에 주소 표시
-                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 16));       // 초기 화면 셋팅
                         fenceSQLStart();
                     }
                 }   // onReceive -- END --

@@ -59,12 +59,14 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import whoim.leaveout.FCMPush.FCMInstanceIDService;
+import whoim.leaveout.Loading.LoadingDialogBin;
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.MapAPI.LocationBackground;
 import whoim.leaveout.MapAPI.MapAPIActivity;
 import whoim.leaveout.MapAPI.SNSInfoMaker;
 import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.Server.WebControll;
 import whoim.leaveout.Services.FomatService;
 import whoim.leaveout.StartSetting.Permission;
 import whoim.leaveout.User.UserInfo;
@@ -179,7 +181,7 @@ public class MainActivity extends MapAPIActivity {
         });*/
         Permission.cameraCheckPermissions(this);
 
-        // 푸시(알림)로/으로 진입 했을시
+        // 푸시(알림)로/으로 진입 했을시 어떤 액티비티로 향할지 판단하여 이동
         if(getIntent() != null) {
             String action = getIntent().getStringExtra("moveAction");
             if(action != null) {
@@ -193,6 +195,7 @@ public class MainActivity extends MapAPIActivity {
                 getIntent().removeExtra("moveAction");
             }
         }
+
     }
 
     // 인스턴스 셋팅
@@ -448,11 +451,39 @@ public class MainActivity extends MapAPIActivity {
                     });
                 }
                 //친구 추가
-                else if(position == 3)
-                {
+                else if(position == 3) {
                     holder.count = (TextView) convertView.findViewById(R.id.menu_friend_count);
-                    holder.count.setVisibility(View.VISIBLE);
-                    holder.count.setText("53");   //친구 추가 카운트
+                    // 친구 요청 갯수 DB에서 확인
+                    final menu_ViewHolder tempholder = holder;
+                    new LoadingDialogBin(MainActivity.this) {
+                        int friendcount = 0;
+
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            String sql = "select count(user_num) as friendcount " +
+                                    "from friend " +
+                                    "where request = 1 and user_num = " + userInfo.getUserNum();
+                            JSONObject result = new WebControll().WebLoad(SQLDataService.getSQLJSONData(sql,-1,"select"));
+                            try {
+                                JSONArray responeArr = result.getJSONArray("result");
+                                if(responeArr != null && responeArr.length() != 0) {
+                                    friendcount = responeArr.getJSONObject(0).getInt("friendcount");
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(Void aVoid) {
+                            if(friendcount != 0) {
+                                tempholder.count.setVisibility(View.VISIBLE);
+                                tempholder.count.setText(String.valueOf(friendcount));   //친구 추가 카운트
+                            }
+                            super.onPostExecute(aVoid);
+                        }
+                    }.execute();
 
                 }
             }

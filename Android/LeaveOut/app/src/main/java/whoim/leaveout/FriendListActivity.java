@@ -262,7 +262,7 @@ public class FriendListActivity extends AppCompatActivity  {
                 String sql = "select friend.friend_num, user.name " +
                              "from friend inner join user " +
                              "on friend.friend_num = user.user_num " +
-                             "where friend.user_num = ?;";
+                             "where friend.request = 0 and friend.user_num = ?";
 
                 mDataQueryGroup.clear();
                 mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());

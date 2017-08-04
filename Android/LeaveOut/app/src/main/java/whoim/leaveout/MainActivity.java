@@ -46,6 +46,7 @@ import android.widget.Toast;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
 import org.json.JSONArray;
@@ -60,6 +61,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import whoim.leaveout.FCMPush.FCMInstanceIDService;
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
 import whoim.leaveout.MapAPI.LocationBackground;
@@ -128,6 +130,8 @@ public class MainActivity extends MapAPIActivity {
         super.onCreate(savedInstanceState);
         restoreState(savedInstanceState);     // 상태 불러오기
 
+        FCMInstanceIDService.sendRegistrationToServer(String.valueOf(userInfo.getUserNum()),FirebaseInstanceId.getInstance().getToken());
+
         // 화면 캡쳐 방지
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.main_layout);
@@ -179,6 +183,21 @@ public class MainActivity extends MapAPIActivity {
             }
         });*/
         Permission.cameraCheckPermissions(this);
+
+        // 푸시(알림)로/으로 진입 했을시
+        if(getIntent() != null) {
+            String action = getIntent().getStringExtra("moveAction");
+            if(action != null) {
+                if (action.equals("FriendRequestActivity")) {       // 친구 추가 알림
+                    Intent intent = new Intent(getApplicationContext(), FriendRequestActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                }
+            }
+            if(getIntent().getExtras() != null) {
+                getIntent().removeExtra("moveAction");
+            }
+        }
     }
 
     // 인스턴스 셋팅
@@ -272,7 +291,7 @@ public class MainActivity extends MapAPIActivity {
         adapter.addItem(profile, userInfo.getName(), userInfo.getEmail());
         adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.profile_icon, null)).getBitmap(),"프로필", null);
         adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.friends_icon, null)).getBitmap(),"친구목록", null);
-        adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.basepicture, null)).getBitmap(),"친구요청", null);
+        adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.addfriend_icon, null)).getBitmap(),"친구요청", null);
         adapter.addItem(((BitmapDrawable)getResources().getDrawable(R.drawable.preferences_icon, null)).getBitmap(),"환경설정", null);
     }
 
@@ -323,6 +342,7 @@ public class MainActivity extends MapAPIActivity {
     private class menu_ViewHolder {
         public ImageView Image;
         public TextView name;
+        public TextView count;
         public TextView email;
     }
 
@@ -431,6 +451,14 @@ public class MainActivity extends MapAPIActivity {
                             }
                         }
                     });
+                }
+                //친구 추가
+                else if(position == 3)
+                {
+                    holder.count = (TextView) convertView.findViewById(R.id.menu_friend_count);
+                    holder.count.setVisibility(View.VISIBLE);
+                    holder.count.setText("53");   //친구 추가 카운트
+
                 }
             }
 
@@ -753,6 +781,14 @@ public class MainActivity extends MapAPIActivity {
                             }   // for -- END --
                         }
                     }   //if -- END --
+                    else {      // 그대로면 기본 셋팅
+                        MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
+                        circleSet();        // 원그리기
+                        mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(), mCurrentLocation));       // View에 주소 표시
+                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 16));       // 초기 화면 셋팅
+                        fenceSQLStart();
+                    }
                 }   // onReceive -- END --
             };  // new BroadcastReceiver -- END --
         }
@@ -845,8 +881,8 @@ public class MainActivity extends MapAPIActivity {
 
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
     }
-
-    //사진 체크크
+      
+    //사진 체크
    private void imagecheckSelectAndInsertSQL(final String image_path) {
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
             @Override
@@ -907,7 +943,7 @@ public class MainActivity extends MapAPIActivity {
         String query = SQLDataService.getDynamicQuery(count);       // sql 동적으로 ? 만들기
 
 
-        final String mSelectSQL = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files, profile " +
+        final String mSelectSQL = "select content_num, name, view_cnt, rec_cnt, reg_time,address,files, profile, email" +
                 "from content inner join user " +
                 "on content.user_num = user.user_num " +
                 "where (loc_x >= ? && loc_x <= ?) AND (loc_y >= ? && loc_y <= ?) AND (fence = false OR content_num in ("+ query +"))";     // 모아보기 sql

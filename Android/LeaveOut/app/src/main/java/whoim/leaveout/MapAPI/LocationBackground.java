@@ -14,6 +14,7 @@ import com.google.android.gms.location.LocationResult;
 
 import whoim.leaveout.R;
 import whoim.leaveout.Server.SQLDataService;
+import whoim.leaveout.Services.FomatService;
 import whoim.leaveout.User.UserInfo;
 import whoim.leaveout.WritingActivity;
 
@@ -62,6 +63,7 @@ public class LocationBackground extends IntentService {
                     mBroadcastIntent.putExtra(EXTRA_CURRENT_LOCATION, location);
                     sendBroadcast(mBroadcastIntent);
                     Location_Notice(location);
+
                 }
             }
         }
@@ -73,14 +75,22 @@ public class LocationBackground extends IntentService {
         SharedPreferences.Editor editor = mLocationNotice.edit();
 
         mSwNotice = getSharedPreferences("switch", MODE_PRIVATE);
-        SharedPreferences.Editor swEditor = mSwNotice.edit();
 
-        KoreaLocation KRLocation = new KoreaLocation();
+        /**
+         * -좌표 테스트용-
+         * 울산 좌표
+         *  (35.53889 129.31667)
+         * 부산 좌표
+         *  (35.17944, 129.07556)
+         * 대구 좌표
+         *  (35.87222, 128.60250)
+         * 서울 좌표
+         *  (37.56667, 126.97806)
+         */
+
+
         //대구 위치 좌표
-        if ((KRLocation.deagu_left.latitude <= location.getLatitude() &&
-                KRLocation.deagu_left.longitude <= location.getLongitude()) &&
-                KRLocation.deagu_right.latitude >= location.getLatitude() &&
-                KRLocation.deagu_right.longitude >= location.getLongitude()) {
+        if (FomatService.getCurrentAddress(this,location).contains("대구")) {
             //알람 한번만 울리게 하기
             if (mSwNotice.getBoolean("swLocation" + UserInfo.getInstance().getUserNum(), false) == true &&
                     mLocationNotice.getInt("DaeguCount" + UserInfo.getInstance().getUserNum(), 0) == 0) {
@@ -93,10 +103,7 @@ public class LocationBackground extends IntentService {
             Notice("대구");
         }
 
-        else if ((KRLocation.seoul_left.latitude <= location.getLatitude() &&
-                KRLocation.seoul_left.longitude <= location.getLongitude()) &&
-                KRLocation.seoul_right.latitude >= location.getLatitude() &&
-                KRLocation.seoul_right.longitude >= location.getLongitude()) {
+        else if (FomatService.getCurrentAddress(this,location).contains("서울")) {
             if (mSwNotice.getBoolean("swLocation" + UserInfo.getInstance().getUserNum(), false) == true &&
                     mLocationNotice.getInt("SeoulCount" + UserInfo.getInstance().getUserNum(), 0) == 0) {
                 editor.putInt("SeoulCount" + UserInfo.getInstance().getUserNum(), 1);
@@ -107,10 +114,7 @@ public class LocationBackground extends IntentService {
             }
             Notice("서울");
         }
-        else if ((KRLocation.busan_left.latitude <= location.getLatitude() &&
-                KRLocation.busan_left.longitude <= location.getLongitude()) &&
-                KRLocation.busan_right.latitude >= location.getLatitude() &&
-                KRLocation.busan_right.longitude >= location.getLongitude())
+        else if (FomatService.getCurrentAddress(this,location).contains("부산"))
         {
             if (mSwNotice.getBoolean("swLocation" + UserInfo.getInstance().getUserNum(), false) == true &&
                     mLocationNotice.getInt("BusanCount" + UserInfo.getInstance().getUserNum(), 0) == 0) {
@@ -122,6 +126,54 @@ public class LocationBackground extends IntentService {
             }
             Notice("부산");
         }
+        else if (FomatService.getCurrentAddress(this,location).contains("인천"))
+        {
+            if (mSwNotice.getBoolean("swLocation" + UserInfo.getInstance().getUserNum(), false) == true &&
+                    mLocationNotice.getInt("BusanCount" + UserInfo.getInstance().getUserNum(), 0) == 0) {
+                editor.putInt("BusanCount" + UserInfo.getInstance().getUserNum(), 1);
+                editor.commit();
+            }
+            else {
+                return;
+            }
+            Notice("인천");
+        }
+        else if (FomatService.getCurrentAddress(this,location).contains("대전"))
+        {
+            if (mSwNotice.getBoolean("swLocation" + UserInfo.getInstance().getUserNum(), false) == true &&
+                    mLocationNotice.getInt("BusanCount" + UserInfo.getInstance().getUserNum(), 0) == 0) {
+                editor.putInt("BusanCount" + UserInfo.getInstance().getUserNum(), 1);
+                editor.commit();
+            }
+            else {
+                return;
+            }
+            Notice("대전");
+        }
+        else if (FomatService.getCurrentAddress(this,location).contains("광주"))
+        {
+            if (mSwNotice.getBoolean("swLocation" + UserInfo.getInstance().getUserNum(), false) == true &&
+                    mLocationNotice.getInt("BusanCount" + UserInfo.getInstance().getUserNum(), 0) == 0) {
+                editor.putInt("BusanCount" + UserInfo.getInstance().getUserNum(), 1);
+                editor.commit();
+            }
+            else {
+                return;
+            }
+            Notice("광주");
+        }
+        else if (FomatService.getCurrentAddress(this,location).contains("울산"))
+        {
+            if (mSwNotice.getBoolean("swLocation" + UserInfo.getInstance().getUserNum(), false) == true &&
+                    mLocationNotice.getInt("BusanCount" + UserInfo.getInstance().getUserNum(), 0) == 0) {
+                editor.putInt("BusanCount" + UserInfo.getInstance().getUserNum(), 1);
+                editor.commit();
+            }
+            else {
+                return;
+            }
+            Notice("울산산");
+       }
     }
 
     //알림

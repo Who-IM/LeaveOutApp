@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">LeaveOut</string>
     <string name="facebook_app_id">1503505723022534</string>
+    <string name="WebIP">http://106.249.39.40:8080</string>
 </resources>

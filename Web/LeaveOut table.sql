@@ -49,22 +49,20 @@ profile varchar(200)
 );
 
 /* 체크 */
-CREATE TABLE `checks` (
-	`check_num` INT(11) NOT NULL AUTO_INCREMENT,
-	`user_num` INT(11) NOT NULL,
-	`chk_x` DOUBLE NULL DEFAULT NULL,
-	`chk_y` DOUBLE NULL DEFAULT NULL,
-	`expare_date` DATE NULL DEFAULT NULL,
-	`check_image` VARCHAR(70) NULL DEFAULT NULL,
-	PRIMARY KEY (`check_num`),
-	INDEX `fk_checks_user_num` (`user_num`),
-	CONSTRAINT `fk_checks_user_num` FOREIGN KEY (`user_num`) REFERENCES `user` (`user_num`) ON UPDATE CASCADE ON DELETE CASCADE
+CREATE TABLE checks (
+	check_num INT(11) NOT NULL AUTO_INCREMENT,
+	user_num INT(11) NOT NULL,
+	chk_x DOUBLE NULL DEFAULT NULL,
+	chk_y DOUBLE NULL DEFAULT NULL,
+	expare_date DATE NULL DEFAULT NULL,
+	check_image VARCHAR(70) NULL DEFAULT NULL,
+	PRIMARY KEY (check_num),
+	INDEX fk_checks_user_num (user_num),
+	CONSTRAINT fk_checks_user_num FOREIGN KEY (user_num) REFERENCES user (user_num) ON UPDATE CASCADE ON DELETE CASCADE
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB
-AUTO_INCREMENT=51
-;
-
+AUTO_INCREMENT=51;
 
 /* 친구 */
 Create table Friend(

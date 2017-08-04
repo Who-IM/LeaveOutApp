@@ -1,5 +1,6 @@
 package whoim.leaveout;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,11 +8,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.media.MediaScannerConnection;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -114,6 +117,8 @@ public class MainActivity extends MapAPIActivity {
     Bitmap profile = null;      // 프로파일
 
     Uri photoUri;
+    File photoFile = null;
+    String imageFileName;
 
     // SQL
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
@@ -564,7 +569,6 @@ public class MainActivity extends MapAPIActivity {
     // 뒤로가기
     @Override
     public void onBackPressed() {
-
         if(inputSearch.isFocused()) {
             inputSearch.clearFocus();  // 포커스 해제
         }
@@ -759,6 +763,7 @@ public class MainActivity extends MapAPIActivity {
         }
     }
 
+    // 체크 db검색
     private void checkSelectAndInsertSQL() {
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
             @Override
@@ -767,7 +772,8 @@ public class MainActivity extends MapAPIActivity {
             }
             @Override
             public JSONObject getSQLQuery() {
-                String sql = "select chk_x, chk_y, expare_date from checks where user_num = ?";
+                String sql = "select chk_x, chk_y, expare_date, check_image from checks " +
+                             "where user_num = ? AND check_image is null;";
                 mDataQueryGroup.clear();
                 mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
                 return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
@@ -780,10 +786,10 @@ public class MainActivity extends MapAPIActivity {
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
                 if(responseData.get(0).getJSONArray("result").length() < 3) {
-                    checkInsertSQLData();
+                    checkInsertSQLData(false, "");
                 }
                 else {
-                    Toast.makeText(getApplicationContext(), "최대 3개 까지만 가능합니다.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "체크는 최대 3개 까지만 가능합니다.", Toast.LENGTH_LONG).show();
                 }
             }
         };
@@ -791,14 +797,28 @@ public class MainActivity extends MapAPIActivity {
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
     }
 
-    private void checkInsertSQLData() {
+    // 체크 넣기
+    private void checkInsertSQLData(boolean image, String image_path) {
+        String sql = "";
 
-        final String sql = "insert into checks(user_num,chk_x,chk_y,expare_date) values(?,?,?,curdate())";
-        mDataQueryGroup.clear();
-        mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
-        mDataQueryGroup.addDouble(mCurrentLocation.getLatitude());
-        mDataQueryGroup.addDouble(mCurrentLocation.getLongitude());
+        // 사진체크
+        if(image) {
+            sql = "insert into checks(user_num,chk_x,chk_y,expare_date,check_image) values(?,?,?,curdate(),?)";
+            mDataQueryGroup.clear();
+            mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+            mDataQueryGroup.addDouble(mCurrentLocation.getLatitude());
+            mDataQueryGroup.addDouble(mCurrentLocation.getLongitude());
+            mDataQueryGroup.addString(image_path);
+        // 체크
+        } else {
+            sql = "insert into checks(user_num,chk_x,chk_y,expare_date) values(?,?,?,curdate())";
+            mDataQueryGroup.clear();
+            mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+            mDataQueryGroup.addDouble(mCurrentLocation.getLatitude());
+            mDataQueryGroup.addDouble(mCurrentLocation.getLongitude());
+        }
 
+        final String finalSql = sql;
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
             @Override
             public int getSize() {
@@ -807,7 +827,7 @@ public class MainActivity extends MapAPIActivity {
 
             @Override
             public JSONObject getSQLQuery() {
-                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,0,"update");
+                return SQLDataService.getDynamicSQLJSONData(finalSql,mDataQueryGroup,0,"update");
             }
             @Override
             public JSONObject getUpLoad(JSONObject resultSQL) {
@@ -820,6 +840,40 @@ public class MainActivity extends MapAPIActivity {
                     Toast.makeText(getApplicationContext(), "체크되었습니다.", Toast.LENGTH_LONG).show();
                 else
                     Toast.makeText(getApplicationContext(), "잠시후 다시 시도해 주십시오.", Toast.LENGTH_LONG).show();
+            }
+        };
+
+        LoadingSQLDialog.SQLSendStart(this,loadingSQLListener,ProgressDialog.STYLE_SPINNER,null);
+    }
+
+    //사진 체크크
+   private void imagecheckSelectAndInsertSQL(final String image_path) {
+        LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
+            @Override
+            public int getSize() {
+                return 1;
+            }
+            @Override
+            public JSONObject getSQLQuery() {
+                String sql = "select chk_x, chk_y, expare_date, check_image from checks " +
+                             "where user_num = ? AND check_image like '/%';";
+                mDataQueryGroup.clear();
+                mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
+                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
+            }
+            @Override
+            public JSONObject getUpLoad(JSONObject resultSQL) {
+                return null;
+            }
+
+            @Override
+            public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
+                if(responseData.get(0).getJSONArray("result").length() < 3) {
+                    checkInsertSQLData(true, image_path);
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "사진체크는 최대 3개 까지만 가능합니다.", Toast.LENGTH_LONG).show();
+                }
             }
         };
 
@@ -911,13 +965,13 @@ public class MainActivity extends MapAPIActivity {
                 if (GPSCheck())          // GPS서비스 확인
                 {
                     intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    File photoFile = null;
                     try {
                         photoFile = createImageFile();
                     } catch (IOException e) {
                         Toast.makeText(MainActivity.this, "이미지 처리 오류! 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
                         finish();
                     }
+
                     if (photoFile != null) {
                         photoUri = FileProvider.getUriForFile(MainActivity.this, "whoim.leaveout.provider", photoFile); //FileProvider의 경우 이전 포스트를 참고하세요.
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri); //사진을 찍어 해당 Content uri를 photoUri에 적용시키기 위함
@@ -942,19 +996,43 @@ public class MainActivity extends MapAPIActivity {
                 if(!checkLocationServicesStatus()) Toast.makeText(getApplicationContext(),"위치 서비스를 사용 할 수 없습니다.",Toast.LENGTH_SHORT).show();
                 break;
             case 1: //앨범에 사진을 보여주기 위해 Scan을 합니다.
-                MediaScannerConnection.scanFile(MainActivity.this, new String[]{photoUri.getPath()}, null,
-                        new MediaScannerConnection.OnScanCompletedListener() {
-                            public void onScanCompleted(String path, Uri uri) {
-                            }
-                        });
+                if(resultCode ==  Activity.RESULT_OK) {
+                    // 비트맵 이미지로 가져온다
+                    String imagePath = photoFile.getPath();
+                    Bitmap image = BitmapFactory.decodeFile(imagePath);
+
+                    // 이미지를 상황에 맞게 회전시킨다
+                    ExifInterface exif = null;
+                    try {
+                        exif = new ExifInterface(imagePath);
+                        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                        int exifDegree = exifOrientationToDegrees(exifOrientation);
+                        rotate(image, exifDegree);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    // 회전한 이미지 앨범에 띄우기
+                    this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(photoFile)) );
+                    imagecheckSelectAndInsertSQL(photoFile.getPath()); // db에 삽입
+                }
+                // 뒤로가기
+                else {
+                    File file = new File(photoFile.getPath());
+                    // 이미지 삭제
+                    if(file.delete()) { // 성공시
+                        this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file))); // 이미지 스캔해서 띄우기
+                    }
+                }
                 break;
         }
     }
 
+    // 파일 경로 생성
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.KOREA).format(new Date());
-        String imageFileName = "Photo_" + timeStamp;
+        imageFileName = "Photo_" + timeStamp;
 
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         if (!storageDir.exists()) {
@@ -962,8 +1040,47 @@ public class MainActivity extends MapAPIActivity {
         }
 
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-        this.sendBroadcast(new Intent( Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(image)) );
+        this.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(image)) );
         return image;
+    }
+
+    // 이미지 회전각도 설정
+    public int exifOrientationToDegrees(int exifOrientation) {
+        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
+            return 90;
+        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
+            return 180;
+        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
+            return 270;
+        }
+        return 0;
+    }
+
+    // 이미지 회전
+    public Bitmap rotate(Bitmap bitmap, int degrees)
+    {
+        if(degrees != 0 && bitmap != null)
+        {
+            Matrix m = new Matrix();
+            m.setRotate(degrees, (float) bitmap.getWidth() / 2,
+                    (float) bitmap.getHeight() / 2);
+
+            try
+            {
+                Bitmap converted = Bitmap.createBitmap(bitmap, 0, 0,
+                        bitmap.getWidth(), bitmap.getHeight(), m, true);
+                if(bitmap != converted)
+                {
+                    bitmap.recycle();
+                    bitmap = converted;
+                }
+            }
+            catch(OutOfMemoryError ex)
+            {
+                // 메모리가 부족하여 회전을 시키지 못할 경우 그냥 원본을 반환합니다.
+            }
+        }
+        return bitmap;
     }
 
     //권한 획득에 동의를 하지 않았을 경우 아래 Toast 메세지를 띄우며 해당 Activity를 종료시킵니다.

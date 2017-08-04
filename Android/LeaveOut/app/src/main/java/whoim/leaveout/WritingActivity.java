@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -45,6 +46,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -80,14 +82,8 @@ public class WritingActivity extends AppCompatActivity {
     // checkList
     LinearLayout writing_search_layout;
     private ListView writing_searchList;
-    ArrayAdapter<String> writing_adapter_search;
+    write_Check_DataAdapter writing_check_adapter;
     ImageButton writing_inputSearch;
-
-    /*private String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}; //권한 설정 변수
-
-    private static final int MULTIPLE_PERMISSIONS = 101; //권한 동의 여부 문의 후 CallBack 함수에 쓰일 변수*/
-    //카메라 앨범 끝
 
     //글 공개 여부 변수
     boolean ispageOpen = false;     //글 공개여부 레이어 표시 여부
@@ -112,10 +108,6 @@ public class WritingActivity extends AppCompatActivity {
     // 친구태그
     private ImageButton friendtag = null;
     private String tagText = null;
-
-    ArrayList<String> product = null;
-    ArrayList<Double> x = null;
-    ArrayList<Double> y = null;
 
     // 카메라 관련
     private static final int INTENT_REQUEST_GET_IMAGES = 13;
@@ -152,8 +144,6 @@ public class WritingActivity extends AppCompatActivity {
         toolbar.setTitleTextColor(Color.parseColor("#00FFFFFF"));   //제목 투명하게
         setSupportActionBar(toolbar);   //액션바와 같게 만들어줌
         getSupportActionBar().setDisplayShowTitleEnabled(false);        //액션바에 표시되는 제목의 표시유무를 설정합니다.
-
-        //checkPermissions(); //권한 묻기
 
         // 매뉴 구성
         list = (ListView) findViewById(R.id.Image_listview);
@@ -217,20 +207,55 @@ public class WritingActivity extends AppCompatActivity {
         writing_inputSearch = (ImageButton) findViewById(R.id.open_list);
         writing_search_layout = (LinearLayout) findViewById(R.id.write_search_layout);
 
-        product = new ArrayList<>();
-        x = new ArrayList<>();
-        y = new ArrayList<>();
-        checkInsertSQLData();
-
         // 검색 리스트 뷰
-        writing_adapter_search = new ArrayAdapter<String>(this, R.layout.main_search_item, R.id.product_name, product);
+        writing_check_adapter = new write_Check_DataAdapter(this);
+        checkInsertSQLData(); // db업데이트
 
+        // 체크 item항목들 클릭시
         writing_searchList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mAddressText.setText(writing_adapter_search.getItem(position));
-                mCurrentLocation.setLatitude(x.get(position));  // 위도
-                mCurrentLocation.setLongitude(y.get(position));
+                mAddressText.setText(writing_check_adapter.getItem(position).title);
+                mCurrentLocation.setLatitude(writing_check_adapter.getItem(position).latitude);  // 위도
+                mCurrentLocation.setLongitude(writing_check_adapter.getItem(position).longitude); // 경도
+
+                if(!writing_check_adapter.getItem(position).check_flag) { // 사진체크 있는 경우
+                    Bitmap image = BitmapFactory.decodeFile(writing_check_adapter.getItem(position).imagePath);
+                    if(image != null) {
+                        // image 크기 줄이기
+                        try {
+                            Uri imguri = Uri.fromFile(new File(writing_check_adapter.getItem(position).imagePath));
+                            BitmapFactory.Options options = new BitmapFactory.Options();
+                            if (image.getWidth() >= 5000 || image.getHeight() >= 2600) {
+                                options.inSampleSize = 4;
+                            } else if ((image.getWidth() < 5000 && image.getWidth() >= 3750) ||
+                                    (image.getHeight() < 2600 && image.getHeight() >= 1950)) {
+                                options.inSampleSize = 3;
+                            } else if ((image.getWidth() < 3750 && image.getWidth() >= 2500) ||
+                                    (image.getHeight() < 1950 && image.getHeight() >= 1300)) {
+                                options.inSampleSize = 2;
+                            }
+                            image.recycle();
+                            image= BitmapFactory.decodeStream(getContentResolver().openInputStream(imguri),null,options);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+
+                        // 이미지 회전
+                        int lo = getImageOrientation(writing_check_adapter.getItem(position).imagePath);
+                        image = imgRotate(image, lo);
+
+                        // listview에 셋팅
+                        adapter.addItem(image, 787, 525, null);
+                        list.setAdapter(adapter);
+                    }
+                    // 이미지가 경로상에 없는경우
+                    else {
+                        Toast.makeText(WritingActivity.this, "사진을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                writing_search_layout.setVisibility(View.GONE); // 안보이게 창내림
             }
         });
 
@@ -244,13 +269,11 @@ public class WritingActivity extends AppCompatActivity {
 
     // 검색관련 셋팅
     public void check_list_open() {
-
         writing_inputSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(writing_search_layout.getVisibility() == View.GONE) {
                     writing_search_layout.setVisibility(View.VISIBLE);
-                    writing_searchList.setAdapter(writing_adapter_search);
                 } else {
                     writing_search_layout.setVisibility(View.GONE);
                 }
@@ -258,6 +281,96 @@ public class WritingActivity extends AppCompatActivity {
         });
     }
 
+    private class Writing_Check_Holder {
+        public ImageView Image;
+        public TextView title;
+    }
+
+    // 리스트뷰 어뎁터
+    private class write_Check_DataAdapter extends BaseAdapter {
+        private Context mContext = null;
+        private ArrayList<writing_Check_ListData> mListData = new ArrayList<writing_Check_ListData>();
+
+        public write_Check_DataAdapter(Context mContext) {
+            super();
+            this.mContext = mContext;
+        }
+
+        public ArrayList getList() { return mListData; };
+
+        @Override
+        public int getCount() {
+            return mListData.size();
+        }
+
+        @Override
+        public writing_Check_ListData getItem(int position) {
+            return mListData.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        // 생성자로 값을 받아 셋팅
+        public void addItem(Double latitude, Double longitude, String title, boolean check_flag, String imagePath) {
+            writing_Check_ListData addInfo = null;
+            addInfo = new writing_Check_ListData();
+            addInfo.latitude = latitude;
+            addInfo.longitude = longitude;
+            addInfo.title = title;
+            addInfo.check_flag = check_flag;
+            addInfo.imagePath = imagePath;
+
+            mListData.add(addInfo);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            Writing_Check_Holder holder;
+
+            if (convertView == null) {
+                holder = new Writing_Check_Holder();
+
+                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.write_check, null);
+
+                holder.Image = (ImageView) convertView.findViewById(R.id.write_check_icon);
+                holder.title = (TextView) convertView.findViewById(R.id.write_check_title);
+
+                convertView.setTag(holder);
+            }else{
+                holder = (Writing_Check_Holder) convertView.getTag();
+            }
+
+            final writing_Check_ListData mData = mListData.get(position);
+
+            holder.title.setText(mData.title);
+
+            // 이미지 처리
+            if(mData.check_flag) {
+                holder.Image.setImageResource(R.drawable.checkimg);
+            }
+            else {
+                holder.Image.setImageResource(R.drawable.write_image);
+            }
+
+            return convertView;
+        }
+    }
+
+    // 메뉴의 실제 데이터를 저장할 class
+    class writing_Check_ListData {
+        public Double latitude;
+        public Double longitude;
+        public String title;
+        public boolean check_flag;
+        public String imagePath;
+    }
+
+    //-----------------------------------------------------------
+    // writing
     private class Writing_Holder {
         public ImageView Image;
     }
@@ -353,58 +466,6 @@ public class WritingActivity extends AppCompatActivity {
             return bitmapimg;
         }        // getter
     }
-
-   /* private boolean checkPermissions() {
-        int result;
-        List<String> permissionList = new ArrayList<>();
-        for (String pm : permissions) {
-            result = ContextCompat.checkSelfPermission(this, pm);
-            if (result != PackageManager.PERMISSION_GRANTED) { //사용자가 해당 권한을 가지고 있지 않을 경우 리스트에 해당 권한명 추가
-                permissionList.add(pm);
-            }
-        }
-        if (!permissionList.isEmpty()) { //권한이 추가되었으면 해당 리스트가 empty가 아니므로 request 즉 권한을 요청합니다.
-            ActivityCompat.requestPermissions(this, permissionList.toArray(new String[permissionList.size()]), MULTIPLE_PERMISSIONS);
-            return false;
-        }
-        return true;
-    }
-
-    //아래는 권한 요청 Callback 함수입니다. PERMISSION_GRANTED로 권한을 획득했는지 확인할 수 있습니다. 아래에서는 !=를 사용했기에
-    //권한 사용에 동의를 안했을 경우를 if문으로 코딩되었습니다.
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MULTIPLE_PERMISSIONS: {
-                if (grantResults.length > 0) {
-                    for (int i = 0; i < permissions.length; i++) {
-                        if (permissions[i].equals(this.permissions[0])) {
-                            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                                showNoPermissionToastAndFinish();
-                            }
-                        } else if (permissions[i].equals(this.permissions[1])) {
-                            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                                showNoPermissionToastAndFinish();
-                            }
-                        } else if (permissions[i].equals(this.permissions[2])) {
-                            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                                showNoPermissionToastAndFinish();
-                            }
-                        }
-                    }
-                } else {
-                    showNoPermissionToastAndFinish();
-                }
-                return;
-            }
-        }
-    }
-
-    //권한 획득에 동의를 하지 않았을 경우 아래 Toast 메세지를 띄우며 해당 Activity를 종료시킵니다.
-    private void showNoPermissionToastAndFinish() {
-        Toast.makeText(this, "권한 요청에 동의 해주셔야 이용 가능합니다. 설정에서 권한 허용 하시기 바랍니다.", Toast.LENGTH_SHORT).show();
-        finish();
-    }*/
 
     //앨범 불러오기 버튼
     public void goToAlbumButton(View v) {
@@ -590,13 +651,19 @@ public class WritingActivity extends AppCompatActivity {
                 Location location = new Location("checks");
                 for(int i =0; i < jspn.length(); i++) {
                     JSONObject j = jspn.getJSONObject(i);
-                    chk_n = j.getInt("check_num");
-                    x.add(j.getDouble("chk_x"));
-                    y.add(j.getDouble("chk_y"));
+                    boolean flag;
                     location.setLatitude(j.getDouble("chk_x"));
                     location.setLongitude(j.getDouble("chk_y"));
-                    product.add(getCurrentAddress(getApplicationContext(),location));
+                    String imagePath = "";
+                    if(!j.getString("check_image").equals("null")) {
+                        flag = false;
+                        imagePath = j.getString("check_image");
+                    } else {
+                        flag = true;
+                    }
+                    writing_check_adapter.addItem(j.getDouble("chk_x"), j.getDouble("chk_y"), getCurrentAddress(getApplicationContext(),location), flag, imagePath);
                 }
+                writing_searchList.setAdapter(writing_check_adapter);
             }
         };
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
@@ -842,7 +909,7 @@ public class WritingActivity extends AppCompatActivity {
             Double FloatS = S0 / S1;
             result = new Float(FloatD + (FloatM / 60) + (FloatS / 3600));
             return result;
-        };
+        }
 
         public boolean isValid() {
             return valid;
@@ -866,5 +933,45 @@ public class WritingActivity extends AppCompatActivity {
         public int getSize() {
             return location.size();
         }
+    }
+
+    // 이미지 회전각 구하기
+    public int getImageOrientation(String path){
+
+        int rotation =0;
+        try {
+            ExifInterface exif = new ExifInterface(path);
+            int rot= exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+            if(rot == ExifInterface.ORIENTATION_ROTATE_90){
+                rotation = 90;
+            }else if(rot == ExifInterface.ORIENTATION_ROTATE_180){
+                rotation = 180;
+            }else if(rot == ExifInterface.ORIENTATION_ROTATE_270){
+                rotation = 270;
+            }else{
+                rotation = 0;
+            }
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return rotation;
+    }
+
+    // 이미지 회전
+    public Bitmap imgRotate(Bitmap bmp, int orientation){
+        int width = bmp.getWidth();
+        int height = bmp.getHeight();
+
+        Matrix matrix = new Matrix();
+        matrix.postRotate(orientation);
+
+        Bitmap resizedBitmap = Bitmap.createBitmap(bmp, 0, 0, width, height, matrix, true);
+        bmp.recycle();
+
+        return resizedBitmap;
     }
 }

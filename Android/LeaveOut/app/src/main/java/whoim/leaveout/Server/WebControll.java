@@ -23,6 +23,7 @@ public class WebControll {
         BufferedWriter mBufferedWriter = null;
         BufferedReader mBufferedReader = null;
         try {
+
             URL url = new URL(WEB_IP+"/controll"); // URL화 한다.
 
             mCon = (HttpURLConnection) url.openConnection();                 // 접속 객체 생성

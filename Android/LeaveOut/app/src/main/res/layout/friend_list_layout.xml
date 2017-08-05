@@ -76,7 +76,7 @@
             app:srcCompat="@drawable/main_search_menu" />
     </RelativeLayout>
 
-    <ExpandableListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/friend_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -2,23 +2,26 @@ package whoim.leaveout;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.Typeface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.EditText;
-import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.tsengvn.typekit.TypekitContextWrapper;
 
@@ -27,22 +30,24 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import whoim.leaveout.Loading.LoadingSQLDialog;
 import whoim.leaveout.Loading.LoadingSQLListener;
+import whoim.leaveout.Server.ImageDownLoad;
 import whoim.leaveout.Server.SQLDataService;
 import whoim.leaveout.User.UserInfo;
 
 public class FriendListActivity extends AppCompatActivity  {
 
-    ExpandableListAdapter listAdapter;
-    ExpandableListView expListView; // 확장 리스트 뷰
-    List<String> listDataHeader;    // 리스트 뷰(하위항목 )
-    HashMap<String, List<String>> listDataChild;
-    String[] friends_list_title = {"ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"};
-    ArrayList<List> dataControl; // child에 데이터 셋팅
+    // 리사이클 뷰
+    RecyclerView lecyclerView = null;
+    List<friend_data> friend_list = null;
+    friendListAdapter adapter = null;
 
     // 검색
     LinearLayout friend_search_layout;
@@ -52,7 +57,7 @@ public class FriendListActivity extends AppCompatActivity  {
     ArrayList<String> products;
 
     private SQLDataService.DataQueryGroup mDataQueryGroup = SQLDataService.DataQueryGroup.getInstance();          // sql에 필요한 데이터 그룹
-    List<String> friend_list[];
+    private ExecutorService service = Executors.newCachedThreadPool();      // 스레드 풀
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +73,9 @@ public class FriendListActivity extends AppCompatActivity  {
         // 검색 셋팅
         setSerach();
         friend_search_layout.setVisibility(View.GONE);
+
+        lecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        lecyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     private void setInstance() {
@@ -75,29 +83,10 @@ public class FriendListActivity extends AppCompatActivity  {
         friend_searchList = (ListView) findViewById(R.id.friend_search_list);
         friend_inputSearch = (EditText) findViewById(R.id.friend_search);
         friend_search_layout = (LinearLayout) findViewById(R.id.friend_search_layout);
-    }
 
-    // 초성
-    public static String toKoChosung(String text)
-    {
-        char[] KO_INIT_S = { 'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ',
-                             'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ' };
-
-        if (text == null) { return null; }
-
-        // 한글자가 한글자와 그대로 대응됨.
-        // 때문에 기존 텍스트를 토대로 작성된다.
-        char[] rv = text.toCharArray();
-        char ch;
-
-        for (int i = 0 ; i < rv.length ; i++) {
-            ch = rv[i];
-            if (ch >= '가' && ch <= '힣') {
-                rv[i] = KO_INIT_S[(ch - '가') / 588]; // 21 * 28
-            }
-        }
-
-        return new String(rv);
+        // recyclerview
+        lecyclerView = (RecyclerView) findViewById(R.id.friend_list);
+        friend_list = new ArrayList<friend_data>();
     }
 
     // 검색관련 셋팅
@@ -124,132 +113,99 @@ public class FriendListActivity extends AppCompatActivity  {
         });
     }
 
-    // 확장 리스트뷰 데이터 설정
-    private void prepareListData() {
-        listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, List<String>>();
+    // 댓글 및 답글에 공용사용
+    public class friend_data {
+        private Bitmap image;
+        private String name;
+        private String email;
+        private int friend_num;
 
-        // 여기부터 데이터 삽입인데 데이터베이스 추가시 수정
-        // 작은 목록들 추가
-        List<String> templist = new ArrayList();
-        templist.add("없음");
-
-        // 큰 목록
-        for(int i = 0; i < friends_list_title.length; i++) {
-            listDataHeader.add(friends_list_title[i]);
-            if(friend_list[i].size() != 0) {
-                listDataChild.put(listDataHeader.get(i), friend_list[i]);
-            }
-            else {
-                listDataChild.put(listDataHeader.get(i), templist);
-            }
+        public String getName() {
+            return name;
         }
-        //-------------------------------------------------------
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Bitmap getImage() {
+            return image;
+        }
+        public void setImage(Bitmap image) { this.image = image; }
+
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+
+        public int getfriend_num() { return friend_num; }
+        public void setFriend_num(int friend_num) { this.friend_num = friend_num; }
     }
 
-    // 확장 리스트뷰 어뎁터(친구목록에 사용)
-    public class ExpandableListAdapter extends BaseExpandableListAdapter {
+    // 여기부터 댓글(RecycleView)
+    public class friendListAdapter extends RecyclerView.Adapter<friendListAdapter.ViewHolder> {
 
-        private Context _context;
-        private List<String> _listDataHeader; // header titles
-        // child data in format of header title, child title
-        private HashMap<String, List<String>> _listDataChild;
+        private List<friend_data> friend_list_data;
+        View view = null;
 
-        // 어뎁터 생성시 초기값
-        public ExpandableListAdapter(Context context, List<String> listDataHeader,
-                                     HashMap<String, List<String>> listChildData) {
-            this._context = context;
-            this._listDataHeader = listDataHeader;
-            this._listDataChild = listChildData;
+        public friendListAdapter(List<friend_data> items){
+            this.friend_list_data = items;
         }
 
         @Override
-        public Object getChild(int groupPosition, int childPosititon) {
-            return this._listDataChild.get(this._listDataHeader.get(groupPosition)).get(childPosititon);
+        public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.friend_list_item, viewGroup, false);
+            return new ViewHolder(view);
+        }
+
+
+        @Override
+        public void onBindViewHolder(ViewHolder viewHolder, int position) {
+            friend_data item = friend_list_data.get(position);
+            viewHolder.name.setText(item.getName());
+            viewHolder.img.setImageBitmap(item.getImage());
+
+            viewHolder.itemView.setTag(item);
+
         }
 
         @Override
-        public long getChildId(int groupPosition, int childPosition) {
-            return childPosition;
+        public int getItemCount() {
+            return friend_list_data.size();      //배열 길이 만큼 + footer
         }
 
-        @Override
-        public View getChildView(int groupPosition, final int childPosition,
-                                 boolean isLastChild, View convertView, ViewGroup parent) {
+        /**
+         * 뷰 재활용을 위한 viewHolder
+         */
+        public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-            final String childText = (String) getChild(groupPosition, childPosition);
+            public ImageView img;
+            public TextView name;
+            public RelativeLayout layout;
 
-            if (convertView == null) {
-                LayoutInflater infalInflater = (LayoutInflater) this._context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = infalInflater.inflate(R.layout.friend_list_item, null);
+            public ViewHolder(View itemView){
+                super(itemView);
+
+                img = (ImageView) itemView.findViewById(R.id.friend_list_item_image);
+                name = (TextView) itemView.findViewById(R.id.friend_list_item_text);
+                layout = (RelativeLayout) itemView.findViewById(R.id.friend_list_item_layout);
+
+                layout.setOnClickListener(this);
             }
 
-            TextView txtListChild = (TextView) convertView.findViewById(R.id.friend_list_item);
-            txtListChild.setText(childText);
+            @Override
+            public void onClick(View v) {
+                final int position = getAdapterPosition();
+                friend_data data = friend_list_data.get(position);
 
-            ImageView friend_list_item_image = (ImageView) convertView.findViewById(R.id.friend_list_item_image);
-            //db에서 해당유저 이미지 사진넣기
-            if(childText.equals("없음")) {
-                friend_list_item_image.setVisibility(View.GONE);
+                Intent intent = new Intent(v.getContext() , FriendProfileActivity.class);
+                intent.putExtra("user_num",data.getfriend_num());
+                intent.putExtra("name",data.getName());
+                intent.putExtra("email",data.getEmail());
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
             }
-            else {
-                friend_list_item_image.setVisibility(View.VISIBLE);
-            }
-
-            return convertView;
-        }
-
-        // 자식항목 숫자
-        @Override
-        public int getChildrenCount(int groupPosition) {
-            return this._listDataChild.get(this._listDataHeader.get(groupPosition)).size();
-        }
-
-        @Override
-        public Object getGroup(int groupPosition) {
-            return this._listDataHeader.get(groupPosition);
-        }
-
-        // 그룹의 숫자
-        @Override
-        public int getGroupCount() {
-            return this._listDataHeader.size();
-        }
-
-        // 그룹의 ID
-        @Override
-        public long getGroupId(int groupPosition) {
-            return groupPosition;
-        }
-
-        // header(ㄱ ~ ㅎ)
-        @Override
-        public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
-            String headerTitle = (String) getGroup(groupPosition);
-            Typeface ty = Typeface.createFromAsset(getAssets(), "GodoM.ttf");
-            if (convertView == null) {
-                LayoutInflater infalInflater = (LayoutInflater) this._context
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = infalInflater.inflate(R.layout.friend_list_group, null);
-            }
-
-            TextView lblListHeader = (TextView) convertView.findViewById(R.id.friend_list_header);
-            lblListHeader.setTypeface(ty);
-            lblListHeader.setText(headerTitle);
-
-            return convertView;
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return false;
-        }
-
-        @Override
-        public boolean isChildSelectable(int groupPosition, int childPosition) {
-            return true;
         }
     }
+    /// ----------------- 여기까지 -----------------------
+
 
     private void friendlistSelectAndInsertSQL() {
         LoadingSQLListener loadingSQLListener = new LoadingSQLListener() {
@@ -259,14 +215,19 @@ public class FriendListActivity extends AppCompatActivity  {
             }
             @Override
             public JSONObject getSQLQuery() {
-                String sql = "select friend.friend_num, user.name " +
-                             "from friend inner join user " +
-                             "on friend.friend_num = user.user_num " +
-                             "where friend.user_num = ?;";
+                String sql = "select friend.friend_num, user.name, user.email, user.profile "+
+                             "from friend inner join user "+
+                             "on friend.friend_num = user.user_num "+
+                             "where friend.user_num = ? "+
+                             "AND friend.request = 0 "+
+                             "order by user.name asc";
 
                 mDataQueryGroup.clear();
                 mDataQueryGroup.addInt(UserInfo.getInstance().getUserNum());
-                return SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
+                JSONObject request = SQLDataService.getDynamicSQLJSONData(sql,mDataQueryGroup,-1,"select");
+                SQLDataService.putBundleValue(request,"download","context","files");
+                SQLDataService.putBundleValue(request,"download","context2","profile");
+                return request;
             }
             @Override
             public JSONObject getUpLoad(JSONObject resultSQL) {
@@ -276,58 +237,75 @@ public class FriendListActivity extends AppCompatActivity  {
             @Override
             public void dataProcess(ArrayList<JSONObject> responseData, Object caller) throws JSONException {
                 JSONArray jsonArray = responseData.get(0).getJSONArray("result");
-                friend_list = new List[14];
-                for (int i = 0; i < friend_list.length; i++) {
-                    friend_list[i] = new ArrayList<>();
-                }
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject friend_Object = jsonArray.getJSONObject(i);
                     String name = friend_Object.getString("name");
 
+                    friend_data album = new friend_data();
+                    album.setName(name);
+                    album.setEmail(friend_Object.getString("email"));
+                    album.setFriend_num(friend_Object.getInt("friend_num"));
+
+                    Bitmap bit = setProfile(friend_Object);
+                    album.setImage(bit);
+                    friend_list.add(album);
+
+                    lecyclerView.setAdapter(adapter);
+
                     // 검색 리스트 뷰
                     products.add(name);
 
-                    String kochosung = toKoChosung(name.charAt(0) + ""); // 초성
-                    switch (kochosung) {
-                        case "ㄱ":  friend_list[0].add(name);  break;
-                        case "ㄴ":  friend_list[1].add(name);  break;
-                        case "ㄷ":  friend_list[2].add(name);  break;
-                        case "ㄹ":  friend_list[3].add(name);  break;
-                        case "ㅁ":  friend_list[4].add(name);  break;
-                        case "ㅂ":  friend_list[5].add(name);  break;
-                        case "ㅅ":  friend_list[6].add(name);  break;
-                        case "ㅇ":  friend_list[7].add(name);  break;
-                        case "ㅈ":  friend_list[8].add(name);  break;
-                        case "ㅊ":  friend_list[9].add(name);  break;
-                        case "ㅋ":  friend_list[10].add(name);  break;
-                        case "ㅌ":  friend_list[11].add(name);  break;
-                        case "ㅍ":  friend_list[12].add(name);  break;
-                        case "ㅎ":  friend_list[13].add(name);  break;
-                    }
                 }
+                // adapter 셋팅
+                adapter = new friendListAdapter(friend_list);
+                lecyclerView.setAdapter(adapter);
+
                 // 검색리스트에 넣기
                 friend_adapter_search = new ArrayAdapter<String>(FriendListActivity.this, R.layout.main_search_item, R.id.product_name, products);
-
-                prepareListData(); // 확장 listview에 데이터 셋팅
-                expListView = (ExpandableListView) findViewById(R.id.friend_list);  // 확장 listview 생성
-                listAdapter = new ExpandableListAdapter(FriendListActivity.this, listDataHeader, listDataChild);  // 어뎁터 생성(header와 child)
-
-                expListView.setAdapter(listAdapter);  // 어뎁터 등록
-                expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() { // 자식항목(친구 이름) 클릭시 이벤트 처리 (임시)
-
-                    @Override
-                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                        Toast.makeText(getApplicationContext(), listDataHeader.get(groupPosition) + " : "
-                                        + listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)
-                                , Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-                });
             }
         };
 
         LoadingSQLDialog.SQLSendStart(this,loadingSQLListener, ProgressDialog.STYLE_SPINNER,null);
+    }
+
+    // 프로필 이미지 셋팅
+    public Bitmap setProfile(final JSONObject data) throws JSONException {
+        Bitmap bitmap = null;
+        Callable<Bitmap> bitmapCallable = new Callable<Bitmap>() {
+            @Override
+            public Bitmap call() throws Exception {
+                Bitmap _bitmap = null;
+                if(data.has("image2")) {      // 있는지 확인
+                    JSONArray profileUri = data.getJSONArray("image2");
+                    if (profileUri.length() != 0) {
+                        _bitmap = ImageDownLoad.imageDownLoad(profileUri.getString(0));
+                    }
+                }
+                else if(data.has("image")) {
+                    JSONArray profileUri = data.getJSONArray("image");
+                    if (profileUri.length() != 0) {
+                        _bitmap = ImageDownLoad.imageDownLoad(profileUri.getString(0));
+                    }
+                }
+                else {
+                    _bitmap = ImageDownLoad.imageDownLoad(data.getString("profile"));
+                }
+                if (_bitmap == null) {
+                    _bitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.basepicture, null)).getBitmap();
+                }
+                return _bitmap;
+            }
+        };
+
+        try {
+            bitmap = service.submit(bitmapCallable).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return bitmap;
     }
 
     // 뒤로가기

@@ -114,14 +114,12 @@ public class FriendProfileActivity extends AppCompatActivity {
                     String sql = "select content_num from content where user_num = " + mDataBundle.getInt("user_num") + " LIMIT 1";
                     JSONObject data = SQLDataService.getSQLJSONData(sql, -1, "select");
                     JSONObject responsedata = new WebControll().WebLoad(data);     // SQL 돌리기
-                    Log.d("test",responsedata.toString());
                     try {
                         if(responsedata.getJSONArray("result").length() == 0) {     // 게시글 정보가 아에 없을경우 그냥 프로필 이미지만 불러오기
                             sql = "select profile from user where user_num = " + mDataBundle.getInt("user_num") + " LIMIT 1";
                             data = SQLDataService.getSQLJSONData(sql, -1, "select");
                             SQLDataService.putBundleValue(data, "download", "context2", "profile");
                             responsedata = new WebControll().WebLoad(data);     // SQL 돌리기
-                            Log.d("test2",responsedata.toString());
                             JSONArray result = responsedata.getJSONArray("result");
                             if(result.length() != 0) {
                                 profilebitmap = setProfile(result.getJSONObject(0));

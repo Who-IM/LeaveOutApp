@@ -215,6 +215,7 @@ public class FriendListActivity extends AppCompatActivity  {
             }
             @Override
             public JSONObject getSQLQuery() {
+
                 String sql = "select friend.friend_num, user.name, user.email, user.profile "+
                              "from friend inner join user "+
                              "on friend.friend_num = user.user_num "+

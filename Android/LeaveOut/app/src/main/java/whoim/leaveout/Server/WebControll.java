@@ -16,13 +16,14 @@ import java.net.URL;
 
 public class WebControll {
 
-    public static String WEB_IP = "http://192.168.0.107:8080";
+    public static String WEB_IP = "http://172.30.1.53:8080";
 
     public JSONObject WebLoad(JSONObject request) {
         HttpURLConnection mCon = null;
         BufferedWriter mBufferedWriter = null;
         BufferedReader mBufferedReader = null;
         try {
+
             URL url = new URL(WEB_IP+"/controll"); // URL화 한다.
 
             mCon = (HttpURLConnection) url.openConnection();                 // 접속 객체 생성

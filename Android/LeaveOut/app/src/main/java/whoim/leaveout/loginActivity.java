@@ -48,7 +48,7 @@ import static whoim.leaveout.Loading.LoadingSQLDialog.SQLSendStart;
 
 // 로그인
 public class loginActivity extends AppCompatActivity {
-
+    public static boolean LOGIN_CHECK = false;          // 로그인 했는지 안했는지 체크
     private InputMethodManager mInputMethodManager;     // 키보드 서비스
 
     private SharedPreferences mLoginShared;       // 상태 저장(로그인 정보)
@@ -78,6 +78,12 @@ public class loginActivity extends AppCompatActivity {
         mLoginButton = (LoginButton) findViewById(R.id.facebook_loginBtn);      // 페이스 북 로그인 버튼
 
         init();     // 초기화
+    }
+
+    @Override
+    protected void onResume() {
+        LOGIN_CHECK = false;
+        super.onResume();
     }
 
     // 초기화
@@ -392,6 +398,13 @@ public class loginActivity extends AppCompatActivity {
         mPassEditText.setText("");
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);        // 메인 화면으로
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if(getIntent() != null) {
+            intent.putExtra("moveAction", getIntent().getStringExtra("moveAction"));
+            if(getIntent().getExtras() != null) {
+                getIntent().removeExtra("moveAction");
+            }
+        }
+        LOGIN_CHECK = true;     // 로그인 완료 체크
         loginActivity.this.startActivity(intent);       // 다음 액티비티
 //        loginActivity.this.finish();                    // 액티비티 종료
     }

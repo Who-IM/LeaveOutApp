@@ -1,0 +1,16 @@
+<Context>
+	<Resource
+		name="jdbc/CUBRIDDS"
+		auth="Container"
+		driverClassName="cubrid.jdbc.driver.CUBRIDDriver"
+		factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+		url="jdbc:cubrid:172.19.1.110:33000:leaveout:::?charset=utf-8"
+		username="dba"
+		password="whoim" 
+		type="javax.sql.DataSource"
+		initialSize="10"
+		maxActive="500"
+		maxIDle="100"
+		poolPreparedStatements="true">
+	</Resource>
+</Context>

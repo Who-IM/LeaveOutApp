@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,14 +76,10 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
         });
     }
 
-    // 아이템 셋팅
-    public void setItem(String text, int number) {
-        adapter.addItem(text, number);
-    }
-
     // 리스트뷰 홀더
     private class Preferences_ViewHolder {
         public TextView name;
+        public ImageView check_image;
     }
 
     // 리스트뷰 어뎁터
@@ -111,11 +108,12 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
         }
 
         // 생성자로 값을 받아 셋팅
-        public void addItem(String name, int number) {
+        public void addItem(String name, int number, boolean check_flag) {
             Preferences_ListData addInfo = null;
             addInfo = new Preferences_ListData();
             addInfo.name = name;
             addInfo.number = number;
+            addInfo.check_flag = check_flag;
 
             mListData.add(addInfo);
         }
@@ -130,6 +128,7 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
                 convertView = inflater.inflate(R.layout.preferences_check_view, null);
 
                 holder.name = (TextView) convertView.findViewById(R.id.check_text);
+                holder.check_image = (ImageView) convertView.findViewById(R.id.check_image);
 
                 convertView.setTag(holder);
 
@@ -141,6 +140,13 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
 
             // textView 처리
             holder.name.setText(mData.name);
+
+            if(mData.check_flag) {
+                holder.check_image.setImageResource(R.drawable.checkimg);
+            }
+            else {
+                holder.check_image.setImageResource(R.drawable.write_image);
+            }
 
             // 버튼 중복생성 방지
             if(btn.size() == position) {
@@ -182,6 +188,7 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
     class Preferences_ListData {
         public String name;
         public int number;
+        public boolean check_flag;
     }
 
     // 뒤로가기
@@ -223,7 +230,14 @@ public class PreferencesCheckViewActivity extends AppCompatActivity {
                     chk_n = j.getInt("check_num");
                     location.setLatitude(x);
                     location.setLongitude(y);
-                    setItem(FomatService.getCurrentAddress(getApplicationContext(),location), chk_n);
+                    boolean flag;
+                    if(!j.getString("check_image").equals("null")) {
+                        flag = false;
+                    } else {
+                        flag = true;
+                    }
+
+                    adapter.addItem(FomatService.getCurrentAddress(getApplicationContext(),location), chk_n, flag);
                 }
                 check_delete_lv.setAdapter(adapter);
             }

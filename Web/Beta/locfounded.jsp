@@ -116,10 +116,7 @@
 	
 	
 	<!-- Google Map Script -->
-	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC15raLc2ZNVvQ86f5xEHAsKBC57KiMx7s&callback=initMap">
-    </script>
-	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
+	<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>
 	
 	
@@ -179,6 +176,9 @@
 	<!-- contents -->
 	
 	 <div id="map" class="col-md-10"></div>
+	 <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC15raLc2ZNVvQ86f5xEHAsKBC57KiMx7s&callback=initMap">
+    </script>
 	 <div id="friends_List" class="col-md-2">
 		<%@ include file="friendsList.jsp"%>
 	 </div>  

@@ -110,22 +110,31 @@
 	out.println("]");
 	out.println("</script>");
 	%>
-	
-	
-	<!-- Google Map Script -->
-	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC15raLc2ZNVvQ86f5xEHAsKBC57KiMx7s&callback=initMap">
-    </script>
-	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
-    </script>
-	
-	
-	<script>
-      // Note: This example requires that you consent to location sharing when
-      // prompted by your browser. If you see the error "The Geolocation service
-      // failed.", it means you probably did not give permission for the browser to
-      // locate you.
 
+	<!-- script references -->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+	<script src="js/scripts.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="jquery-bootstrap-modal-steps.js"></script>
+	<script type="text/javascript">
+	// iframe resize
+	function autoResize(i)
+	{
+		var iframeHeight=
+		(i).contentWindow.document.body.scrollHeight;
+		(i).height=iframeHeight+20;
+		var iframeWidth=
+		(i).contentWindow.document.body.scrollWidth;
+		(i).width=iframeWidth+20;
+	}
+	</script>     
+	
+	<%@ include file="./navbarCore.jsp"%>
+	
+	<!-- contents -->
+	
+	<div id="map" class="col-md-10">
+	<script>
       function initMap() {
 		  var setloc = {lat:35.9, lng: 127.6298855};
           var map = new google.maps.Map(document.getElementById('map'), {
@@ -152,33 +161,18 @@
             {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
       }
     </script>
+	</div>
+	
+	<div id="friends_List" class="col-md-2">
+		<%@ include file="friendsList.jsp"%>
+	</div>  
 
-	<!-- script references -->
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-	<script src="js/scripts.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script src="jquery-bootstrap-modal-steps.js"></script>
-	<script type="text/javascript">
-	// iframe resize
-	function autoResize(i)
-	{
-		var iframeHeight=
-		(i).contentWindow.document.body.scrollHeight;
-		(i).height=iframeHeight+20;
-		var iframeWidth=
-		(i).contentWindow.document.body.scrollWidth;
-		(i).width=iframeWidth+20;
-	}
-</script>     
-	
-	<%@ include file="./navbarCore.jsp"%>
-	
-	<!-- contents -->
-	
-	 <div id="map" class="col-md-10"></div>
-	 <div id="friends_List" class="col-md-2">
-	 <%@ include file="friendsList.jsp"%>
-	 </div>  
+	<!-- Google Map Script -->
+	<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC15raLc2ZNVvQ86f5xEHAsKBC57KiMx7s&callback=initMap">
+    </script>
+	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
+    </script>
 
 	</body>
 </html>

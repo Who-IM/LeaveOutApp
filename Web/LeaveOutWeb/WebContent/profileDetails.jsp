@@ -57,7 +57,7 @@
 	
 		try {
 			Context init = new InitialContext();
-			DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/MysqlDB");
+			DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/mysql");
 			conn = ds.getConnection();
   		
 			pstmt=conn.prepareStatement("SELECT * FROM user WHERE user_num=?");
@@ -96,9 +96,6 @@
 	
 	int cnt = 0;
 	try {
-  		//Context init = new InitialContext();
-  		//DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/MysqlDB");
-  		//conn = ds.getConnection();
   		
   		pstmt2=conn.prepareStatement("SELECT loc_x FROM content");
 		rs2=pstmt2.executeQuery();
@@ -159,11 +156,17 @@
         // Note: The code uses the JavaScript Array.prototype.map() method to
         // create an array of markers based on a given "locations" array.
         // The map() method here has nothing to do with the Google Maps API.
-        var markers = locations.map(function(location, i) {
-          return new google.maps.Marker({
+        markers = locations.map(function(location, i) {
+          var marker = new google.maps.Marker({
             position: location,
             label: labels[i % labels.length]
           });
+		  
+		  google.maps.event.addListener(marker, 'click', function() {
+			alert("마커클릭");
+		  });
+		  
+		  return marker;
         });
 
         // Add a marker clusterer to manage the markers.

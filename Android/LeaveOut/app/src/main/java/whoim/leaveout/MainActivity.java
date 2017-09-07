@@ -467,7 +467,7 @@ public class MainActivity extends MapAPIActivity {
                         protected Void doInBackground(Void... params) {
                             String sql = "select count(user_num) as friendcount " +
                                     "from friend " +
-                                    "where request = 1 and user_num = " + userInfo.getUserNum();
+                                    "where request = 1 and friend_num = " + userInfo.getUserNum();
                             JSONObject result = new WebControll().WebLoad(SQLDataService.getSQLJSONData(sql,-1,"select"));
                             try {
                                 JSONArray responeArr = result.getJSONArray("result");
@@ -781,43 +781,48 @@ public class MainActivity extends MapAPIActivity {
             // 사용자 위치 정보 브로드캐스트 수신 객체
             mBroadcastLocation = new BroadcastReceiver() {
                 @Override
-                public void onReceive(Context context, Intent intent) {
-                    Location tempLocation = intent.getExtras().getParcelable(LocationBackground.EXTRA_CURRENT_LOCATION);        // 주소 가져오기
-                    if (mCurrentLocation == null) {
-                        MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
-                        circleSet();        // 원그리기
-                        mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(), mCurrentLocation));       // View에 주소 표시
-                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 16));       // 초기 화면 셋팅
-                        fenceSQLStart();
-                    } else if (mCurrentLocation.getLatitude() != tempLocation.getLatitude() || mCurrentLocation.getLongitude() != tempLocation.getLongitude()) {   // 전과 후의 위치가 다르면 바꾸기
-                        MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
-                        circleSet();        // 원그리기
-                        mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(), mCurrentLocation));       // View에 주소 표시
+                public void onReceive(Context context, final Intent intent) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Location tempLocation = intent.getExtras().getParcelable(LocationBackground.EXTRA_CURRENT_LOCATION);        // 주소 가져오기
+                            if (mCurrentLocation == null) {
+                                MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
+                                circleSet();        // 원그리기
+                                mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(), mCurrentLocation));       // View에 주소 표시
+                                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                        new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 16));       // 초기 화면 셋팅
+                                fenceSQLStart();
+                            } else if (mCurrentLocation.getLatitude() != tempLocation.getLatitude() || mCurrentLocation.getLongitude() != tempLocation.getLongitude()) {   // 전과 후의 위치가 다르면 바꾸기
+                                MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
+                                circleSet();        // 원그리기
+                                mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(), mCurrentLocation));       // View에 주소 표시
 
-                        if (mClusterMaker.getmFenceList().size() == 0) {     // 전에 울타리글 마커가 없었을 경우
-                            fenceSQLStart();        // 울타리글 가져와서 마커 추가하기
-                        }
-                        else {  // 전에 있었을 경우
-                            // 만약 마커 표시된 울타리글이 현재 위치에서 거리가 멀어진경우 지우고 다시 셋팅
-                            for (SNSInfoMaker snsInfoMaker : mClusterMaker.getmFenceList()) {
-                                Location fenceLocation = new Location("snsInfo");
-                                fenceLocation.setLatitude(snsInfoMaker.getPosition().latitude);
-                                fenceLocation.setLongitude(snsInfoMaker.getPosition().longitude);
-                                if (distance < mCurrentLocation.distanceTo(fenceLocation)) {        // 설정한 반경 100m 안에 울타리글이 벗어나면 다시 울타리글 만들기
-                                    mClusterMaker.removeFenceAll();     // 울타리글 마커 지우기
+                                if (mClusterMaker.getmFenceList().size() == 0) {     // 전에 울타리글 마커가 없었을 경우
                                     fenceSQLStart();        // 울타리글 가져와서 마커 추가하기
-                                    break;
-                                }   // sub if -- END --
-                            }   // for -- END --
+                                }
+                                else {  // 전에 있었을 경우
+                                    // 만약 마커 표시된 울타리글이 현재 위치에서 거리가 멀어진경우 지우고 다시 셋팅
+                                    for (SNSInfoMaker snsInfoMaker : mClusterMaker.getmFenceList()) {
+                                        Location fenceLocation = new Location("snsInfo");
+                                        fenceLocation.setLatitude(snsInfoMaker.getPosition().latitude);
+                                        fenceLocation.setLongitude(snsInfoMaker.getPosition().longitude);
+                                        if (distance < mCurrentLocation.distanceTo(fenceLocation)) {        // 설정한 반경 100m 안에 울타리글이 벗어나면 다시 울타리글 만들기
+                                            mClusterMaker.removeFenceAll();     // 울타리글 마커 지우기
+                                            fenceSQLStart();        // 울타리글 가져와서 마커 추가하기
+                                            break;
+                                        }   // sub if -- END --
+                                    }   // for -- END --
+                                }
+                            }   //if -- END --
+                            else if(mAddressView.getText().toString().equals("")) {      // 그대로면 기본 셋팅
+                                MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
+                                mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(), mCurrentLocation));       // View에 주소 표시
+//                                circleSet();        // 원그리기
+//                                fenceSQLStart();
+                            }
                         }
-                    }   //if -- END --
-                    else {      // 그대로면 기본 셋팅
-                        MainActivity.super.mCurrentLocation = tempLocation;         // 위치 최신으로
-                        circleSet();        // 원그리기
-                        mAddressView.setText(FomatService.getCurrentAddress(getApplicationContext(), mCurrentLocation));       // View에 주소 표시
-                        fenceSQLStart();
-                    }
+                    });
                 }   // onReceive -- END --
             };  // new BroadcastReceiver -- END --
         }

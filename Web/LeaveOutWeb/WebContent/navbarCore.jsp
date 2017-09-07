@@ -30,6 +30,7 @@
 			</ul>
 			<!-- right side menu -->
 			<ul class="nav navbar-nav navbar-right">
+			  <li><a href="profileDetails.jsp?user_num=<%=userNumString%>&target_user=<%=userNumString%>&locx=36&locy=128"><%=userNameString%>님 환영합니다.</a></li>
 		      <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-user"></i></a>
                         <ul class="dropdown-menu">

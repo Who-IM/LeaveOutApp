@@ -124,13 +124,16 @@ Create table recomment (
   recomm_num int primary key not null auto_increment,
   comm_num int not null,  
   content_num int not null,
-  recomm_content varchar(60),
   user_num int not null,
+  recomm_content varchar(60),
   reg_time datetime,
   foreign key(content_num) references comment(content_num) 
   on delete cascade
   on update cascade,
   foreign key(comm_num) references comment(comm_num) 
+  on delete cascade
+  on update cascade,
+  foreign key(user_num) references user(user_num)
   on delete cascade
   on update cascade
 );

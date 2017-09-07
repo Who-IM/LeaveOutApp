@@ -7,7 +7,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -445,7 +444,7 @@ public class FriendProfileActivity extends AppCompatActivity {
                        if (frienddata != null && frienddata.getJSONArray("result").length() != 0) {     // 친구 요청 했었는지 확인
                            JSONArray friendresult = frienddata.getJSONArray("result");      // 결과값
                            JSONObject resultdata = friendresult.getJSONObject(0);
-                           if (resultdata.getInt("request") == 1) {
+                           if (resultdata.getInt("request") == 0 || resultdata.getInt("request") == 1) {
                                addfriend_visible = View.INVISIBLE;
                            }
                        } else {       // 반대 쪽에서도 확인
@@ -458,7 +457,7 @@ public class FriendProfileActivity extends AppCompatActivity {
                            if (frienddata != null && frienddata.getJSONArray("result").length() != 0) {     // 친구 요청 했었는지 확인
                                JSONArray friendresult = frienddata.getJSONArray("result");      // 결과값
                                JSONObject resultdata = friendresult.getJSONObject(0);
-                               if (resultdata.getInt("request") == 1) {
+                               if (resultdata.getInt("request") == 0 || resultdata.getInt("request") == 1) {
                                    addfriend_visible = View.INVISIBLE;
                                }
                            }

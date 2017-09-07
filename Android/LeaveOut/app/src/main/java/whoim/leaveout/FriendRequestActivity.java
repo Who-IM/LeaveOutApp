@@ -1,5 +1,6 @@
 package whoim.leaveout;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -15,6 +16,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tsengvn.typekit.TypekitContextWrapper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -407,4 +410,10 @@ public class FriendRequestActivity extends AppCompatActivity {
         finish();
         startActivity(intent);
     }
+    // 폰트 바꾸기
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
+    }
+
 }

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context>
 	<Resource
-		name="jdbc/MysqlDB"
+		name="jdbc/mysql"
 		auth="Container"
 		driverClassName="com.mysql.jdbc.Driver"
 		url="jdbc:mysql://localhost:3306/leaveout"
 		factory="org.apache.tomcat.dbcp.dbcp.BasicDataSourceFactory"
 		type="javax.sql.DataSource"
 		username="root"
-		password="tjdrhd12"
+		password="root"
 		maxActive="500"
 		maxIDle="100">
 	</Resource>

@@ -54,7 +54,7 @@
 	
 		try {
 			Context init = new InitialContext();
-			DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/MysqlDB");
+			DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/mysql");
 			conn = ds.getConnection();
   		
 			pstmt=conn.prepareStatement("SELECT * FROM user WHERE user_num=?");
@@ -88,9 +88,6 @@
 	
 	int cnt = 0;
 	try {
-  		//Context init = new InitialContext();
-  		//DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/MysqlDB");
-  		//conn = ds.getConnection();
   		
   		pstmt2=conn.prepareStatement("SELECT loc_x FROM content");
 		rs2=pstmt2.executeQuery();

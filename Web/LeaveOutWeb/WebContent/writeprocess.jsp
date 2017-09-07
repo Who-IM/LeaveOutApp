@@ -37,7 +37,7 @@
 	
 	try {
   		Context init = new InitialContext();
-  		DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/MysqlDB");
+  		DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/mysql");
   		conn = ds.getConnection();
   		
   		pstmt=conn.prepareStatement("SELECT content_num FROM content");

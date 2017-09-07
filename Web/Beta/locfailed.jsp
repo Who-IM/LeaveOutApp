@@ -113,10 +113,7 @@
 	
 	
 	<!-- Google Map Script -->
-	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC15raLc2ZNVvQ86f5xEHAsKBC57KiMx7s&callback=initMap">
-    </script>
-	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
+	<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>
 	
 	
@@ -152,7 +149,7 @@
             {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
       }
     </script>
-
+	
 	<!-- script references -->
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 	<script src="js/scripts.js"></script>
@@ -171,12 +168,18 @@
 	}
 </script>     
 	
+
 	<%@ include file="./navbarCore.jsp"%>
 	
 	<!-- contents -->
 	
-	 <div id="map" class="col-md-10"></div>
-	 <div id="friends_List" class="col-md-2">
+	 <div id="map" class="col-md-10">
+	 <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC15raLc2ZNVvQ86f5xEHAsKBC57KiMx7s&callback=initMap">
+    </script>
+	</div>
+	
+	<div id="friends_List" class="col-md-2">
 	 <%@ include file="friendsList.jsp"%>
 	 </div>  
 

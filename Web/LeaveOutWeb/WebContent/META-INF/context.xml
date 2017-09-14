@@ -8,7 +8,7 @@
 		factory="org.apache.tomcat.dbcp.dbcp.BasicDataSourceFactory"
 		type="javax.sql.DataSource"
 		username="root"
-		password="mysql"
+		password="root"
 		maxActive="500"
 		maxIDle="100">
 	</Resource>

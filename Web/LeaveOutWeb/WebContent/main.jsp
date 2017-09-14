@@ -3,8 +3,6 @@
 <%@ page import="javax.sql.*" %>
 <%@ page import="javax.naming.*" %>
 
-
-
 <html>
 <head>
     <title>LeaveOut</title>

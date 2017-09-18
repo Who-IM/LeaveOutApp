@@ -72,7 +72,6 @@
 					rs7=pstmt7.executeQuery();  	
 
 					while(rs7.next()){
-
 						out.println("<h4 class='media-heading'>"+rs7.getString("address")+"<br></h4>");
 						out.println("<i class='glyphicon glyphicon-flag'></i>"+rs7.getString("reg_time")+"<br>");
 						out.println("<div id='carousel-example-generic' class='carousel slide'>");
@@ -81,12 +80,20 @@
 						out.println("<li data-target='#carousel-example-generic' data-slide-to='1'></li></ol>");
 						out.println("<div class='carousel-inner'>");							
 						out.println("<div class='item active'>");
-						
-						//이미지 파일 위치 컴퓨터 마다 경로 변경
-						contentPicTarget = ".\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num")+"\\1.jpg";
-						//텍스트 파일 위치 컴퓨터 마다 경로 변경
-						out.println("<img class=\"media-object\" src="+contentPicTarget+"></div>");
+						File path = new File("C:\\Users\\Kim\\eclipse-workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
+								+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num"));
 
+						String files[] = path.list();	
+						/* for(int j=0 ; i<files.length ; i++)
+						{
+							System.out.println(files[i]);
+						} */
+						int number = files.length -1;
+						for(int i = 1; i <= number; i++){
+							contentPicTarget = ".\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num")+"\\"+i+".jpg";
+							out.println("<img class=\"media-object\" src="+contentPicTarget+"></div>");
+						}
+						//텍스트 파일 위치 컴퓨터 마다 경로 변경
 						contentTarget = "C:\\Users\\Kim\\eclipse-workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
 						+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num")+"\\text.txt";
 						

@@ -3,8 +3,6 @@
 <%@ page import="javax.sql.*" %>
 <%@ page import="javax.naming.*" %>
 
-
-
 <html>
 <head>
     <title>LeaveOut</title>
@@ -43,7 +41,6 @@
 		String userNameString = "null";
 		String foundLocx = request.getParameter("locx");
 		String foundLocy = request.getParameter("locy");
-		
 		
 		Connection conn=null;
 		PreparedStatement pstmt=null;
@@ -127,71 +124,54 @@
 		(i).contentWindow.document.body.scrollWidth;
 		(i).width=iframeWidth+20;
 	}
-</script>
-    
-	<%@ include file="./navbarCore.jsp"%>
+	</script>
 	
 	<!-- contents -->
-	
-	 <div id="map" class="col-md-10">
+	<div id="map" class="col-md-10">
 	 <script>
-      // Note: This example requires that you consent to location sharing when
-      // prompted by your browser. If you see the error "The Geolocation service
-      // failed.", it means you probably did not give permission for the browser to
-      // locate you.
-
-	  var map;
-	  var markers;
-	  var markerCluster;
-	  
       function initMap() {
 		  var setloc = {lat:<%=foundLocx%>, lng: <%=foundLocy%>};
-          map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 13,
-          center: setloc
-        });
-
-        // Create an array of alphabetical characters used to label the markers.
-        var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-        // Add some markers to the map.
-        // Note: The code uses the JavaScript Array.prototype.map() method to
-        // create an array of markers based on a given "locations" array.
-        // The map() method here has nothing to do with the Google Maps API.
-        markers = locations.map(function(location, i) {
-          var marker = new google.maps.Marker({
-            position: location,
-            label: labels[i % labels.length]
+		  var map = new google.maps.Map(document.getElementById('map'), {
+          	zoom: 13,
+          	center: setloc
           });
+        
+          var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+          
+          var markers = locations.map(function(location, i) {
+            var marker = new google.maps.Marker({
+              position: location,
+              label: labels[i % labels.length]
+            });
 		  
-		  google.maps.event.addListener(marker, 'click', function() {
-			alert("마커클릭");
-		  });
+		    google.maps.event.addListener(marker, 'click', function() {
+			  alert("마커클릭");
+		    });
 		  
-		  return marker;
-        });
+		    return marker;
+          });
 	
-        // Add a marker clusterer to manage the markers.
-        markerCluster = new MarkerClusterer(map, markers, 
-            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', 
-			 zoomOnClick: false});
-		}
-		
-		//.maps.event.addListener(markerCluster, 'clusterclick', function() {
-		//	alert("클러스트링 클릭");
-		//});
-		
-    </script>
+          // Add a marker clusterer to manage the markers.
+          var markerCluster = new MarkerClusterer(map, markers, 
+              {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', 
+			   zoomOnClick: false});
+		  }
+       </script>
+       
+       <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+	   <!-- Google Map Script -->
+	   <script async defer
+ 			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJ0-6wfd7a6AVfTR2HdzA3QQtlXwx51S4&callback=initMap">
+   	   </script>
+       
 	 </div>
 	 <div id="friends_List" class="col-md-2">
 		<%@ include file="friendsList.jsp"%>
 	 </div>  
-	 
-	<!-- Google Map Script -->
-	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6-pEFLyPAV7u9lfsX5k98469JweBpebs&callback=initMap">
-    </script>
-	<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
-	 
+	
+    <%@ include file="./navbarCore.jsp" %>
+
 	</body>
+	
 </html>
+

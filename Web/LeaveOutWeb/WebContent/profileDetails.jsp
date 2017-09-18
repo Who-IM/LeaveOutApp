@@ -128,8 +128,6 @@
 	<script src="js/bootstrap.min.js"></script>
 	<script src="jquery-bootstrap-modal-steps.js"></script>
 	
-	<%@ include file="./navbarCore.jsp"%>
-
 	<!-- contents -->
 	<div id="profile_contents" class="col-md-10">
 		<%@ include file="./profileContents.jsp"%>
@@ -194,6 +192,8 @@
     </script>
 	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>
+	
+	<%@ include file="./navbarCore.jsp" %>
 	
 	</body>
 </html>

@@ -3,11 +3,14 @@
 <%@ page import="javax.sql.*" %>
 <%@ page import="javax.naming.*" %>
 
+
+
 <html>
 <head>
-    <title>LeaveOut</title>
+    <title>LeaveOut posting...</title>
 	
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	
 	
 	<meta name="generator" content="Bootply" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -106,7 +109,7 @@
 	%>
 
 	<!-- script references -->
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 	<script src="js/scripts.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script src="jquery-bootstrap-modal-steps.js"></script>
@@ -123,6 +126,8 @@
 	}
 	</script>
             
+	<%@ include file="./navbarCore.jsp"%>
+	
 	<!-- contents -->
 	
 	 <div id="map" class="col-md-10">
@@ -140,7 +145,7 @@
 		
 		var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         var infoWindow = new google.maps.InfoWindow({map: map});
-        
+
         // Try HTML5 geolocation.
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
@@ -170,7 +175,7 @@
 		location.href='locfailed.jsp?user_num='+<%=userNumString%>;
       }
     </script>
-	
+	 
 	</div>
 	<div id="friends_List" class="col-md-2">
 		<%@ include file="friendsList.jsp"%>
@@ -178,10 +183,31 @@
 	   
 	<!-- Google Map Script -->
 	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJ0-6wfd7a6AVfTR2HdzA3QQtlXwx51S4&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6-pEFLyPAV7u9lfsX5k98469JweBpebs&callback=initMap">
     </script>
 	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>
 	
+	
+	<%
+	String selectedCheckString = request.getParameter("selectCheck");
+	String uploadedImgFileString = request.getParameter("uploadImgFile");
+	String uploadedContentString = request.getParameter("uploadContent");
+	%>
+	
+	
+	<script>
+	alert("등록할 게시물은 다음과 같습니다.\n글쓴이 : " + <%=userNumString%> + "\n선택한 체크 : " + <%=selectedCheckString%> +  "\n올린 이미지 : " + <%=uploadedImgFileString%> + "\n");
+	alert("게시 내용 : " + <%=uploadedContentString%>);
+	
+	</script>
 	</body>
 </html>  
+    
+    
+    
+    
+    <!-- /container -->
+
+</body>
+</html>

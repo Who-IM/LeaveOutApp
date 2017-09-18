@@ -1,87 +1,118 @@
-ï»¿<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+<%@ page import="java.io.*"%>
 <%@ page import="java.sql.*"%>
 <%@ page import="javax.sql.*" %>
 <%@ page import="javax.naming.*" %>
 
-<% String profilePicTarget = ".\\leaveout\\files\\" + targetUserNumString + "\\profile\\1.jpg"; %>
+<% String profilePicTarget = ".\\leaveout\\files\\"+targetUserNumString+"\\profile\\1.jpg"; %>
 
-	<div class="media">
-			<a class="pull-left" href="#">
-				<img class="media-object" src="<%=profilePicTarget%>" width="50" height="50" alt="...">
-			</a>
-			<a class="pull-right" href="#">
-				<button type="button" class="btn btn-default">
-				<i class="glyphicon glyphicon-plus-sign"></i> ì¹œêµ¬ ì¶”ê°€
-				</button>
-			</a>
-			<div class="media-body">
-				<h2 class="media-heading"><%=targetUserNameString%> ë‹˜</h2>
-				"Lorem ipsum dolor sit amet, consectetur adipiscing elit"<br>
-			</div>
+
+<div class="media">
+		<a class="pull-left" href="#">
+			<img class="media-object" src="<%=profilePicTarget%>" width="50" height="50" alt="...">
+		</a>
+		<a class="pull-right" href="#">
+			<button type="button" class="btn btn-default">
+			<i class="glyphicon glyphicon-plus-sign"></i> Ä£±¸ Ãß°¡
+			</button>
+		</a>
+		<div class="media-body">
+			<h2 class="media-heading"><%=targetUserNameString%> ´Ô</h2>
+			"Lorem ipsum dolor sit amet, consectetur adipiscing elit"<br>
 		</div>
-		<div class="col-md-6">
-			<h5><i class="glyphicon glyphicon-info-sign"></i><%=targetUserNameString%>ë‹˜ì´ ì–´ë””ì–´ë””ì— ê¸€ì„ ì¼ëŠ”ì§€ í™•ì¸í•´ë³´ì„¸ìš”.</h5>
-			<div id="map"></div>
-		</div>
-		<div class="col-md-6">
-		<h5><i class="glyphicon glyphicon-info-sign"></i><%=targetUserNameString%>ë‹˜ì´ ì–´ë–¤ ì¹´í…Œê³ ë¦¬ë¡œ ê¸€ì„ ì¼ëŠ”ì§€ í™•ì¸í•´ë³´ì„¸ìš”.</h5>
-		
-		<%
-		PreparedStatement pstmt5=null;
-		ResultSet rs5=null;
+	</div>
+	<div class="col-md-6">
+		<h5><i class="glyphicon glyphicon-info-sign"></i><%=targetUserNameString%>´ÔÀÌ ¾îµğ¾îµğ¿¡ ±ÛÀ» ½è´ÂÁö È®ÀÎÇØº¸¼¼¿ä.</h5>
+		<div id="map"></div>
+	</div>
+	<div class="col-md-6">
+	<h5><i class="glyphicon glyphicon-info-sign"></i><%=targetUserNameString%>´ÔÀÌ ¾î¶² Ä«Å×°í¸®·Î ±ÛÀ» ½è´ÂÁö È®ÀÎÇØº¸¼¼¿ä.</h5>
 	
-		try {
-			pstmt5=conn.prepareStatement("SELECT cate_text FROM category WHERE user_num=?");
-			pstmt5.setString(1,userNumString);
-			rs5=pstmt5.executeQuery();
-  		
-			while(rs5.next()){
-				out.println("<button type='button' class='btn btn btn-primary'>");
-				out.println("<i class='glyphicon glyphicon-tags'></i>   "+rs5.getString("cate_text"));
-				out.println("</button>");
-			}
-		}catch(Exception e){
-			e.printStackTrace();
-		}		
-		%>
-		
-		<br><br>
-		<ul class="list-group">
-			<li class="list-group-item">
-				<div class="media">
-					<a class="pull-left" href="#">
-						<img class="media-object" src="profile_default.jpg" width="50" height="50" alt="...">
-					</a>
-					<%
-					PreparedStatement pstmt7=null;
-					ResultSet rs7=null;
+	<%
+	String picNum = null;
+	PreparedStatement pstmt5=null;
+	ResultSet rs5=null;
+
+	PreparedStatement pstmtContent=null;
+	ResultSet rsContent=null;
+	//String contentPicTarget = ".\\leaveout\\files\\"+targetUserNumString+"\\content\\"+contentNum+"\\"+picNum+".jpg";
 	
-					try {
-						pstmt7=conn.prepareStatement("SELECT * from content where user_num=?;");
-						pstmt7.setString(1,userNumString);
-						rs7=pstmt7.executeQuery();
-  		
-						while(rs7.next()){
-							out.println("<h4 class='media-heading'>"+rs7.getString("address")+"<br></h4>");
-							out.println("<i class='glyphicon glyphicon-flag'></i>"+rs7.getString("reg_time")+"<br>");
-							out.println("<div id='carousel-example-generic' class='carousel slide'>");
-							out.println("<ol class='carousel-indicators'>");
-							out.println("<li data-target='#carousel-example-generic' data-slide-to='0' class='active'></li>");
-							out.println("<li data-target='#carousel-example-generic' data-slide-to='1'></li></ol>");
-							out.println("<div class='carousel-inner'>");
-							out.println("<div class='item active'>");
-							out.println("<img src=./content_default1.jpg alt='...'></div>");
-							out.println("ë‚´ìš© ë„£ì–´ì•¼ë¨");
-							out.println("");
+	try {
+		pstmt5=conn.prepareStatement("SELECT cate_text FROM category WHERE user_num=?");
+		pstmt5.setString(1,userNumString);
+		rs5=pstmt5.executeQuery();
+ 		
+		while(rs5.next()){
+			out.println("<button type='button' class='btn btn btn-primary'>");
+			out.println("<i class='glyphicon glyphicon-tags'></i>   "+rs5.getString("cate_text"));
+			out.println("</button>");
+		}
+	}catch(Exception e){
+		e.printStackTrace();
+	}		
+	%>
+	
+	<br><br>
+	<ul class="list-group">
+		<li class="list-group-item">
+			<div class="media">
+				<a class="pull-left" href="#">
+					<img class="media-object" src=<%=profilePicTarget%> width="50" height="50" alt="...">
+				</a>
+			
+				<%
+				PreparedStatement pstmt7=null;
+				ResultSet rs7=null;
+				String contentNum = null;
+				String contentTarget = null;
+				String contentPicTarget = null;
+				try {
+					pstmt7=conn.prepareStatement("SELECT * from content where user_num=?;");
+					pstmt7.setString(1,userNumString);
+					rs7=pstmt7.executeQuery();  	
+
+					while(rs7.next()){
+						out.println("<h4 class='media-heading'>"+rs7.getString("address")+"<br></h4>");
+						out.println("<i class='glyphicon glyphicon-flag'></i>"+rs7.getString("reg_time")+"<br>");
+						out.println("<div id='carousel-example-generic' class='carousel slide'>");
+						out.println("<ol class='carousel-indicators'>");
+						out.println("<li data-target='#carousel-example-generic' data-slide-to='0' class='active'></li>");
+						out.println("<li data-target='#carousel-example-generic' data-slide-to='1'></li></ol>");
+						out.println("<div class='carousel-inner'>");							
+						out.println("<div class='item active'>");
+						File path = new File("C:\\Users\\Kim\\eclipse-workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
+								+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num"));
+
+						String files[] = path.list();	
+						/* for(int j=0 ; i<files.length ; i++)
+						{
+							System.out.println(files[i]);
+						} */
+						int number = files.length -1;
+						for(int i = 1; i <= number; i++){
+							contentPicTarget = ".\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num")+"\\"+i+".jpg";
+							out.println("<img class=\"media-object\" src="+contentPicTarget+"></div>");
 						}
-					}catch(Exception e){
-						e.printStackTrace();
-					}		
-					%>
+						//ÅØ½ºÆ® ÆÄÀÏ À§Ä¡ ÄÄÇ»ÅÍ ¸¶´Ù °æ·Î º¯°æ
+						contentTarget = "C:\\Users\\Kim\\eclipse-workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
+						+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num")+"\\text.txt";
+						
+						
+						FileReader fr = new FileReader(contentTarget); //ÆÄÀÏÀĞ±â°´Ã¼»ı¼º
+						BufferedReader br = new BufferedReader(fr); //¹öÆÛ¸®´õ°´Ã¼»ı¼º
+						String line = null; 
+						while((line=br.readLine())!=null){ //¶óÀÎ´ÜÀ§ ÀĞ±â
+						    out.println(line); 
+						}
+						out.println("<hr>");
+					}
 					
-					
-				</div>
-			</li>
-		</ul>
-		
+				}catch(Exception e){
+					e.printStackTrace();
+				}	
+				
+				%>
+			</div>
+		</li>
+	</ul>
 </div>

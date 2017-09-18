@@ -129,8 +129,6 @@
 	}
 	</script>     
 	
-	<%@ include file="./navbarCore.jsp"%>
-	
 	<!-- contents -->
 	
 	<div id="map" class="col-md-10">
@@ -169,7 +167,7 @@
 
 	<!-- Google Map Script -->
 	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC15raLc2ZNVvQ86f5xEHAsKBC57KiMx7s&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJ0-6wfd7a6AVfTR2HdzA3QQtlXwx51S4&callback=initMap">
     </script>
 	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>

@@ -133,8 +133,6 @@
 		<%@ include file="./profileContents.jsp"%>
 	</div>
 	 
-	 	
-	
 	<div id="friends_List" class="col-md-2">
 	 <%@ include file="friendsList.jsp"%>
 	 </div>
@@ -169,8 +167,9 @@
 
         // Add a marker clusterer to manage the markers.
         var markerCluster = new MarkerClusterer(map, markers,
-            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
-      }
+            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'}
+        );        
+    }
     </script>
     
 	<script type="text/javascript">
@@ -188,7 +187,7 @@
 	
 	<!-- Google Map Script -->
 	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6-pEFLyPAV7u9lfsX5k98469JweBpebs&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJ0-6wfd7a6AVfTR2HdzA3QQtlXwx51S4&callback=initMap">
     </script>
 	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>

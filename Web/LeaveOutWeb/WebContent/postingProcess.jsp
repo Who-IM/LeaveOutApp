@@ -7,7 +7,7 @@
 
 <html>
 <head>
-    <title>LeaveOut</title>
+    <title>LeaveOut posting...</title>
 	
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	
@@ -15,7 +15,7 @@
 	<meta name="generator" content="Bootply" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-	<!-- Bootstrap Core CSS -->
+		<!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
 	<!--[if lt IE 9]>
 		<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -29,9 +29,7 @@
 	  #friends_List{
 		  padding-top : 40px;
 	  }
-	  #profile_contents {
-		padding-top : 40px;
-      }
+	 
 	  #map {
         height: 100%;
       }
@@ -44,16 +42,9 @@
 	<%
 		String userNumString = request.getParameter("user_num");
 		String userNameString = "null";
-		String targetUserNumString = request.getParameter("target_user");
-		String targetUserNameString = "null";
-		String foundLocx = request.getParameter("locx");
-		String foundLocy = request.getParameter("locy");
-		
 		Connection conn=null;
 		PreparedStatement pstmt=null;
 		ResultSet rs=null;
-		PreparedStatement pstmt4=null;
-		ResultSet rs4=null;
 	
 		try {
 			Context init = new InitialContext();
@@ -63,15 +54,10 @@
 			pstmt=conn.prepareStatement("SELECT * FROM user WHERE user_num=?");
 			pstmt.setString(1,userNumString);
 			rs=pstmt.executeQuery();
-			
-			pstmt4=conn.prepareStatement("SELECT * FROM user WHERE user_num=?");
-			pstmt4.setString(1,targetUserNumString);
-			rs4=pstmt4.executeQuery();
   		
-			if(rs.next() && rs4.next()){
+			if(rs.next()){
 				//sesson-OK
 				userNameString = rs.getString("name");
-				targetUserNameString = rs4.getString("name");
 			}
 			else {
 				out.println("<script>");
@@ -121,57 +107,12 @@
 	out.println("]");
 	out.println("</script>");
 	%>
-	
+
 	<!-- script references -->
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 	<script src="js/scripts.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script src="jquery-bootstrap-modal-steps.js"></script>
-	
-	<!-- contents -->
-	<div id="profile_contents" class="col-md-10">
-		<%@ include file="./profileContents.jsp"%>
-	</div>
-	 
-	<div id="friends_List" class="col-md-2">
-	 <%@ include file="friendsList.jsp"%>
-	 </div>
-	
-	<script>
-      function initMap() {
-		  var setloc = {lat:<%=foundLocx%>, lng:<%=foundLocy%>};
-          var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 7,
-          center: setloc
-        });
-
-        // Create an array of alphabetical characters used to label the markers.
-        var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-        // Add some markers to the map.
-        // Note: The code uses the JavaScript Array.prototype.map() method to
-        // create an array of markers based on a given "locations" array.
-        // The map() method here has nothing to do with the Google Maps API.
-        markers = locations.map(function(location, i) {
-          var marker = new google.maps.Marker({
-            position: location,
-            label: labels[i % labels.length]
-          });
-		  
-		  google.maps.event.addListener(marker, 'click', function() {
-			alert("마커클릭");
-		  });
-		  
-		  return marker;
-        });
-
-        // Add a marker clusterer to manage the markers.
-        var markerCluster = new MarkerClusterer(map, markers,
-            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'}
-        );        
-    }
-    </script>
-    
 	<script type="text/javascript">
 	// iframe resize
 	function autoResize(i)
@@ -184,15 +125,89 @@
 		(i).width=iframeWidth+20;
 	}
 	</script>
+            
+	<%@ include file="./navbarCore.jsp"%>
 	
+	<!-- contents -->
+	
+	 <div id="map" class="col-md-10">
+	 <script>
+      // Note: This example requires that you consent to location sharing when
+      // prompted by your browser. If you see the error "The Geolocation service
+      // failed.", it means you probably did not give permission for the browser to
+      // locate you.
+
+      function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 35.7982051, lng: 125.6298855},
+          zoom: 6
+        });
+		
+		var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var infoWindow = new google.maps.InfoWindow({map: map});
+
+        // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+
+            infoWindow.setPosition(pos);
+            infoWindow.setContent('위치를 찾았습니다.');
+            map.setCenter(pos);
+		    location.href='locfounded.jsp?user_num='+<%=userNumString%>+'&locx='+pos.lat+'&locy='+pos.lng;
+          }, function() {
+            handleLocationError(true, infoWindow, map.getCenter());
+          });
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false, infoWindow, map.getCenter());
+        }
+      }
+
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+                              '위치를 찾지 못했습니다.' :
+                              '브라우저가 위치찾기를 지원하지 않습니다.');
+		location.href='locfailed.jsp?user_num='+<%=userNumString%>;
+      }
+    </script>
+	 
+	</div>
+	<div id="friends_List" class="col-md-2">
+		<%@ include file="friendsList.jsp"%>
+	</div>
+	   
 	<!-- Google Map Script -->
 	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJ0-6wfd7a6AVfTR2HdzA3QQtlXwx51S4&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6-pEFLyPAV7u9lfsX5k98469JweBpebs&callback=initMap">
     </script>
 	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>
 	
-	<%@ include file="./navbarCore.jsp" %>
 	
+	<%
+	String selectedCheckString = request.getParameter("selectCheck");
+	String uploadedImgFileString = request.getParameter("uploadImgFile");
+	String uploadedContentString = request.getParameter("uploadContent");
+	%>
+	
+	
+	<script>
+	alert("등록할 게시물은 다음과 같습니다.\n글쓴이 : " + <%=userNumString%> + "\n선택한 체크 : " + <%=selectedCheckString%> +  "\n올린 이미지 : " + <%=uploadedImgFileString%> + "\n");
+	alert("게시 내용 : " + <%=uploadedContentString%>);
+	
+	</script>
 	</body>
+</html>  
+    
+    
+    
+    
+    <!-- /container -->
+
+</body>
 </html>

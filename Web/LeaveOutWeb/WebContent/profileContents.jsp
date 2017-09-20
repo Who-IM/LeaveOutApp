@@ -55,32 +55,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
-<script>
-var slideIndex = 1; // 초기페이지 
-
-function plusDivs(n , contentseq) {
-  showDivs(slideIndex += n, contentseq);
-}
-
-function showDivs(n, contentseq) {
-  var i;
-  var x = document.getElementsByClassName("mySlides"+contentseq);
-  if (n > x.length) {slideIndex = 1}    
-  if (n < 1) {slideIndex = x.length}
-  for (i = 0; i < x.length; i++) {
-     x[i].style.display = "none";  
-  }
-  $("#mypage"+contentseq).text(slideIndex); // 현제페이지 설정
-  $("#totalpage"+contentseq).text(x.length); // total 페이지 설정
-  x[slideIndex-1].style.display = "block";
-}
-</script>
+	<script>
+	var slideIndex = 1; // 초기페이지 
+	
+	function plusDivs(n , contentseq) {
+	  showDivs(slideIndex += n, contentseq);
+	}
+	
+	function showDivs(n, contentseq) {
+	  var i;
+	  var x = document.getElementsByClassName("mySlides"+contentseq);
+	  if (n > x.length) {slideIndex = 1}    
+	  if (n < 1) {slideIndex = x.length}
+	  for (i = 0; i < x.length; i++) {
+	     x[i].style.display = "none";  
+	  }
+	  $("#mypage"+contentseq).text(slideIndex); // 현제페이지 설정
+	  $("#totalpage"+contentseq).text(x.length); // total 페이지 설정
+	  x[slideIndex-1].style.display = "block";
+	}
+	</script>
 
 	<br><br>
 	<ul class="list-group">
 		<li class="list-group-item">
 			<div class="media">
-				
 				<%
 				PreparedStatement pstmt7=null;
 				ResultSet rs7=null;
@@ -88,6 +87,7 @@ function showDivs(n, contentseq) {
 				String contentTarget = null;
 				String contentPicTarget = null;
 				int contentseq=0;
+				
 				try {
 					pstmt7=conn.prepareStatement("SELECT * from content where user_num=?;");
 					pstmt7.setString(1,userNumString);
@@ -95,6 +95,7 @@ function showDivs(n, contentseq) {
 
 					while(rs7.next()){
 						contentseq++;
+						String regtime = rs7.getString("reg_time");
 						
 						// content의 프로필 사진
 						out.println("<a class='pull-left' href='#'>");
@@ -102,7 +103,7 @@ function showDivs(n, contentseq) {
 						
 						// 제목 시간
 						out.println("<h4 class='media-heading'>"+rs7.getString("address")+"<br></h4>");
-						out.println("<i class='glyphicon glyphicon-flag'></i>"+rs7.getString("reg_time")+"<br>");
+						out.println("<i class='glyphicon glyphicon-flag'></i>"+regtime.substring(0, regtime.length()-2)+"<br>");
 						
 						// 사진 파일 경로 설정
 						File path = new File("C:\\Users\\bu456\\workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
@@ -128,20 +129,19 @@ function showDivs(n, contentseq) {
 						}
 						
 						if(number > 1) {
-						// 사진안에 페이지 수
-						out.println("<div class='carousel-caption'>");
-						out.println("<b id="+mypage+" style='color:#2A241A'></b>"); // 현재페이지 -> javascript로 반영
-						out.println("<b id='temp' style='color:#2A241A'>/</b>");
-						out.println("<b id="+totalpage+" style='color:#2A241A'></b>"); // total페이지 -> javascript로 반영
-						out.println("</div>");
-						
-						// End - 사진안에 페이지 수
-						
-						// 이미지 변경 button ( "<" ">" )
-						out.println("<button class='w3-button w3-black w3-display-left' onclick='plusDivs(-1, "+contentseq+")''>&#10094;</button>");
-						out.println("<button class='w3-button w3-black w3-display-right' onclick='plusDivs(1, "+contentseq+")''>&#10095;</button>");
-						out.println("</div>");
-						// End 이미지 띄우기
+							// 사진안에 페이지 수
+							out.println("<div class='carousel-caption'>");
+							out.println("<b id="+mypage+" style='color:#2A241A'></b>"); // 현재페이지 -> javascript로 반영
+							out.println("<b id='temp' style='color:#2A241A'>/</b>");
+							out.println("<b id="+totalpage+" style='color:#2A241A'></b>"); // total페이지 -> javascript로 반영
+							out.println("</div>");
+							// End - 사진안에 페이지 수
+							
+							// 이미지 변경 button ( "<" ">" )
+							out.println("<button class='w3-button w3-black w3-display-left' onclick='plusDivs(-1, "+contentseq+")'>&#10090;</button>");
+							out.println("<button class='w3-button w3-black w3-display-right' onclick='plusDivs(1, "+contentseq+")'>&#10091;</button>");
+							out.println("</div>");
+							// End 이미지 띄우기
 						}
 						
 						//텍스트 파일 위치 컴퓨터 마다 경로 변경
@@ -155,25 +155,84 @@ function showDivs(n, contentseq) {
 						while((line=br.readLine())!=null){ //라인단위 읽기
 						    out.println(line); 
 						}
-						
 						out.println("<hr>");
 						
-						/* File commentpath = new File(path + "\\comment");
+						// 초기 이미지 셋팅
+						out.println("<script>");
+						for(int i = 1; i <= contentseq; i++){
+							out.println("showDivs(1, "+i+");");
+						}
+						out.println("</script>");
+						
+						File commentpath = new File(path + "\\comment");
 						String commentfiles[] = commentpath.list();
-						for(int i = 0; i < commentfiles.length; i++) {
-							out.println("<div class='media'>");
-							String commentImagePath = ".\\leaveout\\files\\"+commentfiles[i]+"\\profile\\1.jpg";
-							out.println("<img src="+commentImagePath+" width='50' height='50'>");
-							out.println("</div>");
-						} */
+						if(commentfiles != null) {
+							for(int i = 0; i < commentfiles.length; i++) {
+								String commentImagePath = ".\\leaveout\\files\\"+commentfiles[i]+"\\profile\\1.jpg";
+								String commentTarget = "C:\\Users\\bu456\\workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
+										+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num")+
+										"\\comment\\"+commentfiles[i];
+								
+								File commentseqpath = new File(commentTarget);
+								String commetseqfiles[] = commentseqpath.list();
+								
+								// 댓글이 존재할 경우
+								if(commetseqfiles != null) {
+									for(int j = 0; j < commetseqfiles.length; j++) {
+										String commetReaderpath = commentTarget + "\\" + commetseqfiles[j] + "\\text.txt";
+										String commetseq = "/leaveout/files/"+targetUserNumString+"/content/"+rs7.getString("content_num")+
+												           "/comment/"+commentfiles[i]+"/"+commetseqfiles[j];
+										
+										FileReader fr2 = new FileReader(commetReaderpath); //파일읽기객체생성
+										BufferedReader br2 = new BufferedReader(fr2); //버퍼리더객체생성
+										
+										out.println("<div class='media'>");
+										out.println("<a class='pull-left' href='#'>");
+										out.println("<img src="+commentImagePath+" width='50' height='50'></a>");
+										out.println("<div class='media-body'>");
+											
+										out.println("<h5 class='media-heading'>");
+										String line2 = null; 
+										while((line2=br2.readLine())!=null){ //라인단위 읽기
+										    out.println(line2); 
+										}
+										out.println("</h5>");
+										
+										// 사진 및 시간
+										PreparedStatement commentinfops=null;
+										ResultSet commentinfors=null;
+												
+										commentinfops=conn.prepareStatement("select user.name,comment.user_num, comment.reg_time from comment " +
+												                            "INNER JOIN user on user.user_num = ? " +
+												                            "where comment.files = ?;");
+										commentinfops.setString(1,commentfiles[i]);
+										commentinfops.setString(2,commetseq);
+										commentinfors=commentinfops.executeQuery();
+
+										while(commentinfors.next()){
+											String time = commentinfors.getString("reg_time");
+											out.println(commentinfors.getString("name")+"님의 댓글<br>");
+											out.println(time.substring(0, time.length()-2)+"<br>");
+										}
+										out.println("</div>");
+										out.println("</div>");
+									}
+								}
+							}
+							out.println("<br>");
+						}
+						
+						out.println("<div");
+						out.println("<label for='uploadContent'>");
+						out.println("<i class='glyphicon glyphicon-font'></i> 댓글을 입력해주세요.<br>");
+						out.println("</label><br><div>");
+						
+						out.println("<div class='row'>");
+						out.println("<div class='col-md-10'>");
+						out.println("<textarea class='form-control' name='uploadContent' rows='3' placeholder='글 내용을 입력해 주세요.'></textarea></div>");
+						out.println("<div class='col-md-2'>");
+						out.println("<button type='submit' class='btn btn-default' style='height:76px'>완료</button></div></div><br>");
 					}
-					
-					// 초기 이미지 셋팅
-					out.println("<script>");
-					for(int i = 1; i <= contentseq; i++){
-						out.println("showDivs(1, "+i+");");
-					}
-					out.println("</script>");
 					
 				}catch(Exception e){
 					e.printStackTrace();

@@ -46,7 +46,12 @@
 		String userNameString = "null";
 		String foundLocx = request.getParameter("locx");
 		String foundLocy = request.getParameter("locy");
-		
+		String zoom = "13";
+		if(foundLocx==null) {
+			foundLocx="37";
+			foundLocy="127";
+			zoom="7";
+		}
 		
 		Connection conn=null;
 		PreparedStatement pstmt=null;
@@ -114,53 +119,13 @@
 	out.println("</script>");
 	%>
 	
-	
-	<!-- Google Map Script -->
-	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC15raLc2ZNVvQ86f5xEHAsKBC57KiMx7s&callback=initMap">
-    </script>
-	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
-    </script>
-	
-	
-	<script>
-      // Note: This example requires that you consent to location sharing when
-      // prompted by your browser. If you see the error "The Geolocation service
-      // failed.", it means you probably did not give permission for the browser to
-      // locate you.
 
-      function initMap() {
-		  var setloc = {lat:<%=foundLocx%>, lng: <%=foundLocy%>};
-          var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 13,
-          center: setloc
-        });
-
-        // Create an array of alphabetical characters used to label the markers.
-        var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-        // Add some markers to the map.
-        // Note: The code uses the JavaScript Array.prototype.map() method to
-        // create an array of markers based on a given "locations" array.
-        // The map() method here has nothing to do with the Google Maps API.
-        var markers = locations.map(function(location, i) {
-          return new google.maps.Marker({
-            position: location,
-            label: labels[i % labels.length]
-          });
-        });
-
-        // Add a marker clusterer to manage the markers.
-        var markerCluster = new MarkerClusterer(map, markers,
-            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
-      }
-    </script>
 
 	<!-- script references -->
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 	<script src="js/scripts.js"></script>
 	<script src="js/bootstrap.min.js"></script>
-		<script src="jquery-bootstrap-modal-steps.js"></script>
+	<script src="jquery-bootstrap-modal-steps.js"></script>
 	<script type="text/javascript">
 	// iframe resize
 	function autoResize(i)
@@ -172,15 +137,60 @@
 		(i).contentWindow.document.body.scrollWidth;
 		(i).width=iframeWidth+20;
 	}
-</script>
-    
-	<%@ include file="./navbarCore.jsp"%>
-	
+	</script>
+ 
 	<!-- contents -->
+	 <div id="map" class="col-md-6">
+	 <script>
+	 var map;
+      function initMap() {
+		  var setloc = {lat:<%=foundLocx%>, lng: <%=foundLocy%>};
+		  map = new google.maps.Map(document.getElementById('map'), {
+          	zoom: <%=zoom%>,
+          	center: setloc
+          });
+        
+          var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+          
+          var markers = locations.map(function(location, i) {
+            var marker = new google.maps.Marker({
+              position: location,
+              label: labels[i % labels.length]
+            });
+		  
+		    google.maps.event.addListener(marker, 'click', function() {
+			  alert("마커클릭");
+		    });
+		  
+		    return marker;
+          });
 	
-	 <div id="map" class="col-md-6"></div>
+          var markerCluster = new MarkerClusterer(map, markers, 
+              {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'}
+          );
+            
+      }
+      
+       </script>
+	 </div>
+	 
 	 <div id="content_Details_List" class="col-md-6">
 	   <%@ include file="./contentDetailsList.jsp"%>
 	 </div>
+	 
+	 <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+	 <!-- Google Map Script -->
+	 <script async defer
+ 		  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJ0-6wfd7a6AVfTR2HdzA3QQtlXwx51S4&callback=initMap">
+   	 </script>
+	
+	<%@ include file="./navbarCore.jsp" %>
+	
+	<script>
+	$(window).load(function() {
+		alert(map.getBounds());
+	});
+	</script>
+	
 	</body>
 </html>

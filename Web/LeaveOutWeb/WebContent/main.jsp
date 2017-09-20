@@ -9,7 +9,6 @@
 	
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	
-	
 	<meta name="generator" content="Bootply" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -107,7 +106,7 @@
 	%>
 
 	<!-- script references -->
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 	<script src="js/scripts.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script src="jquery-bootstrap-modal-steps.js"></script>
@@ -124,8 +123,6 @@
 	}
 	</script>
             
-	<%@ include file="./navbarCore.jsp"%>
-	
 	<!-- contents -->
 	
 	 <div id="map" class="col-md-10">
@@ -143,7 +140,7 @@
 		
 		var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         var infoWindow = new google.maps.InfoWindow({map: map});
-
+        
         // Try HTML5 geolocation.
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
@@ -173,7 +170,7 @@
 		location.href='locfailed.jsp?user_num='+<%=userNumString%>;
       }
     </script>
-	 
+	
 	</div>
 	<div id="friends_List" class="col-md-2">
 		<%@ include file="friendsList.jsp"%>
@@ -181,11 +178,10 @@
 	   
 	<!-- Google Map Script -->
 	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6-pEFLyPAV7u9lfsX5k98469JweBpebs&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJ0-6wfd7a6AVfTR2HdzA3QQtlXwx51S4&callback=initMap">
     </script>
 	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>
-	
 	
 	</body>
 </html>  

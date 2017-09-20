@@ -1,87 +1,186 @@
-ï»¿<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+<%@ page import="java.io.*"%>
 <%@ page import="java.sql.*"%>
 <%@ page import="javax.sql.*" %>
 <%@ page import="javax.naming.*" %>
 
-<% String profilePicTarget = ".\\leaveout\\files\\" + targetUserNumString + "\\profile\\1.jpg"; %>
+<% String profilePicTarget = ".\\leaveout\\files\\"+targetUserNumString+"\\profile\\1.jpg"; %>
 
-	<div class="media">
-			<a class="pull-left" href="#">
-				<img class="media-object" src="<%=profilePicTarget%>" width="50" height="50" alt="...">
-			</a>
-			<a class="pull-right" href="#">
-				<button type="button" class="btn btn-default">
-				<i class="glyphicon glyphicon-plus-sign"></i> ì¹œêµ¬ ì¶”ê°€
-				</button>
-			</a>
-			<div class="media-body">
-				<h2 class="media-heading"><%=targetUserNameString%> ë‹˜</h2>
-				"Lorem ipsum dolor sit amet, consectetur adipiscing elit"<br>
-			</div>
+<div class="media">
+		<a class="pull-left" href="#">
+			<img class="media-object" src="<%=profilePicTarget%>" width="50" height="50" alt="...">
+		</a>
+		<a class="pull-right" href="#">
+			<button type="button" class="btn btn-default">
+			<i class="glyphicon glyphicon-plus-sign"></i> Ä£±¸ Ãß°¡
+			</button>
+		</a>
+		<div class="media-body">
+			<h2 class="media-heading"><%=targetUserNameString%> ´Ô</h2>
+			"Lorem ipsum dolor sit amet, consectetur adipiscing elit"<br>
 		</div>
-		<div class="col-md-6">
-			<h5><i class="glyphicon glyphicon-info-sign"></i><%=targetUserNameString%>ë‹˜ì´ ì–´ë””ì–´ë””ì— ê¸€ì„ ì¼ëŠ”ì§€ í™•ì¸í•´ë³´ì„¸ìš”.</h5>
-			<div id="map"></div>
-		</div>
-		<div class="col-md-6">
-		<h5><i class="glyphicon glyphicon-info-sign"></i><%=targetUserNameString%>ë‹˜ì´ ì–´ë–¤ ì¹´í…Œê³ ë¦¬ë¡œ ê¸€ì„ ì¼ëŠ”ì§€ í™•ì¸í•´ë³´ì„¸ìš”.</h5>
-		
-		<%
-		PreparedStatement pstmt5=null;
-		ResultSet rs5=null;
+	</div>
+	<div class="col-md-6">
+		<h5><i class="glyphicon glyphicon-info-sign"></i><%=targetUserNameString%>´ÔÀÌ ¾îµğ¾îµğ¿¡ ±ÛÀ» ½è´ÂÁö È®ÀÎÇØº¸¼¼¿ä.</h5>
+		<div id="map"></div>
+	</div>
+	<div class="col-md-6">
+	<h5><i class="glyphicon glyphicon-info-sign"></i><%=targetUserNameString%>´ÔÀÌ ¾î¶² Ä«Å×°í¸®·Î ±ÛÀ» ½è´ÂÁö È®ÀÎÇØº¸¼¼¿ä.</h5>
 	
-		try {
-			pstmt5=conn.prepareStatement("SELECT cate_text FROM category WHERE user_num=?");
-			pstmt5.setString(1,userNumString);
-			rs5=pstmt5.executeQuery();
-  		
-			while(rs5.next()){
-				out.println("<button type='button' class='btn btn btn-primary'>");
-				out.println("<i class='glyphicon glyphicon-tags'></i>   "+rs5.getString("cate_text"));
-				out.println("</button>");
-			}
-		}catch(Exception e){
-			e.printStackTrace();
-		}		
-		%>
-		
-		<br><br>
-		<ul class="list-group">
-			<li class="list-group-item">
-				<div class="media">
-					<a class="pull-left" href="#">
-						<img class="media-object" src="profile_default.jpg" width="50" height="50" alt="...">
-					</a>
-					<%
-					PreparedStatement pstmt7=null;
-					ResultSet rs7=null;
+	<%
+	String picNum = null;
+	PreparedStatement pstmt5=null;
+	ResultSet rs5=null;
+
+	PreparedStatement pstmtContent=null;
+	ResultSet rsContent=null;
+	//String contentPicTarget = ".\\leaveout\\files\\"+targetUserNumString+"\\content\\"+contentNum+"\\"+picNum+".jpg";
 	
-					try {
-						pstmt7=conn.prepareStatement("SELECT * from content where user_num=?;");
-						pstmt7.setString(1,userNumString);
-						rs7=pstmt7.executeQuery();
-  		
-						while(rs7.next()){
-							out.println("<h4 class='media-heading'>"+rs7.getString("address")+"<br></h4>");
-							out.println("<i class='glyphicon glyphicon-flag'></i>"+rs7.getString("reg_time")+"<br>");
-							out.println("<div id='carousel-example-generic' class='carousel slide'>");
-							out.println("<ol class='carousel-indicators'>");
-							out.println("<li data-target='#carousel-example-generic' data-slide-to='0' class='active'></li>");
-							out.println("<li data-target='#carousel-example-generic' data-slide-to='1'></li></ol>");
-							out.println("<div class='carousel-inner'>");
-							out.println("<div class='item active'>");
-							out.println("<img src=./content_default1.jpg alt='...'></div>");
-							out.println("ë‚´ìš© ë„£ì–´ì•¼ë¨");
-							out.println("");
+	try {
+		pstmt5=conn.prepareStatement("SELECT cate_text FROM category WHERE user_num=?");
+		pstmt5.setString(1,userNumString);
+		rs5=pstmt5.executeQuery();
+ 		
+		while(rs5.next()){
+			out.println("<button type='button' class='btn btn btn-primary'>");
+			out.println("<i class='glyphicon glyphicon-tags'></i>   "+rs5.getString("cate_text"));
+			out.println("</button>");
+		}
+	}catch(Exception e){
+		e.printStackTrace();
+	}		
+	%>
+	
+	
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+<script>
+var slideIndex = 1; // ÃÊ±âÆäÀÌÁö 
+
+function plusDivs(n , contentseq) {
+  showDivs(slideIndex += n, contentseq);
+}
+
+function showDivs(n, contentseq) {
+  var i;
+  var x = document.getElementsByClassName("mySlides"+contentseq);
+  if (n > x.length) {slideIndex = 1}    
+  if (n < 1) {slideIndex = x.length}
+  for (i = 0; i < x.length; i++) {
+     x[i].style.display = "none";  
+  }
+  $("#mypage"+contentseq).text(slideIndex); // ÇöÁ¦ÆäÀÌÁö ¼³Á¤
+  $("#totalpage"+contentseq).text(x.length); // total ÆäÀÌÁö ¼³Á¤
+  x[slideIndex-1].style.display = "block";
+}
+</script>
+
+	<br><br>
+	<ul class="list-group">
+		<li class="list-group-item">
+			<div class="media">
+				
+				<%
+				PreparedStatement pstmt7=null;
+				ResultSet rs7=null;
+				String contentNum = null;
+				String contentTarget = null;
+				String contentPicTarget = null;
+				int contentseq=0;
+				try {
+					pstmt7=conn.prepareStatement("SELECT * from content where user_num=?;");
+					pstmt7.setString(1,userNumString);
+					rs7=pstmt7.executeQuery();  	
+
+					while(rs7.next()){
+						contentseq++;
+						
+						// contentÀÇ ÇÁ·ÎÇÊ »çÁø
+						out.println("<a class='pull-left' href='#'>");
+						out.println("<img class='media-object' src="+profilePicTarget+" width='50' height='50' alt='...'></a>");
+						
+						// Á¦¸ñ ½Ã°£
+						out.println("<h4 class='media-heading'>"+rs7.getString("address")+"<br></h4>");
+						out.println("<i class='glyphicon glyphicon-flag'></i>"+rs7.getString("reg_time")+"<br>");
+						
+						// »çÁø ÆÄÀÏ °æ·Î ¼³Á¤
+						File path = new File("C:\\Users\\bu456\\workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
+								+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num"));
+						String files[] = path.list();
+						int number = files.length - 1;
+						for(int i = 0; i < files.length; i++) {
+							if(files[i].equals("comment")) {
+								number -= 1;
+							}
 						}
-					}catch(Exception e){
-						e.printStackTrace();
-					}		
-					%>
+						
+						// class, id name ¼³Á¤
+						String slidename = "mySlides"+contentseq;
+						String mypage = "mypage"+contentseq;
+						String totalpage = "totalpage"+contentseq;
+						
+						// ÀÌ¹ÌÁö ¶ç¿ì±â (slide)
+						out.println("<div class='w3-content w3-display-container'>");
+						for(int i = 1; i <= number; i++){
+							contentPicTarget = ".\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num")+"\\"+i+".jpg";
+							out.println("<img class="+slidename+" src="+contentPicTarget+" style='width:100%; height:60%'/>");
+						}
+						
+						if(number > 1) {
+						// »çÁø¾È¿¡ ÆäÀÌÁö ¼ö
+						out.println("<div class='carousel-caption'>");
+						out.println("<b id="+mypage+" style='color:#2A241A'></b>"); // ÇöÀçÆäÀÌÁö -> javascript·Î ¹İ¿µ
+						out.println("<b id='temp' style='color:#2A241A'>/</b>");
+						out.println("<b id="+totalpage+" style='color:#2A241A'></b>"); // totalÆäÀÌÁö -> javascript·Î ¹İ¿µ
+						out.println("</div>");
+						
+						// End - »çÁø¾È¿¡ ÆäÀÌÁö ¼ö
+						
+						// ÀÌ¹ÌÁö º¯°æ button ( "<" ">" )
+						out.println("<button class='w3-button w3-black w3-display-left' onclick='plusDivs(-1, "+contentseq+")''>&#10094;</button>");
+						out.println("<button class='w3-button w3-black w3-display-right' onclick='plusDivs(1, "+contentseq+")''>&#10095;</button>");
+						out.println("</div>");
+						// End ÀÌ¹ÌÁö ¶ç¿ì±â
+						}
+						
+						//ÅØ½ºÆ® ÆÄÀÏ À§Ä¡ ÄÄÇ»ÅÍ ¸¶´Ù °æ·Î º¯°æ
+						contentTarget = "C:\\Users\\bu456\\workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
+						+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num")+"\\text.txt";
+						
+						// ±Û³»¿ë ¼ÂÆÃ
+						FileReader fr = new FileReader(contentTarget); //ÆÄÀÏÀĞ±â°´Ã¼»ı¼º
+						BufferedReader br = new BufferedReader(fr); //¹öÆÛ¸®´õ°´Ã¼»ı¼º
+						String line = null; 
+						while((line=br.readLine())!=null){ //¶óÀÎ´ÜÀ§ ÀĞ±â
+						    out.println(line); 
+						}
+						
+						out.println("<hr>");
+						
+						/* File commentpath = new File(path + "\\comment");
+						String commentfiles[] = commentpath.list();
+						for(int i = 0; i < commentfiles.length; i++) {
+							out.println("<div class='media'>");
+							String commentImagePath = ".\\leaveout\\files\\"+commentfiles[i]+"\\profile\\1.jpg";
+							out.println("<img src="+commentImagePath+" width='50' height='50'>");
+							out.println("</div>");
+						} */
+					}
 					
+					// ÃÊ±â ÀÌ¹ÌÁö ¼ÂÆÃ
+					out.println("<script>");
+					for(int i = 1; i <= contentseq; i++){
+						out.println("showDivs(1, "+i+");");
+					}
+					out.println("</script>");
 					
-				</div>
-			</li>
-		</ul>
-		
+				}catch(Exception e){
+					e.printStackTrace();
+				}	
+				
+				%>
+			</div>
+		</li>
+	</ul>
 </div>

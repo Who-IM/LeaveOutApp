@@ -1,7 +1,45 @@
-﻿
+﻿<!-- mapbounds -->
+
+<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+<%@ page import="java.io.*"%>
+<%@ page import="java.sql.*"%>
+<%@ page import="javax.sql.*" %>
+<%@ page import="javax.naming.*" %>
+
 	<ul class="list-group">
 		<li class="list-group-item">
 			<div class="media">
+				<%
+				PreparedStatement pstmt7=null;
+				ResultSet rs7=null;
+				String contentNum = null;
+				String contentTarget = null;
+				String contentPicTarget = null;
+				int contentseq=0;
+				
+				try {
+					pstmt7=conn.prepareStatement("SELECT * from content where loc_x>=? && loc_x<=? && loc_y>=? && loc_y<=?;");
+					pstmt7.setString(1,bounds[0]);
+					pstmt7.setString(2,bounds[2]);
+					pstmt7.setString(3,bounds[1]);
+					pstmt7.setString(4,bounds[3]);
+					rs7=pstmt7.executeQuery();  	
+
+					while(rs7.next()){
+						/* out.println("<script>");
+						out.println("alert(locx="+rs7.getDouble("loc_x")+")");
+						out.println("alert(locy="+rs7.getDouble("loc_y")+")");
+						out.println("</script>"); */
+					}
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+				
+				%>
+			
+			
+			
+			
 				<a class="pull-left" href="#">
 					<img class="media-object" src="profile_default.jpg" width="50" height="50" alt="...">
 				</a>

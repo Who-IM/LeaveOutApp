@@ -188,9 +188,19 @@
     </script>
 	<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
 	 
+	 
+	 <script>
+   function contentsubmit() {
+      var selectedcheck = $("#uploadContent").val();
+         alert(selectedcheck);
+         
+       document.href("postingProess.jsp");
+   }
+   </script>
 	 <div class="col-md-4" style="padding-top : 40px">
 	 <br>
-		<form method="post" action="postingProcess.jsp">
+		<form action="postingProcess.jsp" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="user_num" value="<%=userNumString%>"></input> 
   			<div class="form-group">
     			<label for="selectCheck">
     			<i class='glyphicon glyphicon-exclamation-sign'></i> <%=userNameString%>님의 체크 리스트입니다.<br>
@@ -239,7 +249,7 @@
 				<label for="uploadContent">
 				<i class='glyphicon glyphicon-font'></i> 글 내용을 입력해주세요.<br>
 				</label><br><br>
-				<textarea class="form-control" name="uploadContent" rows="5" placeholder="글 내용을 입력해 주세요."></textarea>
+				<textarea class="form-control" id="uploadContent" name="uploadContent" rows="5" placeholder="글 내용을 입력해 주세요."></textarea>
 			</div>
 			<div class="col-md-8"></div>
 			<div class="col-md-4">
@@ -247,7 +257,7 @@
 				&nbsp;&nbsp;&nbsp;
 				<button type="submit" class="btn btn-default">제출</button>
 			</div>
-			<input type="hidden" name="user_num" value="<%=userNumString%>"></input> 
+			
 		</form>
 	 </div>  
 	

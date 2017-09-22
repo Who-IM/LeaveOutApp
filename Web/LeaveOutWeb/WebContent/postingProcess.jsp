@@ -1,8 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=EUC-KR"%>
 <%@ page import="java.sql.*"%>
+<%@ page import="java.util.*"%>
 <%@ page import="javax.sql.*" %>
 <%@ page import="javax.naming.*" %>
-
+<%@ page import="com.oreilly.servlet.MultipartRequest" %>
+<%@ page import="com.oreilly.servlet.multipart.DefaultFileRenamePolicy" %>
+<%@ page import="java.io.File" %>
 
 
 <html>
@@ -37,38 +40,54 @@
 </head>
 
 <body>
-
-	<!-- session check -->
+	<!-- session & parameter check -->
 	<%
-		String userNumString = request.getParameter("user_num");
-		String userNameString = "null";
-		Connection conn=null;
-		PreparedStatement pstmt=null;
-		ResultSet rs=null;
 	
-		try {
-			Context init = new InitialContext();
-			DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/mysql");
-			conn = ds.getConnection();
-  		
-			pstmt=conn.prepareStatement("SELECT * FROM user WHERE user_num=?");
-			pstmt.setString(1,userNumString);
-			rs=pstmt.executeQuery();
-  		
-			if(rs.next()){
-				//sesson-OK
-				userNameString = rs.getString("name");
-			}
-			else {
-				out.println("<script>");
-				out.println("alert('존재하지 않는 회원입니다.');");
-				out.println("location.href='index.jsp'");
-				out.println("</script>");
-			}
-		}catch(Exception e){
-			e.printStackTrace();
-		}		
+	String uploadPath = request.getRealPath("leaveout");
+	int size = 15*1024*1024;
+	
+	MultipartRequest multi = new MultipartRequest(request,
+				uploadPath, size, "euc-kr", new DefaultFileRenamePolicy());
+	
+	String userNumString = multi.getParameter("user_num"); 
+	String userNameString = null;
+	
+	Connection conn=null;
+	PreparedStatement pstmt=null;
+	ResultSet rs=null;
+
+	try {
+		Context init = new InitialContext();
+		DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/mysql");
+		conn = ds.getConnection();
+		
+		pstmt=conn.prepareStatement("SELECT * FROM user WHERE user_num=?");
+		pstmt.setString(1,userNumString);
+		rs=pstmt.executeQuery();
+		
+		if(rs.next()){
+			//sesson-OK
+			userNameString = rs.getString("name");
+		}
+		else {
+			out.println("<script>");
+			out.println("alert('존재하지 않는 회원입니다.');");
+			out.println("location.href='index.jsp'");
+			out.println("</script>");
+		}
+	}catch(Exception e){
+		e.printStackTrace();
+	}		
 	%>
+	
+	
+	<script>
+	alert("등록할 게시물은 다음과 같습니다.\n글쓴이 : " + <%=userNumString%>);
+	alert("고른 체크 : " + <%=multi.getParameter("selectCheck")%>);
+	alert("게시 내용 : " + <%=multi.getParameter("uploadContent")%>);
+	
+	</script>
+	
 	
 	<!-- create Map marker info -->
 	<%
@@ -189,25 +208,9 @@
     </script>
 	
 	
-	<%
-	String selectedCheckString = request.getParameter("selectCheck");
-	String uploadedImgFileString = request.getParameter("uploadImgFile");
-	String uploadedContentString = request.getParameter("uploadContent");
-	%>
-	
-	
-	<script>
-	alert("등록할 게시물은 다음과 같습니다.\n글쓴이 : " + <%=userNumString%> + "\n선택한 체크 : " + <%=selectedCheckString%> +  "\n올린 이미지 : " + <%=uploadedImgFileString%> + "\n");
-	alert("게시 내용 : " + <%=uploadedContentString%>);
-	
-	</script>
 	</body>
 </html>  
     
-    
-    
-    
-    <!-- /container -->
 
 </body>
 </html>

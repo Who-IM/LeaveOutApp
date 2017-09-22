@@ -97,15 +97,13 @@
 	int cnt = 0;
 	try {
   		
-  		pstmt2=conn.prepareStatement("SELECT loc_x FROM content");
+  		pstmt2=conn.prepareStatement("SELECT loc_x, loc_y FROM content where user_num=?");
+  		pstmt2.setString(1,targetUserNumString);
 		rs2=pstmt2.executeQuery();
 		
-		pstmt3 = conn.prepareStatement("SELECT loc_y FROM content");
-  		rs3=pstmt3.executeQuery();
-		
-		while(rs2.next() && rs3.next()){
+		while(rs2.next()){
 			String resultx = rs2.getString("loc_x");
-			String resulty = rs3.getString("loc_y");
+			String resulty = rs2.getString("loc_y");
 			
 			if(cnt != 0){
 				out.print(",");
@@ -133,8 +131,6 @@
 		<%@ include file="./profileContents.jsp"%>
 	</div>
 	 
-	 	
-	
 	<div id="friends_List" class="col-md-2">
 	 <%@ include file="friendsList.jsp"%>
 	 </div>
@@ -169,8 +165,9 @@
 
         // Add a marker clusterer to manage the markers.
         var markerCluster = new MarkerClusterer(map, markers,
-            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
-      }
+            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'}
+        );        
+    }
     </script>
     
 	<script type="text/javascript">
@@ -188,7 +185,7 @@
 	
 	<!-- Google Map Script -->
 	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6-pEFLyPAV7u9lfsX5k98469JweBpebs&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJ0-6wfd7a6AVfTR2HdzA3QQtlXwx51S4&callback=initMap">
     </script>
 	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>

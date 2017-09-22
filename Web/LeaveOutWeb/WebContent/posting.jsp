@@ -78,13 +78,12 @@
 	int checksize;
 	
 	try {		
-	checkps=conn.prepareStatement("SELECT * FROM checks where user_num=?");
+	checkps=conn.prepareStatement("select * FROM checks where user_num=?");
 	checkps.setString(1,userNumString);
 	checkrs=checkps.executeQuery();
 	
-	
 	while(checkrs.next()){
-		if(checkrs.getString("check_image") != null) {	
+		if(checkrs.getString("check_image") != "null") {	
 			if(count != 0){
 				out.print(",");
 			}
@@ -134,22 +133,22 @@
       function initMap() {
 		  var setloc = {lat: 36, lng: 128};
 		  var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 7,
+          zoom: 8,
           center: setloc
         });
 	
         // Create an array of alphabetical characters used to label the markers.
-        var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        //var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         var infowindow;
         
         var markers = checklocation.map(function(location, i) {
           var marker = new google.maps.Marker({
-            position: location,
-            label: labels[i % labels.length]
+            position: location
+            //label: labels[i % labels.length]
           });
           
 		  google.maps.event.addListener(marker, 'click', function() {
-			map.setZoom(17);
+			map.setZoom(16);
 			map.setCenter(marker.getPosition());
 			
 			var geocoder = new google.maps.Geocoder();
@@ -175,7 +174,7 @@
         
         // Add a marker clusterer to manage the markers.
         var markerCluster = new MarkerClusterer(map, markers, 
-            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'}
+            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', zoomOnClick: false}
         );
 	}
     </script>
@@ -184,7 +183,7 @@
 	 
 	 <!-- Google Map Script -->
 	<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6-pEFLyPAV7u9lfsX5k98469JweBpebs&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJ0-6wfd7a6AVfTR2HdzA3QQtlXwx51S4&callback=initMap">
     </script>
 	<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
 	 

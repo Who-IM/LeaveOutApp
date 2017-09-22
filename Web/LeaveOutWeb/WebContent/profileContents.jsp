@@ -34,11 +34,10 @@
 
 	PreparedStatement pstmtContent=null;
 	ResultSet rsContent=null;
-	//String contentPicTarget = ".\\leaveout\\files\\"+targetUserNumString+"\\content\\"+contentNum+"\\"+picNum+".jpg";
 	
 	try {
 		pstmt5=conn.prepareStatement("SELECT cate_text FROM category WHERE user_num=?");
-		pstmt5.setString(1,userNumString);
+		pstmt5.setString(1,targetUserNumString);
 		rs5=pstmt5.executeQuery();
  		
 		while(rs5.next()){
@@ -76,6 +75,12 @@
 	}
 	</script>
 
+	<script>
+	function default_Img() {
+		document.getElementById("profileimg").src = "profile_default.jpg";
+	}
+	</script>
+
 	<br><br>
 	<ul class="list-group">
 		<li class="list-group-item">
@@ -90,7 +95,7 @@
 				
 				try {
 					pstmt7=conn.prepareStatement("SELECT * from content where user_num=?;");
-					pstmt7.setString(1,userNumString);
+					pstmt7.setString(1,targetUserNumString);
 					rs7=pstmt7.executeQuery();  	
 
 					while(rs7.next()){
@@ -99,7 +104,7 @@
 						
 						// content의 프로필 사진
 						out.println("<a class='pull-left' href='#'>");
-						out.println("<img class='media-object' src="+profilePicTarget+" width='50' height='50' alt='...'></a>");
+						out.println("<img class='media-object' id='profileimg' src="+profilePicTarget+" width='50' height='50' onerror='default_Img();' alt='...'></a>");
 						
 						// 제목 시간
 						out.println("<h4 class='media-heading'>"+rs7.getString("address")+"<br></h4>");
@@ -156,6 +161,8 @@
 						    out.println(line); 
 						}
 						out.println("<hr>");
+						br.close();
+						fr.close();
 						
 						// 초기 이미지 셋팅
 						out.println("<script>");
@@ -222,16 +229,26 @@
 							out.println("<br>");
 						}
 						
-						out.println("<div");
-						out.println("<label for='uploadContent'>");
-						out.println("<i class='glyphicon glyphicon-font'></i> 댓글을 입력해주세요.<br>");
-						out.println("</label><br><div>");
+						String areaid = "textarea" + contentseq;
+						String makefilepath = "/leaveout/files/"+targetUserNumString+"/content/"+rs7.getString("content_num")+
+                                			  "/comment";
 						
+						out.println("<div");
+						out.println("<label>");
+						out.println("<i class='glyphicon glyphicon-font'></i> 댓글을 입력해주세요.<br>");
+						out.println("</label><div>");
+						
+						out.println("<form method='post' action='profileContentsProcess.jsp'");
+						out.println("<input type='hidden' name='hiddenarea'></input>");
+						out.println("<input type='hidden' name='makefilepath' value="+makefilepath+"></input>");
+						out.println("<input type='hidden' name='targetUserNumString' value="+targetUserNumString+"></input>");
+						out.println("<input type='hidden' name='content_num' value="+rs7.getString("content_num")+"></input>");
+						out.println("<input type='hidden' name='userNumString' value="+userNumString+"></input>");
 						out.println("<div class='row'>");
 						out.println("<div class='col-md-10'>");
-						out.println("<textarea class='form-control' name='uploadContent' rows='3' placeholder='글 내용을 입력해 주세요.'></textarea></div>");
+						out.println("<textarea class='form-control' id="+areaid+" name='textarea' rows='3' placeholder='글 내용을 입력해 주세요.'></textarea></div>");
 						out.println("<div class='col-md-2'>");
-						out.println("<button type='submit' class='btn btn-default' style='height:76px'>완료</button></div></div><br>");
+						out.println("<button type='submit' class='btn btn-default' style='height:76px' onclick='commentsubmit("+contentseq+")'>완료</button></div></div><form><br>");
 					}
 					
 				}catch(Exception e){
@@ -240,6 +257,12 @@
 				
 				%>
 			</div>
+	<script>
+	function commentsubmit(contentseq) {
+		var xx = $("#textarea"+contentseq).val();
+		$("input[name=hiddenarea]").val(xx);
+	}
+	</script>
 		</li>
 	</ul>
 </div>

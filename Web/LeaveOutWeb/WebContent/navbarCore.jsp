@@ -1,4 +1,5 @@
 ﻿
+
 	<!-- Contents Start -->
 	<div class="navbar navbar-default navbar-fixed-top">
 	  <div class="container">
@@ -20,8 +21,17 @@
                    <form class="navbar-form navbar-left">
                        <div class="input-group input-group-sm" style="max-width:360px;">
                          <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
-                         <div class="input-group-btn">
-							<a href="contentDetails.jsp?user_num=<%=userNumString%>" class="btn btn-default" role="button" type="submit"><i class="glyphicon glyphicon-search"></i></a>
+                         <div class="input-group-btn" onclick="mapbounds()">
+							<a class="btn btn-default" role="button" type="button"><i class="glyphicon glyphicon-search"></i></a>
+								<script>
+								function mapbounds() {
+									var parameter ="";	
+									parameter += "bounds="+map.getBounds();
+								
+									<%-- <a href="contentDetails.jsp?user_num=<%=userNumString%>" --%>
+									location.href="contentDetails.jsp?user_num=<%=userNumString%>&"+parameter;
+								}
+								</script>
                          </div>
                        </div>
                    </form>

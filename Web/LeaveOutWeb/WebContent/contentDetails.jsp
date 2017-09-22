@@ -3,15 +3,11 @@
 <%@ page import="javax.sql.*" %>
 <%@ page import="javax.naming.*" %>
 
-
-
 <html>
 <head>
     <title>LeaveOut</title>
 	
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	
-	
 	<meta name="generator" content="Bootply" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -46,6 +42,31 @@
 		String userNameString = "null";
 		String foundLocx = request.getParameter("locx");
 		String foundLocy = request.getParameter("locy");
+		String mapbounds = request.getParameter("bounds");
+		String temp = "";
+		String bounds[] = new String[4];
+		int bocnt = 0;
+		boolean flag = false;
+		for(int i = 0; i < mapbounds.length(); i++) {
+			if(mapbounds.charAt(i)>='0' && mapbounds.charAt(i)<='9' || mapbounds.charAt(i)=='.') {
+				temp += mapbounds.charAt(i);
+				bounds[bocnt] = temp;
+			}
+			else if(mapbounds.charAt(i)==',' || mapbounds.charAt(i)==')') {
+				temp = "";
+				bocnt++;
+				
+				if(bocnt==2 && !flag) {
+					bocnt--;
+					flag = true;
+				}
+			}
+			
+			if(bocnt==4) {
+				break;
+			}
+		}
+		
 		String zoom = "13";
 		if(foundLocx==null) {
 			foundLocx="37";
@@ -78,7 +99,7 @@
 			}
 		}catch(Exception e){
 			e.printStackTrace();
-		}		
+		}
 	%>
 	
 	<!-- create Map marker info -->
@@ -185,12 +206,6 @@
    	 </script>
 	
 	<%@ include file="./navbarCore.jsp" %>
-	
-	<script>
-	$(window).load(function() {
-		alert(map.getBounds());
-	});
-	</script>
 	
 	</body>
 </html>

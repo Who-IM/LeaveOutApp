@@ -129,9 +129,10 @@
 	<!-- contents -->
 	<div id="map" class="col-md-10">
 	 <script>
+	 var map;
       function initMap() {
 		  var setloc = {lat:<%=foundLocx%>, lng: <%=foundLocy%>};
-		  var map = new google.maps.Map(document.getElementById('map'), {
+		  map = new google.maps.Map(document.getElementById('map'), {
           	zoom: 13,
           	center: setloc
           });
@@ -154,8 +155,11 @@
           // Add a marker clusterer to manage the markers.
           var markerCluster = new MarkerClusterer(map, markers, 
               {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', 
-			   zoomOnClick: false});
-		  }
+			   zoomOnClick: false}
+          );
+	   }
+      
+       
        </script>
        
        <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
@@ -170,7 +174,14 @@
 	 </div>  
 	
     <%@ include file="./navbarCore.jsp" %>
-
+    
+	<!-- <script>
+	$(window).load(function() {
+		var temp = map.getBounds();
+		alert(temp);
+	});
+	</script> -->
+	
 	</body>
 	
 </html>

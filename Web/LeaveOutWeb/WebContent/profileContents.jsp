@@ -94,7 +94,7 @@
 				int contentseq=0;
 				
 				try {
-					pstmt7=conn.prepareStatement("SELECT * from content where user_num=?;");
+					pstmt7=conn.prepareStatement("SELECT * from content where user_num=? ORDER BY reg_time desc;");
 					pstmt7.setString(1,targetUserNumString);
 					rs7=pstmt7.executeQuery();  	
 
@@ -172,62 +172,54 @@
 						out.println("</script>");
 						
 						File commentpath = new File(path + "\\comment");
-						String commentfiles[] = commentpath.list();
-						if(commentfiles != null) {
-							for(int i = 0; i < commentfiles.length; i++) {
-								String commentImagePath = ".\\leaveout\\files\\"+commentfiles[i]+"\\profile\\1.jpg";
+						try {
+							// 사진 및 시간
+							PreparedStatement commentinfops=null;
+							ResultSet commentinfors=null;
+									
+							commentinfops=conn.prepareStatement("select user.name, comment.user_num, comment.reg_time, comment.content_num, comment.comm_num from comment " +
+									                            "INNER JOIN user on user.user_num = ? " +
+									                            "where content_num = ? " +
+									                            "ORDER BY reg_time desc");
+							commentinfops.setString(1,rs7.getString("user_num"));
+							commentinfops.setString(2,rs7.getString("content_num"));
+							commentinfors=commentinfops.executeQuery();
+							
+							while(commentinfors.next()){
+								String commentImagePath = ".\\leaveout\\files\\"+commentinfors.getInt("user_num")+"\\profile\\1.jpg";
 								String commentTarget = "C:\\Users\\bu456\\workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
-										+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num")+
-										"\\comment\\"+commentfiles[i];
+										+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+commentinfors.getInt("content_num")+
+										"\\comment\\"+commentinfors.getInt("user_num");
 								
 								File commentseqpath = new File(commentTarget);
-								String commetseqfiles[] = commentseqpath.list();
+								String commetReaderpath = commentTarget + "\\" + commentinfors.getInt("comm_num") + "\\text.txt";
+								String commetseq = "/leaveout/files/"+targetUserNumString+"/content/"+commentinfors.getInt("content_num")+
+										           "/comment/"+commentinfors.getInt("user_num")+"/"+commentinfors.getInt("comm_num");
 								
-								// 댓글이 존재할 경우
-								if(commetseqfiles != null) {
-									for(int j = 0; j < commetseqfiles.length; j++) {
-										String commetReaderpath = commentTarget + "\\" + commetseqfiles[j] + "\\text.txt";
-										String commetseq = "/leaveout/files/"+targetUserNumString+"/content/"+rs7.getString("content_num")+
-												           "/comment/"+commentfiles[i]+"/"+commetseqfiles[j];
-										
-										FileReader fr2 = new FileReader(commetReaderpath); //파일읽기객체생성
-										BufferedReader br2 = new BufferedReader(fr2); //버퍼리더객체생성
-										
-										out.println("<div class='media'>");
-										out.println("<a class='pull-left' href='#'>");
-										out.println("<img src="+commentImagePath+" width='50' height='50'></a>");
-										out.println("<div class='media-body'>");
-											
-										out.println("<h5 class='media-heading'>");
-										String line2 = null; 
-										while((line2=br2.readLine())!=null){ //라인단위 읽기
-										    out.println(line2); 
-										}
-										out.println("</h5>");
-										
-										// 사진 및 시간
-										PreparedStatement commentinfops=null;
-										ResultSet commentinfors=null;
-												
-										commentinfops=conn.prepareStatement("select user.name,comment.user_num, comment.reg_time from comment " +
-												                            "INNER JOIN user on user.user_num = ? " +
-												                            "where comment.files = ?;");
-										commentinfops.setString(1,commentfiles[i]);
-										commentinfops.setString(2,commetseq);
-										commentinfors=commentinfops.executeQuery();
-
-										while(commentinfors.next()){
-											String time = commentinfors.getString("reg_time");
-											out.println(commentinfors.getString("name")+"님의 댓글<br>");
-											out.println(time.substring(0, time.length()-2)+"<br>");
-										}
-										out.println("</div>");
-										out.println("</div>");
-									}
+								FileReader fr2 = new FileReader(commetReaderpath); //파일읽기객체생성
+								BufferedReader br2 = new BufferedReader(fr2); //버퍼리더객체생성
+								
+								out.println("<div class='media'>");
+								out.println("<a class='pull-left' href='#'>");
+								out.println("<img src="+commentImagePath+" width='50' height='50'></a>");
+								out.println("<div class='media-body'>");
+									
+								out.println("<h5 class='media-heading'>");
+								String line2 = null; 
+								while((line2=br2.readLine())!=null){ //라인단위 읽기
+								    out.println(line2); 
 								}
+								out.println("</h5>");
+								
+								String time = commentinfors.getString("reg_time");
+								out.println(commentinfors.getString("name")+"님의 댓글<br>");
+								out.println(time.substring(0, time.length()-2)+"<br>");
+								out.println("</div>");
+								out.println("</div>");
 							}
-							out.println("<br>");
+						} catch(Exception ex) {
 						}
+						out.println("<br>");
 						
 						String areaid = "textarea" + contentseq;
 						String makefilepath = "/leaveout/files/"+targetUserNumString+"/content/"+rs7.getString("content_num")+
@@ -238,12 +230,13 @@
 						out.println("<i class='glyphicon glyphicon-font'></i> 댓글을 입력해주세요.<br>");
 						out.println("</label><div>");
 						
-						out.println("<form method='post' action='profileContentsProcess.jsp'");
+						out.println("<form method='post' action='CommentProccess.jsp'");
 						out.println("<input type='hidden' name='hiddenarea'></input>");
 						out.println("<input type='hidden' name='makefilepath' value="+makefilepath+"></input>");
 						out.println("<input type='hidden' name='targetUserNumString' value="+targetUserNumString+"></input>");
 						out.println("<input type='hidden' name='content_num' value="+rs7.getString("content_num")+"></input>");
 						out.println("<input type='hidden' name='userNumString' value="+userNumString+"></input>");
+						out.println("<input type='hidden' name='jspName' value='profileDetails.jsp'></input>");
 						out.println("<div class='row'>");
 						out.println("<div class='col-md-10'>");
 						out.println("<textarea class='form-control' id="+areaid+" name='textarea' rows='3' placeholder='글 내용을 입력해 주세요.'></textarea></div>");

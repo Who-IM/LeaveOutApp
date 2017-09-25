@@ -21,6 +21,10 @@
 	String targetUserNumString = request.getParameter("targetUserNumString");
 	String[] content_num = request.getParameterValues("content_num");
 	String userNumString = request.getParameter("userNumString");
+	String foundLocx = request.getParameter("locx");
+	String foundLocy = request.getParameter("locy");
+	String mapbounds = request.getParameter("mapbounds");
+	String JspName = request.getParameter("jspName");
 	int buttonNum=0;
 	
 	Connection conn=null;
@@ -92,7 +96,11 @@
 %>
 
 <script>
-location.href="http://localhost:8080/profileDetails.jsp?user_num="+<%=userNumString%>+"&target_user="+<%=targetUserNumString%>+"&locx=36&locy=128";
+if("<%=JspName%>" == "profileDetails.jsp") {
+	location.href="http://localhost:8080/<%=JspName%>?user_num=<%=userNumString%>&target_user=<%=targetUserNumString%>&locx=36&locy=128";
+} else {
+	location.href="http://localhost:8080/<%=JspName%>?user_num=<%=userNumString%>&bounds=<%=mapbounds%>";
+}
 </script>
 
 </body>

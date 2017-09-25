@@ -1,3 +1,4 @@
+<%@page import="java.util.StringTokenizer"%>
 <%@ page language="java" contentType="text/html; charset=EUC-KR"%>
 <%@ page import="java.sql.*"%>
 <%@ page import="javax.sql.*" %>
@@ -43,10 +44,14 @@
 		String foundLocx = request.getParameter("locx");
 		String foundLocy = request.getParameter("locy");
 		String mapbounds = request.getParameter("bounds");
+		
+		String Processbounds = "((";
 		String temp = "";
 		String bounds[] = new String[4];
 		int bocnt = 0;
 		boolean flag = false;
+		
+		// 배열을 하나하나씩 분리
 		for(int i = 0; i < mapbounds.length(); i++) {
 			if(mapbounds.charAt(i)>='0' && mapbounds.charAt(i)<='9' || mapbounds.charAt(i)=='.') {
 				temp += mapbounds.charAt(i);
@@ -61,12 +66,22 @@
 					flag = true;
 				}
 			}
-			
 			if(bocnt==4) {
 				break;
 			}
 		}
 		
+		// 댓글입력시 다시띄울 모아보기 좌표
+		for(int i = 0; i < bounds.length; i++) {
+			switch(i) {
+			case 0: Processbounds += bounds[i]+","; break;
+			case 1: Processbounds += bounds[i]+"),("; break;
+			case 2: Processbounds += bounds[i]+","; break;
+			case 3: Processbounds += bounds[i]+"))"; break;
+			}
+		}
+		
+		// 초기 map 보여줄 zoom ,x, y 셋팅
 		String zoom = "13";
 		if(foundLocx==null) {
 			foundLocx="37";
@@ -140,8 +155,6 @@
 	out.println("</script>");
 	%>
 	
-
-
 	<!-- script references -->
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 	<script src="js/scripts.js"></script>
@@ -191,8 +204,7 @@
           );
             
       }
-      
-       </script>
+      </script>
 	 </div>
 	 
 	 <div id="content_Details_List" class="col-md-6">

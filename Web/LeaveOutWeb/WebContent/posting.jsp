@@ -158,7 +158,7 @@
 			
 			geocoder.geocode({'latLng' : mylatlng}, function(results, status) {
 				if (status == google.maps.GeocoderStatus.OK) {
-					if (results[1]) {
+					if (results[0]) {
 						infowindow.setContent(results[0].formatted_address);
 					}
 				} else {

@@ -130,6 +130,8 @@
 	<div id="map" class="col-md-10">
 	 <script>
 	 var map;
+	 var lat;
+	 var lng;
       function initMap() {
 		  var setloc = {lat:<%=foundLocx%>, lng: <%=foundLocy%>};
 		  map = new google.maps.Map(document.getElementById('map'), {
@@ -146,7 +148,9 @@
             });
 		  
 		    google.maps.event.addListener(marker, 'click', function() {
-			  alert("마커클릭");
+		    	lat = location.lat;
+		    	lng = location.lng;
+		    	window.location.href="contentView.jsp?locx="+lat+"&locy="+lng;
 		    });
 		  
 		    return marker;
@@ -158,8 +162,6 @@
 			   zoomOnClick: false}
           );
 	   }
-      
-       
        </script>
        
        <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
@@ -174,13 +176,6 @@
 	 </div>  
 	
     <%@ include file="./navbarCore.jsp" %>
-    
-	<!-- <script>
-	$(window).load(function() {
-		var temp = map.getBounds();
-		alert(temp);
-	});
-	</script> -->
 	
 	</body>
 	

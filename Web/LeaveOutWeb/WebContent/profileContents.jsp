@@ -4,14 +4,20 @@
 <%@ page import="javax.sql.*" %>
 <%@ page import="javax.naming.*" %>
 
-<% String profilePicTarget = ".\\leaveout\\files\\"+targetUserNumString+"\\profile\\1.jpg"; %>
+<%  String profilePicTarget = ".\\leaveout\\files\\"+targetUserNumString+"\\profile\\1.jpg"; %>
+
+<script>
+function hideProccess() {
+	location.href = location.href;
+}
+</script>
 
 <div class="media">
 		<a class="pull-left" href="#">
-			<img class="media-object" src="<%=profilePicTarget%>" width="50" height="50" alt="...">
+			<img class="media-object" src="<%=profilePicTarget%>" id="profileImg" onerror="profile_default_Img();" width="50" height="50" alt="...">
 		</a>
-		<a class="pull-right" href="#">
-			<button type="button" class="btn btn-default">
+		<a class="pull-right" id="fbtn" href="friendaddProccess.jsp?u_num=<%=userNumString%>&f_num=<%=targetUserNumString%>">
+			<button type="button" class="btn btn-default" onclick="hideProccess();">
 			<i class="glyphicon glyphicon-plus-sign"></i> 친구 추가
 			</button>
 		</a>
@@ -50,9 +56,34 @@
 	}		
 	%>
 	
+	<%
+	PreparedStatement fdst=null;
+	ResultSet fdrs=null;
+	
+	try {
+		fdst=conn.prepareStatement("SELECT * FROM friend WHERE user_num=? AND friend_num=?");
+		fdst.setString(1,userNumString);
+		fdst.setString(2,targetUserNumString);
+		fdrs=fdst.executeQuery();
+			
+		while(fdrs.next()){
+			out.println("<script>");
+			out.println("$('#fbtn').hide();");
+			out.println("</script>");
+		}
+	}catch(Exception e){
+		e.printStackTrace();
+	}		
+	%>
 	
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+	<script> 
+	if("<%=userNumString%>" == "<%=targetUserNumString%>") {
+		$("#fbtn").hide();
+	}
+	</script>
 
 	<script>
 	var slideIndex = 1; // 초기페이지 
@@ -76,8 +107,16 @@
 	</script>
 
 	<script>
-	function default_Img() {
-		document.getElementById("profileimg").src = "profile_default.jpg";
+	function profile_default_Img() {
+		document.getElementById("profileImg").src = "profile_default.jpg";
+	}
+	
+	function content_default_Img(contentseq) {
+		document.getElementById("contentImg" + contentseq).src = "profile_default.jpg";
+	}
+	
+	function comment_default_Img(commentseq) {
+		document.getElementById("commentImgName" + commentseq).src = "profile_default.jpg";
 	}
 	</script>
 
@@ -92,6 +131,7 @@
 				String contentTarget = null;
 				String contentPicTarget = null;
 				int contentseq=0;
+				int commentseq=0;
 				
 				try {
 					pstmt7=conn.prepareStatement("SELECT * from content where user_num=? ORDER BY reg_time desc;");
@@ -101,17 +141,18 @@
 					while(rs7.next()){
 						contentseq++;
 						String regtime = rs7.getString("reg_time");
+						String contentImgName = "contentImg" + contentseq;
 						
 						// content의 프로필 사진
-						out.println("<a class='pull-left' href='#'>");
-						out.println("<img class='media-object' id='profileimg' src="+profilePicTarget+" width='50' height='50' onerror='default_Img();' alt='...'></a>");
+						out.println("<a class='pull-left' href='profileDetails.jsp?user_num="+userNumString+"&target_user="+targetUserNumString+"&locx=36&locy=128'>");
+						out.println("<img class='media-object' id="+contentImgName+" src="+profilePicTarget+" onerror='content_default_Img("+contentseq+");' width='50' height='50' alt='...'></a>");
 						
 						// 제목 시간
 						out.println("<h4 class='media-heading'>"+rs7.getString("address")+"<br></h4>");
 						out.println("<i class='glyphicon glyphicon-flag'></i>"+regtime.substring(0, regtime.length()-2)+"<br>");
 						
 						// 사진 파일 경로 설정
-						File path = new File("C:\\Users\\bu456\\workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
+						File path = new File("C:\\Users\\bu456\\eclipse-workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
 								+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num"));
 						String files[] = path.list();
 						int number = files.length - 1;
@@ -150,7 +191,7 @@
 						}
 						
 						//텍스트 파일 위치 컴퓨터 마다 경로 변경
-						contentTarget = "C:\\Users\\bu456\\workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
+						contentTarget = "C:\\Users\\bu456\\eclipse-workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
 						+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num")+"\\text.txt";
 						
 						// 글내용 셋팅
@@ -178,16 +219,17 @@
 							ResultSet commentinfors=null;
 									
 							commentinfops=conn.prepareStatement("select user.name, comment.user_num, comment.reg_time, comment.content_num, comment.comm_num from comment " +
-									                            "INNER JOIN user on user.user_num = ? " +
+									                            "INNER JOIN user on user.user_num = comment.user_num " +
 									                            "where content_num = ? " +
 									                            "ORDER BY reg_time desc");
-							commentinfops.setString(1,rs7.getString("user_num"));
-							commentinfops.setString(2,rs7.getString("content_num"));
+							commentinfops.setString(1,rs7.getString("content_num"));
 							commentinfors=commentinfops.executeQuery();
 							
 							while(commentinfors.next()){
+								commentseq++;
+								String commentImgName = "commentImgName" + commentseq;
 								String commentImagePath = ".\\leaveout\\files\\"+commentinfors.getInt("user_num")+"\\profile\\1.jpg";
-								String commentTarget = "C:\\Users\\bu456\\workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
+								String commentTarget = "C:\\Users\\bu456\\eclipse-workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
 										+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+commentinfors.getInt("content_num")+
 										"\\comment\\"+commentinfors.getInt("user_num");
 								
@@ -200,8 +242,8 @@
 								BufferedReader br2 = new BufferedReader(fr2); //버퍼리더객체생성
 								
 								out.println("<div class='media'>");
-								out.println("<a class='pull-left' href='#'>");
-								out.println("<img src="+commentImagePath+" width='50' height='50'></a>");
+								out.println("<a class='pull-left' href='profileDetails.jsp?user_num="+userNumString+"&target_user="+commentinfors.getInt("user_num")+"&locx=36&locy=128'>");
+								out.println("<img src="+commentImagePath+" id="+commentImgName+" onerror='comment_default_Img("+commentseq+");' width='50' height='50'></a>");
 								out.println("<div class='media-body'>");
 									
 								out.println("<h5 class='media-heading'>");
@@ -241,7 +283,7 @@
 						out.println("<div class='col-md-10'>");
 						out.println("<textarea class='form-control' id="+areaid+" name='textarea' rows='3' placeholder='글 내용을 입력해 주세요.'></textarea></div>");
 						out.println("<div class='col-md-2'>");
-						out.println("<button type='submit' class='btn btn-default' style='height:76px' onclick='commentsubmit("+contentseq+")'>완료</button></div></div><form><br>");
+						out.println("<button type='submit' class='btn btn-default' style='height:76px' onclick='commentsubmit("+contentseq+")'>완료</button></div></div></form><br>");
 					}
 					
 				}catch(Exception e){

@@ -1,4 +1,3 @@
-<%@page import="java.util.StringTokenizer"%>
 <%@ page language="java" contentType="text/html; charset=EUC-KR"%>
 <%@ page import="java.sql.*"%>
 <%@ page import="javax.sql.*" %>
@@ -39,7 +38,7 @@
 
 	<!-- session check -->
 	<%
-		String userNumString = "null";
+		String userNumString = request.getParameter("user_num");
 		String userNameString = "null";
 		String Locx = request.getParameter("locx");
 		String Locy = request.getParameter("locy");
@@ -49,39 +48,14 @@
 		out.println("</script>");
 		
 		Connection conn=null;
-		PreparedStatement pstmt=null;
-		ResultSet rs=null;
-	
-		try {
-			Context init = new InitialContext();
-			DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/mysql");
-			conn = ds.getConnection();
-  		
-			pstmt=conn.prepareStatement("SELECT user_num FROM content WHERE loc_x = ? AND loc_y = ?");
-			pstmt.setString(1,Locx);
-			pstmt.setString(2,Locy);
-			rs=pstmt.executeQuery();
-  		
-			if(rs.next()){
-				//sesson-OK
-				userNumString = rs.getString("user_num");
-			}
-			else {
-				out.println("<script>");
-				out.println("alert('존재하지 않는 회원입니다.');");
-				out.println("location.href='index.jsp'");
-				out.println("</script>");
-			}
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	%>
-	
-	<%
 		PreparedStatement numst=null;
 		ResultSet numrs=null;
 		
 		try {
+			Context init = new InitialContext();
+			DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/mysql");
+			conn = ds.getConnection();
+			
 			numst=conn.prepareStatement("SELECT name FROM user WHERE user_num = ?");
 			numst.setString(1,userNumString);
 			numrs=numst.executeQuery();
@@ -144,7 +118,7 @@
 	</script>
  
 	<!-- contents -->
-	 <div id="map" class="col-md-6">
+	 <div id="map" class="col-md-5">
 	 <script>
       function initMap() {
 		  var setloc = {lat:<%=Locx%>, lng: <%=Locy%>};
@@ -188,8 +162,12 @@
       </script>
 	 </div>
 	 
-	 <div id="content_View_List" class="col-md-6">
+	 <div id="content_View_List" class="col-md-5">
 	   <%@ include file="./contentViewList.jsp"%>
+	 </div>
+	 
+	 <div id="friends_List" class="col-md-2">
+		<%@ include file="friendsList.jsp"%>
 	 </div>
 	 
 	 <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>

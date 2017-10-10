@@ -36,7 +36,7 @@
 		if(!textarea[i].equals("")) {
 			buttonNum = i;
 			
-			String fileDir = "C:/Users/bu456/workspace/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/LeaveOutWeb/" + makefilepath[i]; //파일을 생성할 디렉토리
+			String fileDir = "C:/Users/sudiWIN/eclipse-workspace/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/LeaveOutWeb/" + makefilepath[i]; //파일을 생성할 디렉토리
 			String filePath = fileDir + "/" + userNumString; //파일을 생성할 전체경로
 			
 			try{

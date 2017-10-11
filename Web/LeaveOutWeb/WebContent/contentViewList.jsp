@@ -55,11 +55,9 @@
 				int commentseq=0;
 				
 				try {
-					pstmt7=conn.prepareStatement("SELECT * from content where loc_x>=? && loc_x<=? && loc_y>=? && loc_y<=? ORDER BY reg_time desc;");
-					pstmt7.setString(1,bounds[0]);
-					pstmt7.setString(2,bounds[2]);
-					pstmt7.setString(3,bounds[1]);
-					pstmt7.setString(4,bounds[3]);
+					pstmt7=conn.prepareStatement("SELECT * from content where loc_x=? && loc_y=? ORDER BY reg_time desc;");
+					pstmt7.setString(1,Locx);
+					pstmt7.setString(2,Locy);
 					rs7=pstmt7.executeQuery();  	
 
 					while(rs7.next()){
@@ -205,11 +203,10 @@
 						out.println("<input type='hidden' name='makefilepath' value="+makefilepath+"></input>");
 						out.println("<input type='hidden' name='targetUserNumString' value="+rs7.getInt("user_num")+"></input>");
 						out.println("<input type='hidden' name='content_num' value="+rs7.getString("content_num")+"></input>");
-						out.println("<input type='hidden' name='locx' value="+foundLocx+"></input>");
-						out.println("<input type='hidden' name='locy' value="+foundLocy+"></input>");
-						out.println("<input type='hidden' name='mapbounds' value="+Processbounds+"></input>");
+						out.println("<input type='hidden' name='locx' value="+Locx+"></input>");
+						out.println("<input type='hidden' name='locy' value="+Locy+"></input>");
 						out.println("<input type='hidden' name='userNumString' value="+userNumString+"></input>");
-						out.println("<input type='hidden' name='jspName' value='contentDetails.jsp'></input>");
+						out.println("<input type='hidden' name='jspName' value='contentView.jsp'></input>");
 						out.println("<div class='row'>");
 						out.println("<div class='col-md-10'>");
 						out.println("<textarea class='form-control' id="+areaid+" name='textarea' rows='3' placeholder='글 내용을 입력해 주세요.'></textarea></div>");
@@ -224,18 +221,4 @@
 			</div>
 	    </li>
 	</ul>
-	
-	   
-	<!-- pager -->
-	<div class="footer" align="center">
-		<ul class="pagination">
-			<li class="disabled"><a href="#">≪</a></li>
-			<li class="active"><a href="#">1</a></li>
-			<li><a href="#">2</a></li>
-			<li><a href="#">3</a></li>
-			<li><a href="#">4</a></li>
-			<li><a href="#">5</a></li>
-			<li><a href="#">≫</a></li>
-		</ul>
-	</div>
 	

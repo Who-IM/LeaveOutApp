@@ -176,10 +176,9 @@
 	<!-- contents -->
 	 <div id="map" class="col-md-6">
 	 <script>
-	 var map;
       function initMap() {
 		  var setloc = {lat:<%=foundLocx%>, lng: <%=foundLocy%>};
-		  map = new google.maps.Map(document.getElementById('map'), {
+		  var map = new google.maps.Map(document.getElementById('map'), {
           	zoom: <%=zoom%>,
           	center: setloc
           });
@@ -193,7 +192,9 @@
             });
 		  
 		    google.maps.event.addListener(marker, 'click', function() {
-			  alert("마커클릭");
+		    	var lat = location.lat;
+		    	var lng = location.lng;
+		    	window.location.href="contentView.jsp?user_num=<%=userNumString%>&locx="+lat+"&locy="+lng;
 		    });
 		  
 		    return marker;

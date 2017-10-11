@@ -130,8 +130,6 @@
 	<div id="map" class="col-md-10">
 	 <script>
 	 var map;
-	 var lat;
-	 var lng;
       function initMap() {
 		  var setloc = {lat:<%=foundLocx%>, lng: <%=foundLocy%>};
 		  map = new google.maps.Map(document.getElementById('map'), {
@@ -148,11 +146,11 @@
             });
 		  
 		    google.maps.event.addListener(marker, 'click', function() {
-		    	lat = location.lat;
-		    	lng = location.lng;
+		    	var lat = location.lat;
+		    	var lng = location.lng;
 		    	window.location.href="contentView.jsp?user_num=<%=userNumString%>&locx="+lat+"&locy="+lng;
 		    });
-		  
+		    
 		    return marker;
           });
 	

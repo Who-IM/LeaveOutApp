@@ -286,6 +286,10 @@ function hideProccess() {
 						out.println("<button type='submit' class='btn btn-default' style='height:76px' onclick='commentsubmit("+contentseq+")'>완료</button></div></div></form><br>");
 					}
 					
+					if(!rs7.next()) {
+						out.println("작성된 글이 없습니다.");
+					}
+					
 				}catch(Exception e){
 					e.printStackTrace();
 				}	

@@ -152,14 +152,16 @@
         // The map() method here has nothing to do with the Google Maps API.
         markers = locations.map(function(location, i) {
           var marker = new google.maps.Marker({
-            position: location,
-            label: labels[i % labels.length]
+              position: location,
+              label: labels[i % labels.length]
           });
 		  
 		  google.maps.event.addListener(marker, 'click', function() {
-			alert("마커클릭");
+			  var lat = location.lat;
+		      var lng = location.lng;
+		      window.location.href="contentView.jsp?user_num=<%=userNumString%>&locx="+lat+"&locy="+lng;
 		  });
-		  
+		
 		  return marker;
         });
 

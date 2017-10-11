@@ -61,7 +61,7 @@
 			}
 			else {
 				out.println("<script>");
-				out.println("alert('ì¡´ì¬í•˜ì§€ ì•ŠëŠ” íšŒì›ì…ë‹ˆë‹¤.');");
+				out.println("alert('Á¸ÀçÇÏÁö ¾Ê´Â È¸¿øÀÔ´Ï´Ù.');");
 				out.println("location.href='index.jsp'");
 				out.println("</script>");
 			}
@@ -148,7 +148,7 @@
 		    google.maps.event.addListener(marker, 'click', function() {
 		    	var lat = location.lat;
 		    	var lng = location.lng;
-		    	window.location.href="contentView.jsp?user_num=<%=userNumString%>&locx="+lat+"&locy="+ln
+		    	window.location.href="contentView.jsp?user_num=<%=userNumString%>&locx="+lat+"&locy="+lng;
 		    });
 		    
 		    return marker;
@@ -156,8 +156,7 @@
 	
           // Add a marker clusterer to manage the markers.
           var markerCluster = new MarkerClusterer(map, markers, 
-              {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', 
-			   zoomOnClick: false}
+              {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'}
           );
 	   }
        </script>

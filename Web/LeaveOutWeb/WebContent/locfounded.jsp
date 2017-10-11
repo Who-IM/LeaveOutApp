@@ -61,7 +61,7 @@
 			}
 			else {
 				out.println("<script>");
-				out.println("alert('Á¸ÀçÇÏÁö ¾Ê´Â È¸¿øÀÔ´Ï´Ù.');");
+				out.println("alert('ì¡´ì¬í•˜ì§€ ì•ŠëŠ” íšŒì›ì…ë‹ˆë‹¤.');");
 				out.println("location.href='index.jsp'");
 				out.println("</script>");
 			}
@@ -130,8 +130,6 @@
 	<div id="map" class="col-md-10">
 	 <script>
 	 var map;
-	 var lat;
-	 var lng;
       function initMap() {
 		  var setloc = {lat:<%=foundLocx%>, lng: <%=foundLocy%>};
 		  map = new google.maps.Map(document.getElementById('map'), {
@@ -148,11 +146,11 @@
             });
 		  
 		    google.maps.event.addListener(marker, 'click', function() {
-		    	lat = location.lat;
-		    	lng = location.lng;
-		    	window.location.href="contentView.jsp?locx="+lat+"&locy="+lng;
+		    	var lat = location.lat;
+		    	var lng = location.lng;
+		    	window.location.href="contentView.jsp?user_num=<%=userNumString%>&locx="+lat+"&locy="+ln
 		    });
-		  
+		    
 		    return marker;
           });
 	

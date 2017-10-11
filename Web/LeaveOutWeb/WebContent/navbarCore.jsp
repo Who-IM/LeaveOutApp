@@ -4,6 +4,45 @@
 <%@ page import="javax.naming.*" %>
 <%@ page import="java.util.*"%>
 
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+  <script>
+  $( function() {
+    var availableTags = [
+      "ActionScript",
+      "AppleScript",
+      "Asp",
+      "BASIC",
+      "C",
+      "C++",
+      "Clojure",
+      "COBOL",
+      "ColdFusion",
+      "Erlang",
+      "Fortran",
+      "Groovy",
+      "Haskell",
+      "Java",
+      "JavaScript",
+      "Lisp",
+      "Perl",
+      "PHP",
+      "Python",
+      "Ruby",
+      "Scala",
+      "Scheme"
+    ];
+    $( "#tags" ).autocomplete({
+      source: availableTags
+    });
+    
+    $("#tags").appendTo($( "#ui-widwet" ));
+  });
+  </script>
+
 	<!-- Contents Start -->
 	<div class="navbar navbar-default navbar-fixed-top">
 	  <div class="container">
@@ -24,20 +63,20 @@
 			  <li>
                    <form class="navbar-form navbar-left">
                        <div class="input-group input-group-sm" style="max-width:360px;">
-                         <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+                       <div class="ui-widget" id="ui-widwet">
+					   </div>
                          <div class="input-group-btn" onclick="">
-							<a class="btn btn-default" role="button" type="button"><i class="glyphicon glyphicon-search"></i></a>
+							<a class="btn btn-default" role="button" style="height:27px" type="button"><i class="glyphicon glyphicon-search"></i></a>
                          </div>
                        </div>
                    </form>
 			  </li>
-			  <li onclick="mapbounds();"><a>모아보기</a>
+			  <li><a onclick="mapbounds();">모아보기</a>
 			  			<script>
 						function mapbounds() {
 							var parameter ="";	
 							parameter += "bounds="+map.getBounds();
-								
-							<%-- <a href="contentDetails.jsp?user_num=<%=userNumString%>" --%>
+							
 							location.href="contentDetails.jsp?user_num=<%=userNumString%>&"+parameter;
 						}
 						</script>
@@ -151,4 +190,6 @@
 			</div>
 		</div>
 	</div>
+
+	<input id="tags"></input>
 	

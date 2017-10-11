@@ -1,16 +1,14 @@
 <%@ page import="java.sql.*"%>
 <%@ page import="javax.sql.*" %>
 <%@ page import="javax.naming.*" %>
-
-<meta charset="UTF-8">
-
+	
    <ul class="list-group">
-   <%
-   PreparedStatement pstmt6=null;
-   ResultSet rs6 = null;
+<%
+      PreparedStatement pstmt6=null;
+      ResultSet rs6 = null;
       
-   try
-   {
+      try
+      {
       pstmt6=conn.prepareStatement("SELECT user.name, user.user_num " +
                            "FROM friend inner join user " +
                            "on friend.friend_num = user.user_num " +
@@ -34,8 +32,12 @@
    }
    catch(Exception e)
    {
-      e.printStackTrace();
+   e.printStackTrace();
    }
       
-   %>
-   </ul>
+%>
+</ul>
+
+
+<i class="glyphicon glyphicon-exclamation-sign"></i><br>
+더 만들어 보세요!<br>

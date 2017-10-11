@@ -150,7 +150,7 @@
 		    google.maps.event.addListener(marker, 'click', function() {
 		    	lat = location.lat;
 		    	lng = location.lng;
-		    	window.location.href="contentView.jsp?user_num=<%=userNumString%>&locx="+lat+"&locy="+lng;
+		    	window.location.href="contentView.jsp?locx="+lat+"&locy="+lng;
 		    });
 		  
 		    return marker;
@@ -158,7 +158,8 @@
 	
           // Add a marker clusterer to manage the markers.
           var markerCluster = new MarkerClusterer(map, markers, 
-              {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'}
+              {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', 
+			   zoomOnClick: false}
           );
 	   }
        </script>

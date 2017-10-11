@@ -4,7 +4,7 @@
 		name="jdbc/mysql"
 		auth="Container"
 		driverClassName="com.mysql.jdbc.Driver"
-		url="jdbc:mysql://localhost:3306/leaveout??useUnicode=true&amp;characterEncoding=euc-kr"
+		url="jdbc:mysql://localhost:3306/leaveout"
 		factory="org.apache.tomcat.dbcp.dbcp.BasicDataSourceFactory"
 		type="javax.sql.DataSource"
 		username="root"

@@ -111,7 +111,7 @@
 						out.println("<i class='glyphicon glyphicon-flag'></i>"+regtime.substring(0, regtime.length()-2)+"<br>");
 						
 						// 사진 파일 경로 설정
-						File path = new File("C:\\Users\\sudiWIN\\eclipse-workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
+						File path = new File("C:\\Users\\bu456\\workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
 								+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num"));
 						String files[] = path.list();
 						int number = files.length - 1;
@@ -150,7 +150,7 @@
 						}
 						
 						//텍스트 파일 위치 컴퓨터 마다 경로 변경
-						contentTarget = "C:\\Users\\sudiWIN\\eclipse-workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
+						contentTarget = "C:\\Users\\bu456\\workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
 						+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num")+"\\text.txt";
 						
 						// 글내용 셋팅
@@ -176,7 +176,7 @@
 						if(commentfiles != null) {
 							for(int i = 0; i < commentfiles.length; i++) {
 								String commentImagePath = ".\\leaveout\\files\\"+commentfiles[i]+"\\profile\\1.jpg";
-								String commentTarget = "C:\\Users\\sudiWIN\\eclipse-workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
+								String commentTarget = "C:\\Users\\bu456\\workspace\\.metadata\\.plugins\\org.eclipse.wst.server.core\\tmp0\\wtpwebapps"
 										+ "\\LeaveOutWeb\\leaveout\\files\\"+targetUserNumString+"\\content\\"+rs7.getString("content_num")+
 										"\\comment\\"+commentfiles[i];
 								

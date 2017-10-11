@@ -21,10 +21,6 @@
 	String targetUserNumString = request.getParameter("targetUserNumString");
 	String[] content_num = request.getParameterValues("content_num");
 	String userNumString = request.getParameter("userNumString");
-	String foundLocx = request.getParameter("locx");
-	String foundLocy = request.getParameter("locy");
-	String mapbounds = request.getParameter("mapbounds");
-	String JspName = request.getParameter("jspName");
 	int buttonNum=0;
 	
 	Connection conn=null;
@@ -40,7 +36,7 @@
 		if(!textarea[i].equals("")) {
 			buttonNum = i;
 			
-			String fileDir = "C:/Users/bu456/eclipse-workspace/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/LeaveOutWeb/" + makefilepath[i]; //파일을 생성할 디렉토리
+			String fileDir = "C:/Users/bu456/workspace/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/LeaveOutWeb/" + makefilepath[i]; //파일을 생성할 디렉토리
 			String filePath = fileDir + "/" + userNumString; //파일을 생성할 전체경로
 			
 			try{
@@ -96,13 +92,7 @@
 %>
 
 <script>
-if("<%=JspName%>" == "profileDetails.jsp") {
-	location.href="http://localhost:8080/<%=JspName%>?user_num=<%=userNumString%>&target_user=<%=targetUserNumString%>&locx=36&locy=128";
-} else if("<%=JspName%>" == "contentDetails.jsp") {
-	location.href="http://localhost:8080/<%=JspName%>?user_num=<%=userNumString%>&bounds=<%=mapbounds%>";
-} else {
-	location.href="http://localhost:8080/<%=JspName%>?locx=<%=foundLocx%>&locy=<%=foundLocy%>";
-}
+location.href="http://localhost:8080/profileDetails.jsp?user_num="+<%=userNumString%>+"&target_user="+<%=targetUserNumString%>+"&locx=36&locy=128";
 </script>
 
 </body>

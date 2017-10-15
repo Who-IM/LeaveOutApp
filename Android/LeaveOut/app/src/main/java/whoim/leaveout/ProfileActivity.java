@@ -578,7 +578,7 @@ public class ProfileActivity extends AppCompatActivity implements OnMapReadyCall
     //이미지 추출
     protected void imageExtraction() throws IOException {
         if(thumbImage != null) thumbImage.recycle();
-        ((BitmapDrawable) profile_image.getDrawable()).getBitmap().recycle();
+        /*((BitmapDrawable) profile_image.getDrawable()).getBitmap().recycle();*/
 
         //bitmap 형태의 이미지로 가져오기 위해 Thumbnail을 추출.
         iv = (ImageView) findViewById(R.id.profile_title_image);

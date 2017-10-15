@@ -1,8 +1,11 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+#<%@ page language="java" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.*"%>
+<%@ page import="java.util.*"%>
 <%@ page import="javax.sql.*" %>
 <%@ page import="javax.naming.*" %>
-
+<%@ page import="com.oreilly.servlet.MultipartRequest" %>
+<%@ page import="com.oreilly.servlet.multipart.DefaultFileRenamePolicy" %>
+<%@ page import="java.io.*" %>
 
 
 <html>
@@ -37,38 +40,150 @@
 </head>
 
 <body>
-
-	<!-- session check -->
+	<!-- session & parameter check -->
 	<%
-		String userNumString = request.getParameter("user_num");
-		String userNameString = "null";
-		Connection conn=null;
-		PreparedStatement pstmt=null;
-		ResultSet rs=null;
 	
-		try {
-			Context init = new InitialContext();
-			DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/mysql");
-			conn = ds.getConnection();
-  		
-			pstmt=conn.prepareStatement("SELECT * FROM user WHERE user_num=?");
-			pstmt.setString(1,userNumString);
-			rs=pstmt.executeQuery();
-  		
-			if(rs.next()){
-				//sesson-OK
-				userNameString = rs.getString("name");
+	String uploadPath = request.getRealPath("leaveout");
+	int size = 15*1024*1024;
+	
+	MultipartRequest multi = new MultipartRequest(request,
+				uploadPath, size, "EUC-KR", new DefaultFileRenamePolicy());
+	String userNumString = multi.getParameter("user_num"); 
+	String uploadedContentString = multi.getParameter("uploadContent");
+	String selectedCheckString = multi.getParameter("selectCheck");
+	String userNameString = null;
+	int max_num = 1;
+	
+	
+	Connection conn=null;
+	PreparedStatement pstmt=null;
+	ResultSet rs=null;
+
+	try {
+		Context init = new InitialContext();
+		DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/mysql");
+		conn = ds.getConnection();
+		
+		pstmt=conn.prepareStatement("SELECT * FROM user WHERE user_num=?");
+		pstmt.setString(1,userNumString);
+		rs=pstmt.executeQuery();
+		
+		if(rs.next()){
+			//sesson-OK
+			userNameString = rs.getString("name");
+		}
+		else {
+			out.println("<script>");
+			out.println("alert('ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´ï¿½ È¸ï¿½ï¿½ï¿½Ô´Ï´ï¿½.');");
+			out.println("location.href='index.jsp'");
+			out.println("</script>");
+		}
+	}catch(Exception e){
+		e.printStackTrace();
+	}		
+	
+	
+	PreparedStatement pstmt9=null;
+	ResultSet rs9=null;
+	
+	String confileDir = "C:/Users/bu456/eclipse-workspace/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/LeaveOutWeb/leaveout/files/" + userNumString; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ä¸®
+	String confilePath = confileDir + "/" + "content";
+	
+	String selectedCheckAddrStr = null;
+	float checkLocX = 0;
+	float checkLocY = 0;
+	
+	try{
+		File contargetnameDir = new File(confilePath);
+		if(!contargetnameDir.exists()) {
+			contargetnameDir.mkdirs();
+		}
+	}catch (Exception e) { 
+		System.out.println(e.toString());
+	}
+	
+	try {
+		pstmt9=conn.prepareStatement("SELECT max(content_num) as content_num FROM content");
+		rs9=pstmt9.executeQuery();
+		String textfile = confilePath;
+		
+		if(rs9.next()){
+			max_num = rs9.getInt("content_num");
+			max_num++;
+		}
+	
+		textfile = textfile + "/" + max_num;
+		File temp = new File(textfile);
+		if(!temp.exists()) {
+			temp.mkdirs();
+		}
+		
+		textfile = textfile + "/" + "text.txt";
+		File f = new File(textfile);
+		f.createNewFile();
+		
+		FileWriter fw = new FileWriter(textfile);
+		String data = uploadedContentString;
+		fw.write(data);
+		fw.close();
+		
+		String commetseq = "/leaveout/files/"+userNumString+"/content/"+max_num;
+		
+		
+
+		PreparedStatement pstmt10=null;
+		ResultSet rs10=null;
+		
+		pstmt10 = conn.prepareStatement("select * FROM checks where user_num=?");
+		pstmt10.setString(1,userNumString);
+		rs10 = pstmt10.executeQuery();
+		int chkcnt = 0;
+		int selectedCheckInt = Integer.parseInt(selectedCheckString, 10);
+		while(rs10.next()){
+			if(rs10.getString("check_image") != "null") {
+				chkcnt++;
 			}
-			else {
-				out.println("<script>");
-				out.println("alert('Á¸ÀçÇÏÁö ¾Ê´Â È¸¿øÀÔ´Ï´Ù.');");
-				out.println("location.href='index.jsp'");
-				out.println("</script>");
+			if(chkcnt == selectedCheckInt){
+				switch(chkcnt){
+				case 1:
+					selectedCheckAddrStr = multi.getParameter("checkLocation1");
+					break;
+				case 2:
+					selectedCheckAddrStr = multi.getParameter("checkLocation2");
+					break;
+				case 3:
+					selectedCheckAddrStr = multi.getParameter("checkLocation3");
+					break;
+				default:
+						break;
+				}
+				checkLocX = rs10.getFloat("chk_x");
+				checkLocY = rs10.getFloat("chk_y");
 			}
-		}catch(Exception e){
-			e.printStackTrace();
-		}		
+		}
+		
+		
+		%>
+		<% 
+		
+		String imsistr = new String(selectedCheckAddrStr.getBytes("KSC5601"), "8859_1");
+		String uploadSelectedCheckAddrStr = new String(imsistr.getBytes("8859_1"),"MS949");
+		pstmt9=conn.prepareStatement("insert into content(content_num, user_num, view_cnt, rec_cnt, reg_time, visibility, fence, loc_x, loc_y, address, files) values(?, ?, 0, 0, now(), 1, 0, ?, ?, ?, ?)");
+		pstmt9.setInt(1,max_num);
+		pstmt9.setString(2,userNumString);
+		pstmt9.setFloat(3,checkLocX);
+		pstmt9.setFloat(4,checkLocY);
+		pstmt9.setString(5,uploadSelectedCheckAddrStr);
+		pstmt9.setString(6,commetseq);
+		pstmt9.executeUpdate();
+		
+		
+	}catch(Exception e){
+		e.printStackTrace();
+	} 
 	%>
+	
+	
 	
 	<!-- create Map marker info -->
 	<%
@@ -155,7 +270,7 @@
             };
 
             infoWindow.setPosition(pos);
-            infoWindow.setContent('À§Ä¡¸¦ Ã£¾Ò½À´Ï´Ù.');
+            infoWindow.setContent('ï¿½ï¿½Ä¡ï¿½ï¿½ Ã£ï¿½Ò½ï¿½ï¿½Ï´ï¿½.');
             map.setCenter(pos);
 		    location.href='locfounded.jsp?user_num='+<%=userNumString%>+'&locx='+pos.lat+'&locy='+pos.lng;
           }, function() {
@@ -170,8 +285,8 @@
       function handleLocationError(browserHasGeolocation, infoWindow, pos) {
         infoWindow.setPosition(pos);
         infoWindow.setContent(browserHasGeolocation ?
-                              'À§Ä¡¸¦ Ã£Áö ¸øÇß½À´Ï´Ù.' :
-                              'ºê¶ó¿ìÀú°¡ À§Ä¡Ã£±â¸¦ Áö¿øÇÏÁö ¾Ê½À´Ï´Ù.');
+                              'ï¿½ï¿½Ä¡ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½.' :
+                              'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡Ã£ï¿½â¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.');
 		location.href='locfailed.jsp?user_num='+<%=userNumString%>;
       }
     </script>
@@ -189,25 +304,9 @@
     </script>
 	
 	
-	<%
-	String selectedCheckString = request.getParameter("selectCheck");
-	String uploadedImgFileString = request.getParameter("uploadImgFile");
-	String uploadedContentString = request.getParameter("uploadContent");
-	%>
-	
-	
-	<script>
-	alert("µî·ÏÇÒ °Ô½Ã¹°Àº ´ÙÀ½°ú °°½À´Ï´Ù.\n±Û¾´ÀÌ : " + <%=userNumString%> + "\n¼±ÅÃÇÑ Ã¼Å© : " + <%=selectedCheckString%> +  "\n¿Ã¸° ÀÌ¹ÌÁö : " + <%=uploadedImgFileString%> + "\n");
-	alert("°Ô½Ã ³»¿ë : " + <%=uploadedContentString%>);
-	
-	</script>
 	</body>
 </html>  
     
-    
-    
-    
-    <!-- /container -->
 
 </body>
 </html>

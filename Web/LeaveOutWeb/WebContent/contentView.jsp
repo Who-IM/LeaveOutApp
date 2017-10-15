@@ -1,3 +1,4 @@
+<%@page import="java.util.StringTokenizer"%>
 <%@ page language="java" contentType="text/html; charset=EUC-KR"%>
 <%@ page import="java.sql.*"%>
 <%@ page import="javax.sql.*" %>
@@ -8,8 +9,6 @@
     <title>LeaveOut</title>
 	
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	
-	
 	<meta name="generator" content="Bootply" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -30,6 +29,9 @@
 	  #map {
         height: 100%;
       }
+	  #content_Details_List{
+		  padding-top : 40px;
+	  }
      </style>
 </head>
 
@@ -39,25 +41,29 @@
 	<%
 		String userNumString = request.getParameter("user_num");
 		String userNameString = "null";
-		String foundLocx = request.getParameter("locx");
-		String foundLocy = request.getParameter("locy");
+		String Locx = request.getParameter("locx");
+		String Locy = request.getParameter("locy");
+		
+		out.println("<script>");
+		out.println("var locations = [{lat:"+Locx+",lng:"+Locy+"}];");
+		out.println("</script>");
 		
 		Connection conn=null;
-		PreparedStatement pstmt=null;
-		ResultSet rs=null;
+		PreparedStatement numst=null;
+		ResultSet numrs=null;
 	
 		try {
 			Context init = new InitialContext();
 			DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/mysql");
 			conn = ds.getConnection();
+			
+			numst=conn.prepareStatement("SELECT name FROM user WHERE user_num = ?");
+			numst.setString(1,userNumString);
+			numrs=numst.executeQuery();
   		
-			pstmt=conn.prepareStatement("SELECT * FROM user WHERE user_num=?");
-			pstmt.setString(1,userNumString);
-			rs=pstmt.executeQuery();
-  		
-			if(rs.next()){
+			if(numrs.next()){
 				//sesson-OK
-				userNameString = rs.getString("name");
+				userNameString = numrs.getString("name");
 			}
 			else {
 				out.println("<script>");
@@ -67,45 +73,31 @@
 			}
 		}catch(Exception e){
 			e.printStackTrace();
-		}		
+		}
 	%>
 	
-	<!-- create Map marker info -->
 	<%
-	out.println("<script>");
-	out.println("var locations = [");
+		PreparedStatement locst=null;
+		ResultSet locrs=null;
 		
-	PreparedStatement pstmt2=null;
-	PreparedStatement pstmt3=null;
-	ResultSet rs2=null;
-	ResultSet rs3=null;
-	
-	int cnt = 0;
-	try {
+		try {
+			locst=conn.prepareStatement("SELECT name FROM user WHERE user_num = ?");
+			locst.setString(1,userNumString);
+			locrs=locst.executeQuery();
   		
-  		pstmt2=conn.prepareStatement("SELECT loc_x FROM content");
-		rs2=pstmt2.executeQuery();
-		
-		pstmt3 = conn.prepareStatement("SELECT loc_y FROM content");
-  		rs3=pstmt3.executeQuery();
-		
-		while(rs2.next() && rs3.next()){
-			String resultx = rs2.getString("loc_x");
-			String resulty = rs3.getString("loc_y");
-			
-			if(cnt != 0){
-				out.print(",");
+			if(locrs.next()){
+				//sesson-OK
+				userNameString = locrs.getString("name");
 			}
-			out.println("{lat: " + resultx +", lng: " + resulty + "}");
-			cnt++;
+			else {
+				out.println("<script>");
+				out.println("alert('존재하지 않는 회원입니다.');");
+				out.println("location.href='index.jsp'");
+				out.println("</script>");
+			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
-	
-	}catch(Exception e){
-		e.printStackTrace();
- 	}
-	
-	out.println("]");
-	out.println("</script>");
 	%>
 	
 	<!-- script references -->
@@ -125,15 +117,14 @@
 		(i).width=iframeWidth+20;
 	}
 	</script>
-	
+ 
 	<!-- contents -->
-	<div id="map" class="col-md-10">
+	 <div id="map" class="col-md-5">
 	 <script>
-	 var map;
       function initMap() {
-		  var setloc = {lat:<%=foundLocx%>, lng: <%=foundLocy%>};
-		  map = new google.maps.Map(document.getElementById('map'), {
-          	zoom: 13,
+		  var setloc = {lat:<%=Locx%>, lng: <%=Locy%>};
+		  var map = new google.maps.Map(document.getElementById('map'), {
+          	zoom: 16,
           	center: setloc
           });
         
@@ -144,37 +135,49 @@
               position: location,
               label: labels[i % labels.length]
             });
-		  
-		    google.maps.event.addListener(marker, 'click', function() {
-		    	var lat = location.lat;
-		    	var lng = location.lng;
-		    	window.location.href="contentView.jsp?user_num=<%=userNumString%>&locx="+lat+"&locy="+lng;
+       
+            google.maps.event.addListener(marker, 'mouseover', function() {
+            	var infoWindow = new google.maps.InfoWindow({map: map});
+                var geocoder = new google.maps.Geocoder();
+      		    var mylatlng = new google.maps.LatLng(<%=Locx%>, <%=Locy%>);
+      		    infoWindow.setPosition(setloc);
+                
+      		    geocoder.geocode({'latLng' : mylatlng}, function(results, status) {
+      			    if (status == google.maps.GeocoderStatus.OK) {
+      			  	    if (results[0]) {
+      			  		    infoWindow.setContent(results[0].formatted_address);
+      				    }
+      			    } else {
+      				    alert("Geocoder failed due to: " + status);
+      			    }
+      		    });
 		    });
-		    
+            
 		    return marker;
           });
 	
-          // Add a marker clusterer to manage the markers.
           var markerCluster = new MarkerClusterer(map, markers, 
               {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'}
           );
-	   }
-       </script>
-       
-       <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
-	   <!-- Google Map Script -->
-	   <script async defer
- 			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJ0-6wfd7a6AVfTR2HdzA3QQtlXwx51S4&callback=initMap">
-   	   </script>
-       
+      }
+      </script>
 	 </div>
+	 
+	 <div id="content_View_List" class="col-md-5">
+	   <%@ include file="./contentViewList.jsp"%>
+	 </div>
+	 
 	 <div id="friends_List" class="col-md-2">
 		<%@ include file="friendsList.jsp"%>
-	 </div>  
+	 </div>
+	 
+	 <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+	 <!-- Google Map Script -->
+	 <script async defer
+ 		  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJ0-6wfd7a6AVfTR2HdzA3QQtlXwx51S4&callback=initMap">
+   	 </script>
 	
-    <%@ include file="./navbarCore.jsp" %>
+	<%@ include file="./navbarCore.jsp" %>
 	
 	</body>
-	
 </html>
-

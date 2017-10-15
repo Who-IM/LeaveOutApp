@@ -97,15 +97,13 @@
 	int cnt = 0;
 	try {
   		
-  		pstmt2=conn.prepareStatement("SELECT loc_x FROM content");
+  		pstmt2=conn.prepareStatement("SELECT loc_x, loc_y FROM content where user_num=?");
+  		pstmt2.setString(1,targetUserNumString);
 		rs2=pstmt2.executeQuery();
 		
-		pstmt3 = conn.prepareStatement("SELECT loc_y FROM content");
-  		rs3=pstmt3.executeQuery();
-		
-		while(rs2.next() && rs3.next()){
+		while(rs2.next()){
 			String resultx = rs2.getString("loc_x");
-			String resulty = rs3.getString("loc_y");
+			String resulty = rs2.getString("loc_y");
 			
 			if(cnt != 0){
 				out.print(",");
@@ -154,14 +152,16 @@
         // The map() method here has nothing to do with the Google Maps API.
         markers = locations.map(function(location, i) {
           var marker = new google.maps.Marker({
-            position: location,
-            label: labels[i % labels.length]
+              position: location,
+              label: labels[i % labels.length]
           });
 		  
 		  google.maps.event.addListener(marker, 'click', function() {
-			alert("마커클릭");
+			  var lat = location.lat;
+		      var lng = location.lng;
+		      window.location.href="contentView.jsp?user_num=<%=userNumString%>&locx="+lat+"&locy="+lng;
 		  });
-		  
+		
 		  return marker;
         });
 

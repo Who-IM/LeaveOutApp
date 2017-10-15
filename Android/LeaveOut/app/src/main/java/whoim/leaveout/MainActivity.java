@@ -437,9 +437,9 @@ public class MainActivity extends MapAPIActivity {
                     });
 
                     // 데이터 셋팅
-                    menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문");
+ /*                   menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문");
                     menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석");
-                    menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"최수용");
+                    menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"최수용");*/
                     setListViewHeightBasedOnChildren(menu_friend_list); // 펼쳐보기
                     menu_friend_list.setVisibility(View.GONE);          // 초기값은 안보이게
 

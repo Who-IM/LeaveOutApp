@@ -13,7 +13,7 @@ function hideProccess() {
 
 <div class="media">
 		<a class="pull-left" href='profileDetails.jsp?user_num=<%=userNumString%>&target_user=<%=targetUserNumString%>&locx=36&locy=128'>
-			<img class="media-object" src="<%=profilePicTarget%>" id="profileImg" onerror="profile_default_Img();" width="50" height="50">
+			<img class="media-object" src="<%=profilePicTarget%>" id="profileImg" onerror="profile_default_Img()" width="50" height="50">
 		</a>
 		<a class="pull-right" id="fbtn" href="friendaddProccess.jsp?u_num=<%=userNumString%>&f_num=<%=targetUserNumString%>">
 			<button type="button" class="btn btn-default" onclick="hideProccess();">
@@ -104,9 +104,7 @@ function hideProccess() {
 	  $("#totalpage"+contentseq).text(x.length); // total 페이지 설정
 	  x[slideIndex-1].style.display = "block";
 	}
-	</script>
-
-	<script>
+	
 	function profile_default_Img() {
 		document.getElementById("profileImg").src = "profile_default.jpg";
 	}
@@ -117,6 +115,7 @@ function hideProccess() {
 	
 	function comment_default_Img(commentseq) {
 		document.getElementById("commentImgName" + commentseq).src = "profile_default.jpg";
+	}
 	</script>
 
 	<br><br>
@@ -285,13 +284,13 @@ function hideProccess() {
 						out.println("<button type='submit' class='btn btn-default' style='height:76px' onclick='commentsubmit("+contentseq+")'>완료</button></div></div></form><br>");
 					}
 					
-					if(!rs7.next()) {
-						out.println("작성된 글이 없습니다.");
-					}
-					
 				}catch(Exception e){
 					e.printStackTrace();
-				}	
+				}
+				
+				if(contentseq == 0) {
+					out.println("작성된 글이 없습니다.");
+				}
 				
 				%>
 			</div>

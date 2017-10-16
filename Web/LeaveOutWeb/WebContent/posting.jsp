@@ -118,60 +118,6 @@
 		(i).width=iframeWidth+20;
 	}
 </script>
-
-		<script language="javascript">
-			var count = 1;
- 			var addCount;
- 
-			//행추가
-			function addInputBox() {
- 				for(var i=1; i<=count; i++) {
-  					if(!document.getElementsByName("test"+i)[0]) {
-  						addCount = i;
-   						break;
-  					}
-  					else addCount = count;
- 				}
-				var addStr = "<tr><td><input type=checkbox name=checkList value="+addCount+">"+addCount+"번째 파일</td><td><input type=file name=uploadImgFile"+addCount+" id=uploadImgFile"+addCount+"></td></tr>";
- 				var table = document.getElementById("dynamic_table");
- 				var newRow = table.insertRow()
- 				var newCell = newRow.insertCell();
- 				newCell.innerHTML = addStr;
- 				count++;
-				}
- 
-				//행삭제
-				function subtractInputBox() {
- 				var table = document.getElementById("dynamic_table");
- 				//var max = document.gForm.checkList.length;
-			 	//alert(max);
- 				var rows = dynamic_table.rows.length;
- 				var chk = 0;
- 				if(rows > 1){
-  				for (var i=0; i<document.gForm.checkList.length; i++) {
-  					if (document.gForm.checkList[i].checked == true) {
-    					table.deleteRow(i);
-    					i--;
-    					count--;
-    					chk++;
-   					}
-  				}
-  				if(chk <= 0){
-   					alert("삭제할 행을 체크해 주세요.");
-  				}
-   			}else{
-    			alert("더이상 삭제할 수 없습니다.");
-  				}
-		}
- 
-			function submitbutton() {
- 				var gform = document.gForm;
- 				gform.count.value = eval(count);
- 				//alert(count);
- 				gForm.submit();
- 				return;
-			}
-		</script>
 		
 		
     <% String s = null;%>
@@ -185,6 +131,7 @@
       // prompted by your browser. If you see the error "The Geolocation service
       // failed.", it means you probably did not give permission for the browser to
       // locate you.
+
       function initMap() {
 		  var setloc = {lat: 36, lng: 128};
 		  var map = new google.maps.Map(document.getElementById('map'), {
@@ -208,6 +155,7 @@
 			
 			var geocoder = new google.maps.Geocoder();
 			var mylatlng = new google.maps.LatLng(marker.getPosition().lat(), marker.getPosition().lng());
+
 			infowindow = new google.maps.InfoWindow();
 			
 			geocoder.geocode({'latLng' : mylatlng}, function(results, status) {
@@ -270,6 +218,7 @@
 								for(var i = 0; i < checkloc.length; i++) {
 								var mylatlng = new google.maps.LatLng(checkloc[i].lat, checkloc[i].lng);
 								//위도와 경도를 구글 맵스의 geocoder에서 사용할 형식으로 변환합니다.
+
 								geocoder.geocode({'latLng' : mylatlng}, function(results, status) {
 									if (status == google.maps.GeocoderStatus.OK) {
 										if (results[1]) {
@@ -297,14 +246,12 @@
   			<input type="hidden" name="checkLocation2" id="checkLocation2" value=""></input>
   			<input type="hidden" name="checkLocation3" id="checkLocation3" value=""></input>
 
+
  			<div class="form-group">
    				<label for="uploadImgfile">
    				<i class='glyphicon glyphicon-picture'></i> 해당 체크에 올리실 사진을 선택해 주세요.<br>
    				</label><br>
-   				<input type="button" value="사진 추가" onclick="javascript:addInputBox();">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" value="사진 삭제" onclick="javascript:subtractInputBox();"><br>
-    			<p class="help-block">사진 삭제시, 삭제할 파일을 체크하신 후 삭제를 눌러주세요 ! </p><br>
-    			<table cellpadding=0 cellspacing=0 id="dynamic_table" border="1">
-				</table>
+    			<input type="file" name="uploadImgFile" id="uploadImgFile">
     			<p class="help-block">사진 파일만 올려주세요 ! </p>
   			</div>
   			<br><br>
@@ -319,8 +266,7 @@
 				<button type="button" class="btn btn-default" onclick="history.back(-1);">뒤로</button>
 				&nbsp;&nbsp;&nbsp;
 				<input type="hidden" name="count">
-				<input type="button" class="btn btn-default" value="제출" onclick="javascript:submitbutton();">
-				
+				<button type="submit" class="btn btn-default">제출</button>
 			</div>
 			
 		</form>
@@ -334,6 +280,7 @@
 	})
 	</script>
 	
+
 	</script>
 	</body>
 </html>

@@ -49,8 +49,6 @@
 				String contentNum = null;
 				String contentTarget = null;
 				String contentPicTarget = null;
-				String profilePicTarget = null;
-				int imgseq=1;
 				int contentseq=0;
 				int commentseq=0;
 				
@@ -60,17 +58,17 @@
 					pstmt7.setString(2,bounds[2]);
 					pstmt7.setString(3,bounds[1]);
 					pstmt7.setString(4,bounds[3]);
-					rs7=pstmt7.executeQuery();  	
+					rs7=pstmt7.executeQuery(); 
 
 					while(rs7.next()){
 						contentseq++;
+						String profilePicTarget = ".\\leaveout\\files\\"+rs7.getInt("user_num")+"\\profile\\1.jpg";
 						String regtime = rs7.getString("reg_time");
-						contentPicTarget = ".\\leaveout\\files\\"+rs7.getInt("user_num")+"\\profile\\1.jpg";
 						String contentImgName = "contentImg" + contentseq;
 						
 						// content의 프로필 사진
 						out.println("<a class='pull-left' href='profileDetails.jsp?user_num="+userNumString+"&target_user="+rs7.getInt("user_num")+"&locx=36&locy=128'>");
-						out.println("<img class='media-object' id="+contentImgName+" src="+contentPicTarget+" onerror='content_default_Img("+contentseq+");' width='50' height='50' onerror='default_Img();' alt='...'></a>");
+						out.println("<img class='media-object' id="+contentImgName+" src="+profilePicTarget+" onerror='content_default_Img("+contentseq+");' width='50' height='50' onerror='default_Img();' alt='...'></a>");
 						
 						// 제목 시간
 						out.println("<h4 class='media-heading'>"+rs7.getString("address")+"<br></h4>");
@@ -88,9 +86,9 @@
 						}
 						
 						// class, id name 설정
-						String slidename = "mySlides"+imgseq;
-						String mypage = "mypage"+imgseq;
-						String totalpage = "totalpage"+imgseq;
+						String slidename = "mySlides"+contentseq;
+						String mypage = "mypage"+contentseq;
+						String totalpage = "totalpage"+contentseq;
 						
 						// 이미지 띄우기 (slide)
 						out.println("<div class='w3-content w3-display-container'>");
@@ -109,8 +107,8 @@
 							// End - 사진안에 페이지 수
 							
 							// 이미지 변경 button ( "<" ">" )
-							out.println("<button class='w3-button w3-black w3-display-left' onclick='plusDivs(-1, "+imgseq+")'>&#10090;</button>");
-							out.println("<button class='w3-button w3-black w3-display-right' onclick='plusDivs(1, "+imgseq+")'>&#10091;</button>");
+							out.println("<button class='w3-button w3-black w3-display-left' onclick='plusDivs(-1, "+contentseq+")'>&#10090;</button>");
+							out.println("<button class='w3-button w3-black w3-display-right' onclick='plusDivs(1, "+contentseq+")'>&#10091;</button>");
 							out.println("</div>");
 							// End 이미지 띄우기
 						}
@@ -132,17 +130,13 @@
 						
 						// 초기 이미지 셋팅
 						out.println("<script>");
-						if(number > 1) {
-							for(int i = 1; i <= imgseq; i++){
-								out.println("showDivs(1, "+i+");");
-							}
-							imgseq++;
+						for(int i = 1; i <= contentseq; i++){
+							out.println("showDivs(1, "+i+");");
 						}
 						out.println("</script>");
 						
 						File commentpath = new File(path + "\\comment");
 						try {
-							// 사진 및 시간
 							PreparedStatement commentinfops=null;
 							ResultSet commentinfors=null;
 									
@@ -164,10 +158,10 @@
 								File commentseqpath = new File(commentTarget);
 								String commetReaderpath = commentTarget + "\\" + commentinfors.getInt("comm_num") + "\\text.txt";
 								String commetseq = "/leaveout/files/"+rs7.getString("user_num")+"/content/"+commentinfors.getInt("content_num")+
-										           "/comment/"+commentinfors.getInt("user_num")+"/"+commentinfors.getInt("comm_num");
+								           "/comment/"+commentinfors.getInt("user_num")+"/"+commentinfors.getInt("comm_num");
 								
-								FileReader fr2 = new FileReader(commetReaderpath); //파일읽기객체생성
-								BufferedReader br2 = new BufferedReader(fr2); //버퍼리더객체생성
+								FileReader fr2 = new FileReader(commetReaderpath);
+								BufferedReader br2 = new BufferedReader(fr2);
 								
 								out.println("<div class='media'>");
 								out.println("<a class='pull-left' href='profileDetails.jsp?user_num="+userNumString+"&target_user="+commentinfors.getInt("user_num")+"&locx=36&locy=128'>");
@@ -176,9 +170,9 @@
 									
 								out.println("<h5 class='media-heading'>");
 								String line2 = null; 
-								while((line2=br2.readLine())!=null){ //라인단위 읽기
+								while((line2=br2.readLine())!=null){
 								    out.println(line2); 
-								}
+								
 								out.println("</h5>");
 								
 								String time = commentinfors.getString("reg_time");
@@ -187,13 +181,14 @@
 								out.println("</div>");
 								out.println("</div>");
 							}
+							}
 						} catch(Exception ex) {
 						}
 						out.println("<br>");
 						
 						String areaid = "textarea" + contentseq;
 						String makefilepath = "/leaveout/files/"+rs7.getInt("user_num")+"/content/"+rs7.getString("content_num")+
-                                			  "/comment";
+                  			  "/comment";
 						
 						out.println("<div");
 						out.println("<label>");
@@ -216,13 +211,24 @@
 						out.println("<div class='col-md-2'>");
 						out.println("<button type='submit' class='btn btn-default' style='height:76px' onclick='commentsubmit("+contentseq+")'>완료</button></div></div></form><br>");
 					}
+					
 				}catch(Exception e){
 					e.printStackTrace();
 				}
 				
+				if(contentseq == 0) {
+					out.println("작성된 글이 없습니다.");
+				}
+				
 				%>
 			</div>
-	    </li>
+	<script>
+	function commentsubmit(contentseq) {
+		var xx = $("#textarea"+contentseq).val();
+		$("input[name=hiddenarea]").val(xx);
+	}
+	</script>
+		</li>
 	</ul>
 	
 	   

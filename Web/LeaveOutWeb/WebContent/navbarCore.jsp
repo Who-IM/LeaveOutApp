@@ -9,42 +9,73 @@
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
+<%
+PreparedStatement namest=null;
+ResultSet namers=null;
+PreparedStatement locst=null;
+ResultSet locrs=null;
+int searchcnt = 0;
+int searchcnt2 = 0;
+
+out.println("<script>");
+out.println("var availableTags = [");
+
+try {
+	namest=conn.prepareStatement("select name from user");
+	namers = namest.executeQuery();
+	
+	while(namers.next()) {
+		if(searchcnt!=0) {
+			out.println(",");
+		}
+		out.println("'"+namers.getString("name")+"'");
+		searchcnt++;
+	}
+}catch(Exception e){
+	e.printStackTrace();
+}
+out.println(",");
+try {
+	locst=conn.prepareStatement("select address from content");
+	locrs = locst.executeQuery();
+	
+	while(locrs.next()) {
+		if(searchcnt2!=0) {
+			out.println(",");
+		}
+		out.println("'"+locrs.getString("address")+"'");
+		searchcnt2++;
+	}
+}catch(Exception e){
+	e.printStackTrace();
+}
+
+out.println("];");
+out.println("</script>");
+
+%>
+
   <script>
   $( function() {
-    var availableTags = [
-      "ActionScript",
-      "AppleScript",
-      "Asp",
-      "BASIC",
-      "C",
-      "C++",
-      "Clojure",
-      "COBOL",
-      "ColdFusion",
-      "Erlang",
-      "Fortran",
-      "Groovy",
-      "Haskell",
-      "Java",
-      "JavaScript",
-      "Lisp",
-      "Perl",
-      "PHP",
-      "Python",
-      "Ruby",
-      "Scala",
-      "Scheme"
-    ];
-    $( "#tags" ).autocomplete({
+    $( "#searchs" ).autocomplete({
       source: availableTags
     });
     
-    $("#tags").appendTo($( "#ui-widwet" ));
+    /* $("#searchs").appendTo($( "#ui-widwet" )); */
   });
+  
+  function search() {
+	  var temp = $("#searchs").val();
+	  location.href="search.jsp?searchs="+temp+"&userNum=<%=userNumString%>";
+  }
+  
+  function nameSet() {
+	  $("input[name=userNum]").val(<%=userNumString%>);
+  }
   </script>
 
 	<!-- Contents Start -->
-	<div class="navbar navbar-default navbar-fixed-top">
+	<div class="navbar navbar-fixed-top">
 	  <div class="container">
 		<!-- brand name -->
 		<a class="navbar-brand" href="main.jsp?user_num=<%=userNumString%>">LeaveOut</a>
@@ -61,12 +92,12 @@
 			<!-- left side menu -->
 			<ul class="nav navbar-nav">
 			  <li>
-                   <form class="navbar-form navbar-left">
-                       <div class="input-group input-group-sm" style="max-width:360px;">
-                       <div class="ui-widget" id="ui-widwet">
-					   </div>
-                         <div class="input-group-btn" onclick="">
-							<a class="btn btn-default" role="button" style="height:27px" type="button"><i class="glyphicon glyphicon-search"></i></a>
+                   <form class="navbar-form navbar-left input-group" action="search.jsp" onsubmit="nameSet();">
+                       <div class="input-group-sm" style="max-width:350px;">
+                       <input type="text" class="form-control" placeholder="Search" name="searchs" id="searchs">
+                       <input type="hidden" name="userNum">
+                         <div class="input-group-btn" onclick="search();">
+							<a class="btn btn-default" role="button" style="height:30px" type="button"><i class="glyphicon glyphicon-search"></i></a>
                          </div>
                        </div>
                    </form>
@@ -190,6 +221,5 @@
 			</div>
 		</div>
 	</div>
-
-	<input id="tags"></input>
+	
 	

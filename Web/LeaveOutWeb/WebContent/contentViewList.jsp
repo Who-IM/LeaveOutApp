@@ -68,7 +68,7 @@
 						
 						// content의 프로필 사진
 						out.println("<a class='pull-left' href='profileDetails.jsp?user_num="+userNumString+"&target_user="+rs7.getInt("user_num")+"&locx=36&locy=128'>");
-						out.println("<img class='media-object' id="+contentImgName+" src="+contentPicTarget+" onerror='content_default_Img("+contentseq+");' width='50' height='50' onerror='default_Img();' alt='...'></a>");
+						out.println("<img class='media-object' id="+contentImgName+" src="+contentPicTarget+" onerror='content_default_Img("+contentseq+");' width='50' height='50'></a>");
 						
 						// 제목 시간
 						out.println("<h4 class='media-heading'>"+rs7.getString("address")+"<br></h4>");

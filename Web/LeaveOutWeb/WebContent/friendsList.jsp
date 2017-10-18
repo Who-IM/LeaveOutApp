@@ -37,7 +37,3 @@
       
 %>
 </ul>
-
-
-<i class="glyphicon glyphicon-exclamation-sign"></i><br>
-더 만들어 보세요!<br>

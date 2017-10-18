@@ -100,7 +100,7 @@ public class LocationBackground extends IntentService {
             else {
                 return;
             }
-            Notice("대구");
+            Notice("대구",location);
         }
 
         else if (FomatService.getCurrentAddress(this,location).contains("서울")) {
@@ -112,7 +112,7 @@ public class LocationBackground extends IntentService {
             else {
                 return;
             }
-            Notice("서울");
+            Notice("서울",location);
         }
         else if (FomatService.getCurrentAddress(this,location).contains("부산"))
         {
@@ -124,7 +124,7 @@ public class LocationBackground extends IntentService {
             else {
                 return;
             }
-            Notice("부산");
+            Notice("부산",location);
         }
         else if (FomatService.getCurrentAddress(this,location).contains("인천"))
         {
@@ -136,7 +136,7 @@ public class LocationBackground extends IntentService {
             else {
                 return;
             }
-            Notice("인천");
+            Notice("인천",location);
         }
         else if (FomatService.getCurrentAddress(this,location).contains("대전"))
         {
@@ -148,7 +148,7 @@ public class LocationBackground extends IntentService {
             else {
                 return;
             }
-            Notice("대전");
+            Notice("대전",location);
         }
         else if (FomatService.getCurrentAddress(this,location).contains("광주"))
         {
@@ -160,7 +160,7 @@ public class LocationBackground extends IntentService {
             else {
                 return;
             }
-            Notice("광주");
+            Notice("광주",location);
         }
         else if (FomatService.getCurrentAddress(this,location).contains("울산"))
         {
@@ -172,17 +172,19 @@ public class LocationBackground extends IntentService {
             else {
                 return;
             }
-            Notice("울산산");
+            Notice("울산",location);
        }
     }
 
     //알림
-    public void Notice(String name)
+    public void Notice(String name,Location location)
     {
         NotificationManager notificationManager = (NotificationManager) getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
 
         Intent intent1 = new Intent(LocationBackground.this.getApplicationContext(),
                 WritingActivity.class); //인텐트 생성.
+        intent1.putExtra("address",FomatService.getCurrentAddress(getApplicationContext(),location));
+        intent1.putExtra("loc",location);
 
         Notification.Builder builder = new Notification.Builder(getApplicationContext());
 

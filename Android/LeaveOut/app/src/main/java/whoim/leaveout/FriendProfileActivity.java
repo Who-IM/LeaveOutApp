@@ -142,7 +142,7 @@ public class FriendProfileActivity extends AppCompatActivity {
                         mContentlist.requestLayout();
                     }
                     super.onPostExecute(aVoid);
-                    if (flag == true) meContentData(0);
+                    /*if (flag == true)*/ meContentData(0);
                 }
             }.execute();
         }
@@ -427,6 +427,9 @@ public class FriendProfileActivity extends AppCompatActivity {
                            publishProgress(objects);
                        }
                    }    // end -- if
+                   if(friendnum == 0) {
+                       friendnum = mDataBundle.getInt("user_num");
+                   }
 
                    // 내 자신 프로필 보는경우면 친구 추가 버튼 안보이게 하기
                    if(userInfo.getUserNum() == friendnum) {

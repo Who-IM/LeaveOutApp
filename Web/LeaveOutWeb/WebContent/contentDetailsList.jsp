@@ -111,6 +111,11 @@
 							out.println("<button class='w3-button w3-black w3-display-right' onclick='plusDivs(1, "+contentseq+")'>&#10091;</button>");
 							out.println("</div>");
 							// End 이미지 띄우기
+							
+							// 초기 이미지 셋팅
+							out.println("<script>");
+							out.println("showDivs(1, "+contentseq+");");
+							out.println("</script>");
 						}
 						
 						//텍스트 파일 위치 컴퓨터 마다 경로 변경
@@ -127,13 +132,6 @@
 						out.println("<hr>");
 						br.close();
 						fr.close();
-						
-						// 초기 이미지 셋팅
-						out.println("<script>");
-						for(int i = 1; i <= contentseq; i++){
-							out.println("showDivs(1, "+i+");");
-						}
-						out.println("</script>");
 						
 						File commentpath = new File(path + "\\comment");
 						try {
@@ -230,18 +228,4 @@
 	</script>
 		</li>
 	</ul>
-	
-	   
-	<!-- pager -->
-	<div class="footer" align="center">
-		<ul class="pagination">
-			<li class="disabled"><a href="#">≪</a></li>
-			<li class="active"><a href="#">1</a></li>
-			<li><a href="#">2</a></li>
-			<li><a href="#">3</a></li>
-			<li><a href="#">4</a></li>
-			<li><a href="#">5</a></li>
-			<li><a href="#">≫</a></li>
-		</ul>
-	</div>
 	

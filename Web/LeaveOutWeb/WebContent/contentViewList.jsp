@@ -131,9 +131,7 @@
 						// 초기 이미지 셋팅
 						out.println("<script>");
 						if(number > 1) {
-							for(int i = 1; i <= imgseq; i++){
-								out.println("showDivs(1, "+i+");");
-							}
+							out.println("showDivs(1, "+contentseq+");");
 							imgseq++;
 						}
 						out.println("</script>");

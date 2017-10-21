@@ -186,6 +186,11 @@ function hideProccess() {
 							out.println("<button class='w3-button w3-black w3-display-right' onclick='plusDivs(1, "+contentseq+")'>&#10091;</button>");
 							out.println("</div>");
 							// End 이미지 띄우기
+							
+							// 초기 이미지 셋팅
+							out.println("<script>");
+							out.println("showDivs(1, "+contentseq+");");
+							out.println("</script>");
 						}
 						
 						//텍스트 파일 위치 컴퓨터 마다 경로 변경
@@ -202,13 +207,6 @@ function hideProccess() {
 						out.println("<hr>");
 						br.close();
 						fr.close();
-						
-						// 초기 이미지 셋팅
-						out.println("<script>");
-						for(int i = 1; i <= contentseq; i++){
-							out.println("showDivs(1, "+i+");");
-						}
-						out.println("</script>");
 						
 						File commentpath = new File(path + "\\comment");
 						try {

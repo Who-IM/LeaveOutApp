@@ -37,7 +37,7 @@ public class DBSQL {
 	
 	public Connection getConnection() {
 		try {
-			con = ds.getConnection();
+			if(con == null) con = ds.getConnection();			// SQL 서버 접속
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -51,7 +51,7 @@ public class DBSQL {
 		
 		JSONObject resJSON = null;		// 응답용 데이터
 		try {
-			con = ds.getConnection();			// SQL 서버 접속
+			if(con == null) con = ds.getConnection();			// SQL 서버 접속
 			pstmt = con.prepareStatement(sql);	// SQL 쿼리문 객체 생성
 			rs = pstmt.executeQuery();			// SQL 쿼리 작동
 			ResultSetMetaData resultmeta = rs.getMetaData();
@@ -96,7 +96,7 @@ public class DBSQL {
 		JSONObject resJSON = null; // 응답용 데이터
 
 		try {
-			con = ds.getConnection(); // SQL 서버 접속
+			if(con == null) con = ds.getConnection();			// SQL 서버 접속
 			pstmt = con.prepareStatement(sql); 	// SQL 쿼리문 객체 생성
 			int result = pstmt.executeUpdate();	// SQL 업데이트 (반환 값 : 업데이트 된 행의 갯수)
 

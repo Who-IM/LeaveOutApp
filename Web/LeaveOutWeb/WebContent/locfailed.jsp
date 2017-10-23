@@ -48,7 +48,7 @@
 	
 		try {
 			Context init = new InitialContext();
-			DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/MysqlDB");
+			DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/mysql");
 			conn = ds.getConnection();
   		
 			pstmt=conn.prepareStatement("SELECT * FROM user WHERE user_num=?");
@@ -83,7 +83,7 @@
 	int cnt = 0;
 	try {
   		//Context init = new InitialContext();
-  		//DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/MysqlDB");
+  		//DataSource ds = (DataSource) init.lookup("java:comp/env/jdbc/mysql");
   		//conn = ds.getConnection();
   		
   		pstmt2=conn.prepareStatement("SELECT loc_x FROM content");
@@ -132,10 +132,11 @@
 	<!-- contents -->
 	
 	<div id="map" class="col-md-10">
+	var map;
 	<script>
       function initMap() {
 		  var setloc = {lat:35.9, lng: 127.6298855};
-          var map = new google.maps.Map(document.getElementById('map'), {
+          map = new google.maps.Map(document.getElementById('map'), {
           zoom: 7,
           center: setloc
         });
@@ -148,10 +149,18 @@
         // create an array of markers based on a given "locations" array.
         // The map() method here has nothing to do with the Google Maps API.
         var markers = locations.map(function(location, i) {
-          return new google.maps.Marker({
-            position: location,
-            label: labels[i % labels.length]
-          });
+        	var marker = new google.maps.Marker({
+                position: location,
+                label: labels[i % labels.length]
+              });
+  		  
+  		    google.maps.event.addListener(marker, 'click', function() {
+  		    	var lat = location.lat;
+  		    	var lng = location.lng;
+  		    	window.location.href="contentView.jsp?user_num=<%=userNumString%>&locx="+lat+"&locy="+lng;
+  		    });
+  		    
+  		    return marker;
         });
 
         // Add a marker clusterer to manage the markers.
@@ -164,6 +173,8 @@
 	<div id="friends_List" class="col-md-2">
 		<%@ include file="friendsList.jsp"%>
 	</div>  
+
+	<%@ include file="./navbarCore.jsp" %>
 
 	<!-- Google Map Script -->
 	<script async defer

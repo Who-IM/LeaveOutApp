@@ -4,6 +4,7 @@
     pageEncoding="UTF-8"%>
 <%
 	PreparedStatement pstmt;
+	Connection con; // db 접속
     String sql = null;
     String usernum = null;
     String token = null;
@@ -21,7 +22,8 @@
     }else{
         // 토큰값 전달시 쿼리문 입력할곳임
         sql = "insert into fcm values(?,?) ON DUPLICATE KEY UPDATE user_num = ?";
-        pstmt = dbsql.getConnection().prepareStatement(sql);
+        con = dbsql.getConnection();
+        pstmt = con.prepareStatement(sql);
         
         pstmt.setString(1,usernum);
         pstmt.setString(2,token);
@@ -30,7 +32,7 @@
         pstmt.executeUpdate();//쿼리를 실행 하라는 명령어
         
 		if(pstmt!=null) try{pstmt.close();}catch(SQLException ex){}
-		if(dbsql.getConnection()!=null) try{dbsql.getConnection().close();}catch(SQLException ex){}
+		if(con!=null) try{con.close();}catch(SQLException ex){}
 		// System.out.println("등록완료");
     }
 %>

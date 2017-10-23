@@ -16,7 +16,7 @@ import java.net.URL;
 
 public class WebControll {
 
-    public static String WEB_IP = "http://172.19.1.226:8080";
+    public static String WEB_IP = "http://172.19.2.72:8080";
 
     public JSONObject WebLoad(JSONObject request) {
         HttpURLConnection mCon = null;

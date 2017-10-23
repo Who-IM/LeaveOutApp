@@ -77,17 +77,17 @@
 	%>
 	
 	<%
-		PreparedStatement locst=null;
-		ResultSet locrs=null;
+		PreparedStatement locationst=null;
+		ResultSet locationrs=null;
 		
 		try {
-			locst=conn.prepareStatement("SELECT name FROM user WHERE user_num = ?");
-			locst.setString(1,userNumString);
-			locrs=locst.executeQuery();
+			locationst=conn.prepareStatement("SELECT name FROM user WHERE user_num = ?");
+			locationst.setString(1,userNumString);
+			locationrs=locationst.executeQuery();
   		
-			if(locrs.next()){
+			if(locationrs.next()){
 				//sesson-OK
-				userNameString = locrs.getString("name");
+				userNameString = locationrs.getString("name");
 			}
 			else {
 				out.println("<script>");

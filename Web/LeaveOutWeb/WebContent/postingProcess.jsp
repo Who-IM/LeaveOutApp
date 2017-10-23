@@ -48,6 +48,12 @@
 	
 	MultipartRequest multi = new MultipartRequest(request,
 				uploadPath, size, "EUC-KR", new DefaultFileRenamePolicy());
+	
+	Enumeration files = multi.getFileNames();
+	String fname = (String)files.nextElement();
+	String fileName = multi.getFilesystemName(fname);
+	
+	
 	String userNumString = multi.getParameter("user_num"); 
 	String uploadedContentString = multi.getParameter("uploadContent");
 	String selectedCheckString = multi.getParameter("selectCheck");
@@ -74,7 +80,7 @@
 		}
 		else {
 			out.println("<script>");
-			out.println("alert('�������� �ʴ� ȸ���Դϴ�.');");
+			out.println("alert('dd');");
 			out.println("location.href='index.jsp'");
 			out.println("</script>");
 		}
@@ -102,6 +108,7 @@
 		System.out.println(e.toString());
 	}
 	
+	String copyFilepath;
 	try {
 		pstmt9=conn.prepareStatement("SELECT max(content_num) as content_num FROM content");
 		rs9=pstmt9.executeQuery();
@@ -113,6 +120,7 @@
 		}
 	
 		textfile = textfile + "/" + max_num;
+		copyFilepath = textfile;
 		File temp = new File(textfile);
 		if(!temp.exists()) {
 			temp.mkdirs();
@@ -129,7 +137,10 @@
 		
 		String commetseq = "/leaveout/files/"+userNumString+"/content/"+max_num;
 		
+		File beforeFile = new File(uploadPath + "/" + fileName);
+		File afterFile = new File(copyFilepath + "/1.jpg");
 		
+		beforeFile.renameTo(afterFile);
 
 		PreparedStatement pstmt10=null;
 		ResultSet rs10=null;
@@ -302,7 +313,6 @@
     </script>
 	  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>
-	
 	
 	</body>
 </html>  

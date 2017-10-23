@@ -408,55 +408,9 @@ public class MainActivity extends MapAPIActivity {
                 holder.name = (TextView) convertView.findViewById(R.id.menu_text);
                 holder.email = (TextView) convertView.findViewById(R.id.menu_profile_myemail);
 
-                // 친구 목록일 경우
-                if(position == 2) {
-                    // 매뉴 친구목록 인스턴스
-                    friend_open_list = (ImageButton) convertView.findViewById(R.id.menu_friend_open_list);
-                    friend_open_list.setVisibility(View.VISIBLE);
 
-                    menu_friend_list = (ListView) convertView.findViewById(R.id.menu_friend_listview);
-                    menu_adapter = new menu_friend_Adapter(MainActivity.this);
-                    menu_friend_list.setAdapter(menu_adapter);
-                    menu_friend_list.addHeaderView(header);  // header 등록
-                    menu_friend_list.addFooterView(footer);  // footer 등록
-
-                    // header와 footer 터치 안되게 하기
-                    header.setOnTouchListener(new View.OnTouchListener() {
-                        @Override
-                        public boolean onTouch(View v, MotionEvent event) {
-                            return true; // 기본값 false -> true(클릭 안되게)
-                        }
-                    });
-                    footer.setOnTouchListener(new View.OnTouchListener() {
-                        @Override
-                        public boolean onTouch(View v, MotionEvent event) {
-                            Intent it = new Intent(getApplicationContext(), FriendListActivity.class);
-                            startActivity(it);
-                            return false;
-                        }
-                    });
-
-                    // 데이터 셋팅
- /*                   menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"허성문");
-                    menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"김창석");
-                    menu_adapter.addItem(getResources().getDrawable(R.drawable.basepicture, null),"최수용");*/
-                    setListViewHeightBasedOnChildren(menu_friend_list); // 펼쳐보기
-                    menu_friend_list.setVisibility(View.GONE);          // 초기값은 안보이게
-
-                    // image button 클릭시 listview open
-                    friend_open_list.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if(menu_friend_list.getVisibility() == View.GONE)
-                                menu_friend_list.setVisibility(View.VISIBLE);
-                            else {
-                                menu_friend_list.setVisibility(View.GONE);
-                            }
-                        }
-                    });
-                }
                 //친구 추가
-                else if(position == 3) {
+                if(position == 3) {
                     holder.count = (TextView) convertView.findViewById(R.id.menu_friend_count);
                     // 친구 요청 갯수 DB에서 확인
                     final menu_ViewHolder tempholder = holder;
